@@ -1,0 +1,51 @@
+# .gitignore lists file types to be ignored during a Github commit.
+
+# Initial Source - https://gist.github.com/octocat/9257657
+# Second Source - https://github.com/slu-openGIS/areal/blob/master/.gitignore
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+# OS generated files #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# R files #
+###########
+.Rapp.history
+.Rhistory
+.RData
+.Rproj.user
+*.dcf
+*.ttc
+inst/doc
+/revdep/.cache.rds
+write-test-a3b656b4-5b54-4a6f-a6af-49570c71282d
