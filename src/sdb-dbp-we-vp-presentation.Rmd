@@ -1774,9 +1774,9 @@ if(test == FALSE) {
 }
 
 ggplot(vp_weekDay, aes(x=weekday, y=n, group = 1)) +
-    geom_line(color="blue") +
-    geom_point() +
-    xlab("Day of Week") + ylab("Total Crimes")
+  geom_line(color="blue") +
+  geom_point() +
+  xlab("Day of Week") + ylab("Total Crimes")
 
 ggsave(here("results", params$year, params$month, "vp", "vp_crime_weekday_graph.jpeg"), dpi = 500)
 ```
