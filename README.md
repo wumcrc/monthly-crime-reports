@@ -33,9 +33,10 @@ In it's original form, the St. Louis Metropolitan Police Department (SLMPD) crim
 
 ## Acknowledgements
 
-[`compstatr`](https://slu-opengis.github.io/compstatr/index.html) was developed by [Christopher Prener, Ph.D.](https://chris-prener.github.io/) & the [SLU Data Science Seminar openGIS Project](https://github.com/slu-openGIS). This automation would not be possible without the `compstatr` package.
+This automation would not be possible without the [`compstatr`](https://slu-opengis.github.io/compstatr/index.html) package.
+[`compstatr`](https://slu-opengis.github.io/compstatr/index.html) was developed by [Christopher Prener, Ph.D.](https://chris-prener.github.io/) & the [SLU Data Science Seminar openGIS Project](https://github.com/slu-openGIS).
 
-### About Washington University Medical Center Redevelopment Corporation
+## About Washington University Medical Center Redevelopment Corporation
 
 **WUMCRC** is a partnership between **BJC HealthCare** and **Washington University School of Medicine**, working to improve the quality of life for the neighborhoods surrounding the medical campus. In order to achieve this goal in **Forest Park Southeast** and the **Central West End**, **WUMCRC** has invested millions of dollars toward regenerating the market for private investment in businesses and real estate, enhancing human and social service opportunities, and improving the level of physical and personal security.
 
