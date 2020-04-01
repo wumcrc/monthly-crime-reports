@@ -11,7 +11,12 @@ In it's original form, the St. Louis Metropolitan Police Department (SLMPD) crim
 1. You will need [R](https://www.r-project.org/), it can be downloaded from it's [website](https://cloud.r-project.org/)
 2. Clone this repository.
 3. Open the `monthly-crime-reports.Rproj` file.
-4. Open the `data-creation.Rmd` file located in the [/source](https://github.com/wumcrc/monthly-crime-reports/tree/master/source) folder. 
+4. Open the `data-creation.Rmd` file, the `fpse-bot-cwe-mc-presentation.Rmd`, `sdb-dbp-we-vp-presentation.Rmd`, and `ac-fp-lp-vd-presentation.Rmd` files, located in the [/source](https://github.com/wumcrc/monthly-crime-reports/tree/master/source) folder.
+5. Run the `data-creation.Rmd` file first.
+6. Then run the following files.
+* `fpse-bot-cwe-mc-presentation.Rmd`
+* `sdb-dbp-we-vp-presentation.Rmd`
+* `ac-fp-lp-vd-presentation.Rmd`
 
 ## Repository Contents
 
