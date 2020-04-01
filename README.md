@@ -6,15 +6,19 @@ One way we work to improve the level of physical & personal security is the anal
 
 In it's original form the St. Louis Metropolitan Police Department (SLMPD) crime data is downloadable as a `csv` file. The data itself is also unorganized and challenging to work with. In an effort to simplify & reduce the time it takes to compile our reports, `r`, `tidyverse`, and `compstatr` are all packages that streamline and help our process. This project utilizes these resources for accessing and cleaning the data, with the eventual goal of automating the majority of our reports.
 
-## Acknowledgements
+# To Reproduce this Analysis
 
-[`compstatr`](https://slu-opengis.github.io/compstatr/index.html) was developed by [Christopher Prener, Ph.D.](https://chris-prener.github.io/) & the [SLU Data Science Seminar openGIS Project](https://github.com/slu-openGIS). This automation would not be possible without the `compstatr` package.
+
 
 ## Repository Contents
 
 *   `/notebook` - Base Files and Rendered Files for the __r-crime-mapping__ project.
 *   `LICENSE`
 *   `README`
+
+## Acknowledgements
+
+[`compstatr`](https://slu-opengis.github.io/compstatr/index.html) was developed by [Christopher Prener, Ph.D.](https://chris-prener.github.io/) & the [SLU Data Science Seminar openGIS Project](https://github.com/slu-openGIS). This automation would not be possible without the `compstatr` package.
 
 ### About Washington University Medical Center Redevelopment Corporation
 
