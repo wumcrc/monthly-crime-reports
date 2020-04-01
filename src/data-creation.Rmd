@@ -4,9 +4,9 @@ author: "Jes Stevens, M.A."
 date: '(`r format(Sys.time(), "%B %d, %Y")`)'
 output:
 params:
-  month: February
-  pastyear: 2019
-  year: 2020 
+  month: February                     # Refers to the month throughout the .Rmd Document | Change this to reflect the month you are analyzing
+  pastyear: 2019                      # Refers to the previous year throughout the .Rmd Document | Change this when your year changes
+  year: 2020                          # Refers to the current year you are analyzing | Change this when your year changes
   ytd: "2020-01-01"                   # Compiles Year to Date Dataset for this year | Leave at January 1st 2020
   date: "2020-02-01"                  # Pulls in the data for the most recent month | Change this each month
   pastdate: "2019-01-01"              # Compiles Year to Date Dataset for previous year | Leave at January 1st 2019
@@ -51,12 +51,15 @@ library(janitor)      # tools for examining data
 dst2 <- c(7:15,27:29, 39:45,81,82,87,88)      # These are the neighborhoods that make up Police District 2
 dst5 <- c(38,46:58,78)                        # These are the neighborhoods that make up Police District 5
 
-load(here("data/nbhd_pop10.rda"))
+load(here("data/nbhd_pop10.rda"))             # Loads neighborhood population data from the 2010 Census
 ```
 
 ## Create Folders for Final Output
 
 ```{r}
+# This code chunk creates the appropriate folder paths that are referred to in all of the .Rmd documents. 
+# This code is necessary to knit and compile the powerpoint presentations.
+
 here()
 dir.create(getwd())
 dir.create(here(file.path("results", params$year, params$month)))
@@ -170,8 +173,9 @@ monthCrimes20 <- ytdCrimes20 %>%
 ##### Larcenies 
 
 ```{r}
-# The following code filters out a dataset for an analysis of larcenies. It then adds a categorical variable based the type of larceny found in the description 
-# variable. It also adds another variable that categorizes the value of the larceny. 
+# The following code filters out a dataset for an analysis of larcenies. 
+# It then adds a categorical variable based the type of larceny found in the description variable. 
+# It also adds another variable that categorizes the value of the larceny. 
 
 larceny <- monthCrimes20 %>% 
   filter(., crimeCatNum == 6)
@@ -195,6 +199,9 @@ larceny <- mutate(larceny, "value" = ifelse(grepl("UNDER", description), "Under 
 #### 2019
 
 ```{r Total Crimes for 2019 Tidied}
+# The following code tidies a dataset for an comparative analysis for crimes that occurred in 2019.
+# It is formated to match the current year's dataset. 
+
 totalCrimes19 <- totalCrimes19 %>% 
   cs_filter_count(., var = count) %>%
   cs_filter_crime(., var = crime, "part 1") %>%
@@ -326,7 +333,10 @@ save(totalCrimes19_sf, ytdCrimes19_sf, ytdCrimes20_sf, monthCrimes19_sf, monthCr
 save(ytdCrimes19, ytdCrimes20, monthCrimes19, monthCrimes20, totalCrimes19, larceny, mc_crimes_month19, mc_crimes_month20, mc_crimes_ytd19, mc_crimes_total19, mc_crimes_ytd20, mc_larcenies, dst_2, dst_5, file = here("data", "crime-data.rda"))
 
 ```
+
 ```{r}
+# This code cleans our Global Environment.
+
 rm(list = ls())
 ```
 
