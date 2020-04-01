@@ -19,9 +19,9 @@ In it's original form, the St. Louis Metropolitan Police Department (SLMPD) crim
    * `ac-fp-lp-vd-presentation.Rmd`
 5. Run the `data-creation.Rmd` file first.
 6. Then run the following files.
-  * `fpse-bot-cwe-mc-presentation.Rmd`
-  * `sdb-dbp-we-vp-presentation.Rmd`
-  * `ac-fp-lp-vd-presentation.Rmd`
+   * `fpse-bot-cwe-mc-presentation.Rmd`
+   * `sdb-dbp-we-vp-presentation.Rmd`
+   * `ac-fp-lp-vd-presentation.Rmd`
 
 
 
