@@ -8,15 +8,22 @@ In it's original form, the St. Louis Metropolitan Police Department (SLMPD) crim
 
 # To Reproduce this Analysis
 
-1. You will need [R](https://www.r-project.org/), it can be downloaded from it's [website](https://cloud.r-project.org/)
+1. You will need [R](https://www.r-project.org/), it can be downloaded from it's [website](https://cloud.r-project.org/).
+2. You will also need [RStudio](https://rstudio.com/), it can be downloaded from it's [website](https://rstudio.com/products/rstudio/download/).
 2. Clone this repository.
-3. Open the `monthly-crime-reports.Rproj` file.
-4. Open the `data-creation.Rmd` file, the `fpse-bot-cwe-mc-presentation.Rmd`, `sdb-dbp-we-vp-presentation.Rmd`, and `ac-fp-lp-vd-presentation.Rmd` files, located in the [/source](https://github.com/wumcrc/monthly-crime-reports/tree/master/source) folder.
+3. Open the `monthly-crime-reports.Rproj` file with [RStudio](https://rstudio.com/).
+4. Within [RStudio](https://rstudio.com/) open the following files. located in the [/source](https://github.com/wumcrc/monthly-crime-reports/tree/master/source) folder.
+   * `data-creation.Rmd`
+   * `fpse-bot-cwe-mc-presentation.Rmd`
+   * `sdb-dbp-we-vp-* * presentation.Rmd`
+   * `ac-fp-lp-vd-presentation.Rmd`
 5. Run the `data-creation.Rmd` file first.
 6. Then run the following files.
-* `fpse-bot-cwe-mc-presentation.Rmd`
-* `sdb-dbp-we-vp-presentation.Rmd`
-* `ac-fp-lp-vd-presentation.Rmd`
+  * `fpse-bot-cwe-mc-presentation.Rmd`
+  * `sdb-dbp-we-vp-presentation.Rmd`
+  * `ac-fp-lp-vd-presentation.Rmd`
+
+
 
 ## Repository Contents
 
