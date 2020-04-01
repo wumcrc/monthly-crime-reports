@@ -4,11 +4,14 @@
 
 One way we work to improve the level of physical & personal security is the analysis and distribution of crime data. The original source of the crime data is found here: <http://slmpd.org/crimereports.shtml>. If you have questions regarding the crime data visit <http://slmpd.org/Crime/CrimeDataFrequentlyAskedQuestions.pdf>.
 
-In it's original form the St. Louis Metropolitan Police Department (SLMPD) crime data is downloadable as a `csv` file. The data itself is also unorganized and challenging to work with. In an effort to simplify & reduce the time it takes to compile our reports, `r`, `tidyverse`, and `compstatr` are all packages that streamline and help our process. This project utilizes these resources for accessing and cleaning the data, with the eventual goal of automating the majority of our reports.
+In it's original form, the St. Louis Metropolitan Police Department (SLMPD) crime data is downloadable as a `csv` file. The data itself is also unorganized and challenging to work with. In an effort to simplify & reduce the time it takes to compile our reports, `r`, `tidyverse`, and `compstatr` are all packages that streamline and help our process. This project utilizes these resources for accessing and cleaning the data, with the eventual goal of automating the majority of our reports.
 
 # To Reproduce this Analysis
 
-
+1. You will need [R](https://www.r-project.org/), it can be downloaded from it's [website](https://cloud.r-project.org/)
+2. Clone this repository.
+3. Open the `monthly-crime-reports.Rproj` file.
+4. Open the `data-creation.Rmd` file located in the `[/source](https://github.com/wumcrc/monthly-crime-reports/tree/master/source)` folder. 
 
 ## Repository Contents
 
