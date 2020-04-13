@@ -1,17 +1,17 @@
 ---
 title: "Skinker DeBaliviere, DeBaliviere Place, West End, Visitation Park"
-subtitle: "Monthly Crime report: January 2020" 
+subtitle: "Monthly Crime report: March 2020" 
 author: "Washington University Medical Center"
 date: '(`r format(Sys.time(), "%B %d, %Y")`)'
 output:
   powerpoint_presentation
 always_allow_html: yes
 params:
-  month: February
+  month: March
   pastyear: 2019
   year: 2020
-  date: "2020-02-01"
-  pastdate: "2019-02-01"
+  date: "2020-03-01"
+  pastdate: "2019-03-01"
 ---
 
 ```{r setup, include=FALSE}

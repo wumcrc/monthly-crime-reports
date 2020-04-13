@@ -4,14 +4,14 @@ author: "Jes Stevens, M.A."
 date: '(`r format(Sys.time(), "%B %d, %Y")`)'
 output:
 params:
-  month: February                     # Refers to the month throughout the .Rmd Document | Change this to reflect the month you are analyzing
+  month: March                   # Refers to the month throughout the .Rmd Document | Change this to reflect the month you are analyzing
   pastyear: 2019                      # Refers to the previous year throughout the .Rmd Document | Change this when your year changes
   year: 2020                          # Refers to the current year you are analyzing | Change this when your year changes
   ytd: "2020-01-01"                   # Compiles Year to Date Dataset for this year | Leave at January 1st 2020
-  date: "2020-02-01"                  # Pulls in the data for the most recent month | Change this each month
+  date: "2020-03-01"                  # Pulls in the data for the most recent month | Change this each month
   pastdate: "2019-01-01"              # Compiles Year to Date Dataset for previous year | Leave at January 1st 2019
-  pstdtmonth: "2019-02-01"            # Compiles Data for the most recent month of the previous year | This is the first day of the month
-  pstdtmonth2: "2019-02-28"           # Compiles Data for the most recent month of the previous year | This is the last day of month | Must be the 30th or 31st
+  pstdtmonth: "2019-03-01"            # Compiles Data for the most recent month of the previous year | This is the first day of the month
+  pstdtmonth2: "2019-03-31"           # Compiles Data for the most recent month of the previous year | This is the last day of month | Must be the 30th or 31st
 ---
 
 ```{r setup, include=FALSE}
@@ -52,6 +52,7 @@ dst2 <- c(7:15,27:29, 39:45,81,82,87,88)      # These are the neighborhoods that
 dst5 <- c(38,46:58,78)                        # These are the neighborhoods that make up Police District 5
 
 load(here("data/nbhd_pop10.rda"))             # Loads neighborhood population data from the 2010 Census
+cs_last_update(output = "string")
 ```
 
 ## Create Folders for Final Output
