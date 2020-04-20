@@ -12,11 +12,15 @@ In it's original form, the St. Louis Metropolitan Police Department (SLMPD) crim
 2. You will also need [RStudio](https://rstudio.com/), it can be downloaded from it's [website](https://rstudio.com/products/rstudio/download/).
 2. Clone this repository.
 3. Open the `monthly-crime-reports.Rproj` file with [RStudio](https://rstudio.com/).
-4. Within [RStudio](https://rstudio.com/) open the following files. located in the [/source](https://github.com/wumcrc/monthly-crime-reports/tree/master/source) folder.
+4. Within [RStudio](https://rstudio.com/) open the following files - located in the [/source](https://github.com/wumcrc/monthly-crime-reports/tree/master/source) folder.
    * `data-creation.Rmd`
    * `fpse-bot-cwe-mc-presentation.Rmd`
    * `sdb-dbp-we-vp-* * presentation.Rmd`
    * `ac-fp-lp-vd-presentation.Rmd`
+5. After opening the `data-creation.Rmd` review the `YAML`
+   * The first section of an R Markdown document is called the YAML. The document title, author, date of the document, among other options for the entire document can be set in the YAML. The user can also set specific parameters to be referenced throughout the document. You can learn/read more about the YAML in an R Markdown document [here](https://r4ds.had.co.nz/r-markdown.html#yaml-header).
+   * This section is important to note becuase there are parameters that you will need to change if you'd like to run this report for a different timeframe. 
+6. Make any appropriate changes to the `YAML`, reviewing the comments on lines 7 through 14. 
 5. Run the `data-creation.Rmd` file first.
 6. Then run the following files.
    * `fpse-bot-cwe-mc-presentation.Rmd`
