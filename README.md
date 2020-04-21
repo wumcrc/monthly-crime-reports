@@ -34,9 +34,9 @@ In it's original form, the St. Louis Metropolitan Police Department (SLMPD) crim
 
 ## Repository Contents
 
-*   `/data`    - 
-*   `/results` -
-*   `/source`  - Base Files and Rendered Files for the __r-crime-mapping__ project.
+*   `/data`    - Directory and sub-folders of base data for mapping
+*   `/results` - Directory and sub folders of final results
+*   `/source`  - Source Code Files for the __monthly-crime-reports__ project.
 *   `LICENSE`
 *   `README`
 
