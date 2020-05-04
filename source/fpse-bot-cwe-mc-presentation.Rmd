@@ -69,6 +69,12 @@ wkdys <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 #tmap_options()
 ```
 
+```{r plot color palette, inlude = FALSE}
+cols <- c("Aggravated Assault" = "#e41a1c", "Arson" = "#A65628", "Burgalry" = "#377eb8", 
+          "Homicide" = "#FFFF33", "Larceny" = "#4DAF4A", "Motor Vehicle Theft" = "#984EA3", 
+          "Robbery" = "#FF7F00") 
+```
+
 ## Forest Park Southeast: Summary Notes
 
 ```{r FPSE Summary Prep, include=FALSE}
@@ -244,6 +250,18 @@ flextable(fpse_dayNight) %>%
 
 ## Forest Park Southeast: Total Crime Map
 
+```{r FPSE color palette, include = FALSE}
+sub <- filter(monthCrimes20_sf, neighborhood == 39)
+col <- character(0)
+if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
+if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
+if("Burgalry" %in% sub$crimeCatName){col <- c(col, "Burgalry" = "#377eb8")}
+if("Homicide" %in% sub$crimeCatName){col <- c(col, "Homicide" = "#FFFF33")}
+if("Larceny" %in% sub$crimeCatName){col <- c(col, "Larceny" = "#4DAF4A")}
+if("Motor Vehicle Theft" %in% sub$crimeCatName){col <- c(col, "Motor Vehicle Theft" = "#984EA3")}
+if("Robbery" %in% sub$crimeCatName){col <- c(col, "Robbery" = "#FF7F00")}
+```
+
 ```{r FPSE Total Crime Prep, include = FALSE}
 tm_shape(fpse_tiles) +
   tm_rgb() +
@@ -260,7 +278,7 @@ tm_shape(fpse_tiles) +
   tm_shape() +
     tm_bubbles(size = .25,
                col = "crimeCatName",
-               palette = "Set1",
+               palette = col,
                title.col = "Part 1 Crimes") +
   tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
   tm_layout(
@@ -453,6 +471,18 @@ flextable(bot_dayNight) %>%
 
 ## Botanical Heights: Total Crime Map
 
+```{r BOT color palette, include = FALSE}
+sub <- filter(monthCrimes20_sf, neighborhood == 28)
+col <- character(0)
+if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
+if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
+if("Burgalry" %in% sub$crimeCatName){col <- c(col, "Burgalry" = "#377eb8")}
+if("Homicide" %in% sub$crimeCatName){col <- c(col, "Homicide" = "#FFFF33")}
+if("Larceny" %in% sub$crimeCatName){col <- c(col, "Larceny" = "#4DAF4A")}
+if("Motor Vehicle Theft" %in% sub$crimeCatName){col <- c(col, "Motor Vehicle Theft" = "#984EA3")}
+if("Robbery" %in% sub$crimeCatName){col <- c(col, "Robbery" = "#FF7F00")}
+```
+
 ```{r BOT Total Crime Prep, include = FALSE}
 tm_shape(bot_tiles) +
   tm_rgb() +
@@ -469,7 +499,7 @@ tm_shape(bot_tiles) +
   tm_shape() +
     tm_bubbles(size = .25,
                col = "crimeCatName",
-               palette = "Set1",
+               palette = col,
                title.col = "Part 1 Crimes") +
   tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
   tm_layout(
@@ -780,6 +810,18 @@ flextable(cwe_dayNight) %>%
 
 ## Central West End: Total Crime Map
 
+```{r CWE color palette, include = FALSE}
+sub <- filter(monthCrimes20_sf, neighborhood == 38)
+col <- character(0)
+if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
+if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
+if("Burgalry" %in% sub$crimeCatName){col <- c(col, "Burgalry" = "#377eb8")}
+if("Homicide" %in% sub$crimeCatName){col <- c(col, "Homicide" = "#FFFF33")}
+if("Larceny" %in% sub$crimeCatName){col <- c(col, "Larceny" = "#4DAF4A")}
+if("Motor Vehicle Theft" %in% sub$crimeCatName){col <- c(col, "Motor Vehicle Theft" = "#984EA3")}
+if("Robbery" %in% sub$crimeCatName){col <- c(col, "Robbery" = "#FF7F00")}
+```
+
 ```{r CWE Total Crime Prep, include = FALSE}
 tm_shape(cwe_tiles) +
   tm_rgb() +
@@ -796,7 +838,7 @@ tm_shape(cwe_tiles) +
   tm_shape() +
     tm_bubbles(size = .25,
                col = "crimeCatName",
-               palette = "Set1",
+               palette = col,
                title.col = "Part 1 Crimes") +
   tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
   tm_layout(
@@ -967,6 +1009,18 @@ flextable(mc_larcenies_val) %>%
 
 ## Washington University Medical Center: Total Crime Map
 
+```{r MC color palette, include = FALSE}
+sub <- filter(mc_crimes_month20_sf, neighborhood == 38)
+col <- character(0)
+if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
+if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
+if("Burgalry" %in% sub$crimeCatName){col <- c(col, "Burgalry" = "#377eb8")}
+if("Homicide" %in% sub$crimeCatName){col <- c(col, "Homicide" = "#FFFF33")}
+if("Larceny" %in% sub$crimeCatName){col <- c(col, "Larceny" = "#4DAF4A")}
+if("Motor Vehicle Theft" %in% sub$crimeCatName){col <- c(col, "Motor Vehicle Theft" = "#984EA3")}
+if("Robbery" %in% sub$crimeCatName){col <- c(col, "Robbery" = "#FF7F00")}
+```
+
 ```{r MC Total Crime Prep, include = FALSE}
 cwe_mc_tm <- tm_shape(mc_tiles) +
   tm_rgb() +
@@ -985,7 +1039,7 @@ cwe_mc_tm <- tm_shape(mc_tiles) +
   tm_shape(mc_crimes_month20_sf) +
     tm_bubbles(size = .25,
                col = "crimeCatName",
-               palette = "Set1",
+               palette = col,
                title.col = "Part 1 Crimes") +
   tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
   tm_layout(
@@ -1003,6 +1057,18 @@ knitr::include_graphics(here("results", params$year, params$month, "cwe", "mc_to
 ```
 
 ## Cortex: Total Crime Map
+
+```{r Cortex color palette, include = FALSE}
+sub <- filter(ctx_crimes_sf, neighborhood == 38)
+col <- character(0)
+if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
+if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
+if("Burgalry" %in% sub$crimeCatName){col <- c(col, "Burgalry" = "#377eb8")}
+if("Homicide" %in% sub$crimeCatName){col <- c(col, "Homicide" = "#FFFF33")}
+if("Larceny" %in% sub$crimeCatName){col <- c(col, "Larceny" = "#4DAF4A")}
+if("Motor Vehicle Theft" %in% sub$crimeCatName){col <- c(col, "Motor Vehicle Theft" = "#984EA3")}
+if("Robbery" %in% sub$crimeCatName){col <- c(col, "Robbery" = "#FF7F00")}
+```
 
 ```{r Cortex Total Crime Prep, include = FALSE}
 cwe_ctx_tm <- tm_shape(ctx_tiles) +
@@ -1022,7 +1088,7 @@ cwe_ctx_tm <- tm_shape(ctx_tiles) +
   tm_shape(ctx_crimes_sf) +
     tm_bubbles(size = .25,
                col = "crimeCatName",
-               palette = "Set1",
+               palette = col,
                title.col = "Part 1 Crimes") +
   tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
   tm_layout(
@@ -1239,9 +1305,20 @@ knitr::include_graphics(here("results", params$year, params$month, "fpse", "fpse
 
 ## Grove Community Improvement District: Total Crime Map
 
-```{r Grove CID Total Crime Prep, include = FALSE}
+```{r Grove CID color palette, include = FALSE}
 grove_crimes <- st_intersection(monthCrimes20_sf, grove_cid)
+sub <- filter(grove_crimes, neighborhood == 39)
+col <- character(0)
+if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
+if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
+if("Burgalry" %in% sub$crimeCatName){col <- c(col, "Burgalry" = "#377eb8")}
+if("Homicide" %in% sub$crimeCatName){col <- c(col, "Homicide" = "#FFFF33")}
+if("Larceny" %in% sub$crimeCatName){col <- c(col, "Larceny" = "#4DAF4A")}
+if("Motor Vehicle Theft" %in% sub$crimeCatName){col <- c(col, "Motor Vehicle Theft" = "#984EA3")}
+if("Robbery" %in% sub$crimeCatName){col <- c(col, "Robbery" = "#FF7F00")}
+```
 
+```{r Grove CID Total Crime Prep, include = FALSE}
 fpse_grove_tm <- tm_shape(grv_tiles) +
   tm_rgb() +
   nhoods_sf %>%
@@ -1259,7 +1336,7 @@ fpse_grove_tm <- tm_shape(grv_tiles) +
   tm_shape(grove_crimes) +
     tm_bubbles(size = .25,
                col = "crimeCatName",
-               palette = "Set1",
+               palette = col,
                title.col = "Part 1 Crimes") +
   tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
   tm_layout(
@@ -1379,9 +1456,12 @@ monthCrimes20 %>%
   group_by(crimeCatName, .drop = FALSE) %>%
   ggplot(., aes(weekday)) +
     geom_bar(aes(fill = crimeCatName), position=position_dodge(), colour="black") +
+    scale_colour_manual(
+    values = cols,
+    aesthetics = c("colour", "fill")
+    ) +
     xlab("Day of Week") + ylab("Total Crimes") +
-    labs(fill = "Part 1 Crimes") +
-    scale_fill_brewer(palette = "Spectral")
+    labs(fill = "Part 1 Crimes")
 
 ggsave(here("results", params$year, params$month, "fpse", "fpse_crimeCat_weekday_graph.jpeg"), dpi = 500)
 ```
@@ -1602,10 +1682,13 @@ monthCrimes20 %>%
   filter(., neighborhood == 38) %>%
   group_by(crimeCatName, .drop = FALSE) %>%
   ggplot(., aes(weekday)) +
+    scale_colour_manual(
+    values = cols,
+    aesthetics = c("colour", "fill")
+    ) +
     geom_bar(aes(fill = crimeCatName), position=position_dodge(), colour="black") +
     xlab("Day of Week") + ylab("Total Crimes") +
-    labs(fill = "Part 1 Crimes") +
-    scale_fill_brewer(palette = "Spectral")
+    labs(fill = "Part 1 Crimes")
 
 ggsave(here("results", params$year, params$month, "cwe", "cwe_crimeCat_weekday_graph.jpeg"), dpi = 500)
 ```
