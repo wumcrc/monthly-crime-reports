@@ -63,6 +63,7 @@ cs_last_update(output = "string")
 
 here()
 dir.create(getwd())
+dir.create(here(file.path("results", params$year)))
 dir.create(here(file.path("results", params$year, params$month)))
 dir.create(here(file.path("results", params$year, params$month, "ac")))
 dir.create(here(file.path("results", params$year, params$month, "bot")))
