@@ -32,7 +32,7 @@ library(scales)
 # spatial packages
 library(tmap)         # map layouts
 library(tmaptools)    # tools for handeling spatial
-library(oldtmaptools) # deprecated toolds for spatial analysis
+#library(oldtmaptools) # deprecated toolds for spatial analysis
 library(sf)           # spatial data tools
 library(ceramic)      # download online imagery tiles
 library(compstatr)    # tools for STL crime data
@@ -1721,7 +1721,7 @@ ggsave(here("results", params$year, params$month, "fpse", "fpse_crime_weekday_gr
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_crime_weekday_graph.jpeg"), width = 7, height = 5.45),
+  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_crime_weekday_graph.jpeg"), width = 9, height = 5.45),
           location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Forest Park Southeast: Total Crimes by Days of the Week", 
                location = ph_location_type(
@@ -1740,12 +1740,12 @@ monthCrimes20 %>%
     xlab("Time of Day") + ylab("Total Crimes") +
     labs(fill = "Time")
 
-ggsave(here("results", params$year, params$month, "fpse", "fpse_crime_timeDay_graph.jpeg"), dpi = 500)
+ggsave(here("results", params$year, params$month, "fpse", "fpse_crime_timeDay_graph.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_crime_timeDay_graph.jpeg"), width = 9, height = 5.45),
+  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_crime_timeDay_graph.jpeg"), width = 9, height = 5),
           location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Forest Park Southeast: Crimes by Time of Day", 
                location = ph_location_type(
@@ -1767,12 +1767,13 @@ monthCrimes20 %>%
     xlab("Day of Week") + ylab("Total Crimes") +
     labs(fill = "Part 1 Crimes")
 
-ggsave(here("results", params$year, params$month, "fpse", "fpse_crimeCat_weekday_graph.jpeg"), dpi = 500)
+ggsave(here("results", params$year, params$month, "fpse", "fpse_crimeCat_weekday_graph.jpeg"),
+       width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_crimeCat_weekday_graph.jpeg"), width = 9, height = 5.45),
+  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_crimeCat_weekday_graph.jpeg"), width = 9, height = 5),
           location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Forest Park Southeast: Crimes by Day & Category", 
                location = ph_location_type(
@@ -2012,12 +2013,12 @@ monthCrimes20 %>%
     xlab("Time of Day") + ylab("Total Crimes") +
     labs(fill = "Time")
 
-ggsave(here("results", params$year, params$month, "cwe", "cwe_crime_timeDay_graph.jpeg"), dpi = 500)
+ggsave(here("results", params$year, params$month, "cwe", "cwe_crime_timeDay_graph.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "cwe_crime_timeDay_graph.jpeg"), width = 9, height = 5.45),
+  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "cwe_crime_timeDay_graph.jpeg"), width = 9, height = 5),
           location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Central West End: Crimes by Time of Day", 
                location = ph_location_type(
@@ -2039,12 +2040,12 @@ monthCrimes20 %>%
     xlab("Day of Week") + ylab("Total Crimes") +
     labs(fill = "Part 1 Crimes")
 
-ggsave(here("results", params$year, params$month, "cwe", "cwe_crimeCat_weekday_graph.jpeg"), dpi = 500)
+ggsave(here("results", params$year, params$month, "cwe", "cwe_crimeCat_weekday_graph.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "cwe_crimeCat_weekday_graph.jpeg"), width = 9, height = 5.45),
+  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "cwe_crimeCat_weekday_graph.jpeg"), width = 9, height = 5),
           location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Central West End: Crimes by Day & Category", 
                location = ph_location_type(
@@ -2053,6 +2054,6 @@ report%>%
 
 ```{r}
 # save powerpoint report
-print(report, target = here::here("results", "presentations",  params$year, params$month,  "fpse-bot-cwe-mc-presentation.pptx"))
+print(report, target = here::here("results", "presentations",  params$year, params$month, paste("fpse-bot-cwe-mc-", params$month, params$year, ".pptx", sep = "")))
 ```
 
