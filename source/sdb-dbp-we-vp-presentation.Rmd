@@ -359,12 +359,12 @@ tm_shape(sdb_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom")) -> sdb_total_tm
 
-tmap_save(sdb_total_tm, file = here("results", params$year, params$month, "sdb", "sdb_total_tm.jpeg"), dpi = 500)
+tmap_save(sdb_total_tm, file = here("results", params$year, params$month, "sdb", "sdb_total_tm.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "sdb", "sdb_total_tm.jpeg"), width = 8.09, height = 6), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "sdb", "sdb_total_tm.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Skinker DeBaliviere: Total Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -621,12 +621,12 @@ tm_shape(dbp_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom")) -> dbp_total_tm
 
-tmap_save(dbp_total_tm, file = here("results", params$year, params$month, "dbp", "dbp_total_crimes.jpeg"), dpi = 500)
+tmap_save(dbp_total_tm, file = here("results", params$year, params$month, "dbp", "dbp_total_crimes.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "dbp", "dbp_total_crimes.jpeg"), width = 6.97, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "dbp", "dbp_total_crimes.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("DeBaliviere Place: Total Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -885,12 +885,12 @@ tm_shape(we_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom")) -> we_total_tm
 
-tmap_save(we_total_tm, file = here("results", params$year, params$month, "we", "we_total_crimes.jpeg"), dpi = 500)
+tmap_save(we_total_tm, file = here("results", params$year, params$month, "we", "we_total_crimes.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "we", "we_total_crimes.jpeg"), width = 9.5, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "we", "we_total_crimes.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("West End: Total Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1147,12 +1147,12 @@ tm_shape(vp_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom")) -> vp_total_tm
 
-tmap_save(vp_total_tm, file = here("results", params$year, params$month, "vp", "vp_total_tm.jpeg"), dpi = 500)
+tmap_save(vp_total_tm, file = here("results", params$year, params$month, "vp", "vp_total_tm.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "vp", "vp_total_tm.jpeg"), width = 5.31, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "vp", "vp_total_tm.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Visitation Park: Total Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1164,7 +1164,7 @@ report%>%
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "district-5", "dst5_rates.jpeg"), width = 7.1, height = 6.6), location = ph_location_type(type="title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "district-5", "dst5_rates.jpeg"), width = 9, height = 5), location = ph_location_type(type="body"), use_loc_size = FALSE)%>%
   ph_with("District 5: Crime Rates Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1288,12 +1288,12 @@ sdb_dn_tm <- tm_shape(sdb_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(sdb_dn_tm, file = here("results", params$year, params$month, "sdb", "sdb_day_night.jpeg"), dpi = 500)
+tmap_save(sdb_dn_tm, file = here("results", params$year, params$month, "sdb", "sdb_day_night.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "sdb", "sdb_day_night.jpeg"), width = 8.09, height = 6), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "sdb", "sdb_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Skinker DeBaliviere: Time of Crimes Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1327,12 +1327,12 @@ sdb_vlnt_tm <- tm_shape(sdb_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(sdb_vlnt_tm, file = here("results", params$year, params$month, "sdb", "sdb_vlnt.jpeg"), dpi = 500)
+tmap_save(sdb_vlnt_tm, file = here("results", params$year, params$month, "sdb", "sdb_vlnt.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "sdb", "sdb_vlnt.jpeg"), width = 8.09, height = 6), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "sdb", "sdb_vlnt.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Skinker DeBaliviere: Violent Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1367,12 +1367,12 @@ sdb_den_tm <- tm_shape(sdb_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(sdb_den_tm, file = here("results", params$year, params$month, "sdb", "sdb_density.jpeg"), dpi = 500)
+tmap_save(sdb_den_tm, file = here("results", params$year, params$month, "sdb", "sdb_density.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "sdb", "sdb_density.jpeg"), width = 8.09, height = 6), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "sdb", "sdb_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Skinker DeBaliviere: Crime Density Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1559,12 +1559,12 @@ dbp_dn_tm <- tm_shape(dbp_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(dbp_dn_tm, file = here("results", params$year, params$month, "dbp", "dbp_day_night.jpeg"), dpi = 500)
+tmap_save(dbp_dn_tm, file = here("results", params$year, params$month, "dbp", "dbp_day_night.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "dbp", "dbp_day_night.jpeg"), width = 6.97, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "dbp", "dbp_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("DeBaliviere Place: Time of Crimes map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1598,12 +1598,12 @@ dbp_vlnt_tm <- tm_shape(dbp_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(dbp_vlnt_tm, file = here("results", params$year, params$month, "dbp", "dbp_vlnt.jpeg"), dpi = 500)
+tmap_save(dbp_vlnt_tm, file = here("results", params$year, params$month, "dbp", "dbp_vlnt.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "dbp", "dbp_vlnt.jpeg"), width = 6.97, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "dbp", "dbp_vlnt.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("DeBaliviere Place: Violent Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1638,12 +1638,12 @@ dbp_den_tm <- tm_shape(dbp_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(dbp_den_tm, file = here("results", params$year, params$month, "dbp", "dbp_density.jpeg"), dpi = 500)
+tmap_save(dbp_den_tm, file = here("results", params$year, params$month, "dbp", "dbp_density.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "dbp", "dbp_density.jpeg"), width = 6.97, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "dbp", "dbp_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("DeBaliviere Place: Crime Density Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1830,12 +1830,12 @@ we_dn_tm <- tm_shape(we_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(we_dn_tm, file = here("results", params$year, params$month, "we", "we_day_night.jpeg"), dpi = 500)
+tmap_save(we_dn_tm, file = here("results", params$year, params$month, "we", "we_day_night.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "we", "we_day_night.jpeg"), width = 9.5, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "we", "we_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("West End: Time of Crimes Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1869,12 +1869,12 @@ we_vlnt_tm <- tm_shape(we_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(we_vlnt_tm, file = here("results", params$year, params$month, "we", "we_vlnt.jpeg"), dpi = 500)
+tmap_save(we_vlnt_tm, file = here("results", params$year, params$month, "we", "we_vlnt.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "we", "we_vlnt.jpeg"), width = 9.5, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "we", "we_vlnt.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("West End: Violent Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1909,12 +1909,12 @@ we_den_tm <- tm_shape(we_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(we_den_tm, file = here("results", params$year, params$month, "we", "we_density.jpeg"), dpi = 500)
+tmap_save(we_den_tm, file = here("results", params$year, params$month, "we", "we_density.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "we", "we_density.jpeg"), width = 9.5, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "we", "we_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("West End: Crime Density", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -2101,12 +2101,12 @@ vp_dn_tm <- tm_shape(vp_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(vp_dn_tm, file = here("results", params$year, params$month, "vp", "vp_day_night.jpeg"), dpi = 500)
+tmap_save(vp_dn_tm, file = here("results", params$year, params$month, "vp", "vp_day_night.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "vp", "vp_day_night.jpeg"), width = 5.31, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "vp", "vp_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Visitation Park: Time of Crimes Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -2140,12 +2140,12 @@ vp_vlnt_tm <- tm_shape(vp_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(vp_vlnt_tm, file = here("results", params$year, params$month, "vp", "vp_vlnt.jpeg"), dpi = 500)
+tmap_save(vp_vlnt_tm, file = here("results", params$year, params$month, "vp", "vp_vlnt.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "vp", "vp_vlnt.jpeg"), width = 5.31, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "vp", "vp_vlnt.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Visitation Park: Time of Crimes Map", 
                location = ph_location_type(
                  type = "title") )-> report

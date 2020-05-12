@@ -361,12 +361,12 @@ tm_shape(fpse_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom")) -> fpse_total_tm
 
-tmap_save(fpse_total_tm, file = here("results", params$year, params$month, "fpse", "fpse_total_tm.jpeg"), dpi = 500)
+tmap_save(fpse_total_tm, file = here("results", params$year, params$month, "fpse", "fpse_total_tm.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_total_tm.jpeg"), width = 9.24, height = 7.47), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_total_tm.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Forest Park Southeast: Total Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -625,12 +625,12 @@ tm_shape(bot_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom")) -> bot_total_tm
 
-tmap_save(bot_total_tm, file = here("results", params$year, params$month, "bot", "bot_total_crimes.jpeg"), dpi = 500)
+tmap_save(bot_total_tm, file = here("results", params$year, params$month, "bot", "bot_total_crimes.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "bot", "bot_total_crimes.jpeg"), width = 8.52, height = 6.82), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "bot", "bot_total_crimes.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Botanical Heights: Total Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -689,13 +689,13 @@ dst2_rateMap <- tm_shape(dst2_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(dst2_rateMap, file = here("results", params$year, params$month, "district-2", "dst2_rates.jpeg"), dpi = 500)
+tmap_save(dst2_rateMap, file = here("results", params$year, params$month, "district-2", "dst2_rates.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "district-2", "dst2_rates.jpeg"), width = 6.03, height = 7.5),
-          location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "district-2", "dst2_rates.jpeg"), width = 9, height = 5),
+          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("District 2: Crime Rates Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1035,12 +1035,12 @@ tm_shape(cwe_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom")) -> cwe_total_tm
 
-tmap_save(cwe_total_tm, file = here("results", params$year, params$month, "cwe", "cwe_total_crimes.jpeg"), dpi = 500)
+tmap_save(cwe_total_tm, file = here("results", params$year, params$month, "cwe", "cwe_total_crimes.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "cwe_total_crimes.jpeg"), width = 9.5, height = 7.5), location = ph_location_type(type="title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "cwe_total_crimes.jpeg"), width = 9, height = 5), location = ph_location_type(type="body"), use_loc_size = FALSE)%>%
   ph_with("Central West End: Total Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1279,12 +1279,12 @@ cwe_mc_tm <- tm_shape(mc_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(cwe_mc_tm, file = here("results", params$year, params$month, "cwe", "mc_total_crimes.jpeg"), dpi = 500)
+tmap_save(cwe_mc_tm, file = here("results", params$year, params$month, "cwe", "mc_total_crimes.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "mc_total_crimes.jpeg"), width = 8.11, height = 6.75), location = ph_location_type(type="body"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "mc_total_crimes.jpeg"), width = 9, height = 5), location = ph_location_type(type="body"), use_loc_size = FALSE)%>%
   ph_with("Washington University Medical Center: Total Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1332,12 +1332,12 @@ cwe_ctx_tm <- tm_shape(ctx_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(cwe_ctx_tm, file = here("results", params$year, params$month, "cwe", "ctx_total_crimes.jpeg"), dpi = 500)
+tmap_save(cwe_ctx_tm, file = here("results", params$year, params$month, "cwe", "ctx_total_crimes.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "ctx_total_crimes.jpeg"), width = 9.12, height = 6.27), location = ph_location_type(type="title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "ctx_total_crimes.jpeg"), width = 9, height = 5), location = ph_location_type(type="body"), use_loc_size = FALSE)%>%
   ph_with("Cortex: Total Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1361,12 +1361,12 @@ dst5_rateMap <- tm_shape(dst5_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(dst5_rateMap, file = here("results", params$year, params$month, "district-5", "dst5_rates.jpeg"), dpi = 500)
+tmap_save(dst5_rateMap, file = here("results", params$year, params$month, "district-5", "dst5_rates.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "district-5", "dst5_rates.jpeg"), width = 7.1, height = 6.6), location = ph_location_type(type="title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "district-5", "dst5_rates.jpeg"), width = 9, height = 5), location = ph_location_type(type="body"), use_loc_size = FALSE)%>%
   ph_with("District 5: Crime Rates Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1492,12 +1492,12 @@ fpse_dn_tm <- tm_shape(fpse_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(fpse_dn_tm, file = here("results", params$year, params$month, "fpse", "fpse_day_night.jpeg"), dpi = 500)
+tmap_save(fpse_dn_tm, file = here("results", params$year, params$month, "fpse", "fpse_day_night.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_day_night.jpeg"), width = 9.24, height = 7.47), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Forest Park Southeast: Time of Crimes Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1531,12 +1531,12 @@ fpse_vlnt_tm <- tm_shape(fpse_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(fpse_vlnt_tm, file = here("results", params$year, params$month, "fpse", "fpse_vlnt.jpeg"), dpi = 500)
+tmap_save(fpse_vlnt_tm, file = here("results", params$year, params$month, "fpse", "fpse_vlnt.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_vlnt.jpeg"), width = 9.24, height = 7.47), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_vlnt.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Forest Park Southeast: Violent Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1571,12 +1571,12 @@ fpse_den_tm <- tm_shape(fpse_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(fpse_den_tm, file = here("results", params$year, params$month, "fpse", "fpse_density.jpeg"), dpi = 500)
+tmap_save(fpse_den_tm, file = here("results", params$year, params$month, "fpse", "fpse_density.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_density.jpeg"), width = 9.24, height = 7.47), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Forest Park Southeast: Crime Density Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1625,12 +1625,12 @@ fpse_grove_tm <- tm_shape(grv_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(fpse_grove_tm, file = here("results", params$year, params$month, "fpse", "fpse_grove.jpeg"), dpi = 500)
+tmap_save(fpse_grove_tm, file = here("results", params$year, params$month, "fpse", "fpse_grove.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_grove.jpeg"), width = 9.61, height = 4.43), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_grove.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Grove Community Improvement District: Total Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1818,12 +1818,12 @@ cwe_dn_tm <- tm_shape(cwe_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(cwe_dn_tm, file = here("results", params$year, params$month, "cwe", "cwe_day_night.jpeg"), dpi = 500)
+tmap_save(cwe_dn_tm, file = here("results", params$year, params$month, "cwe", "cwe_day_night.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "cwe_day_night.jpeg"), width = 9.5, height = 7.5), location = ph_location_type(type="title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "cwe_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type="body"), use_loc_size = FALSE)%>%
   ph_with("Central West End: Time of Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1857,12 +1857,12 @@ cwe_vlnt_tm <- tm_shape(cwe_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(cwe_vlnt_tm, file = here("results", params$year, params$month, "cwe", "cwe_vlnt.jpeg"), dpi = 500)
+tmap_save(cwe_vlnt_tm, file = here("results", params$year, params$month, "cwe", "cwe_vlnt.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "cwe_vlnt.jpeg"), width = 9.5, height = 7.5), location = ph_location_type(type="title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "cwe_vlnt.jpeg"), width = 9, height = 5), location = ph_location_type(type="body"), use_loc_size = FALSE)%>%
   ph_with("Central West End: Violent Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1897,12 +1897,12 @@ cwe_den_tm <- tm_shape(cwe_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(cwe_den_tm, file = here("results", params$year, params$month, "cwe", "cwe_density.jpeg"), dpi = 500)
+tmap_save(cwe_den_tm, file = here("results", params$year, params$month, "cwe", "cwe_density.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "cwe_density.jpeg"), width = 9.5, height = 7.5), location = ph_location_type(type="title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "cwe_density.jpeg"), width = 9, height = 5), location = ph_location_type(type="body"), use_loc_size = FALSE)%>%
   ph_with("Central West End: Crime Density Map", 
                location = ph_location_type(
                  type = "title") )-> report
