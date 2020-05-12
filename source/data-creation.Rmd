@@ -4,14 +4,14 @@ author: "Jes Stevens, M.A."
 date: '(`r format(Sys.time(), "%B %d, %Y")`)'
 output:
 params:
-  month: March                   # Refers to the month throughout the .Rmd Document | Change this to reflect the month you are analyzing
+  month: April                   # Refers to the month throughout the .Rmd Document | Change this to reflect the month you are analyzing
   pastyear: 2019                      # Refers to the previous year throughout the .Rmd Document | Change this when your year changes
   year: 2020                          # Refers to the current year you are analyzing | Change this when your year changes
   ytd: "2020-01-01"                   # Compiles Year to Date Dataset for this year | Leave at January 1st 2020
-  date: "2020-03-01"                  # Pulls in the data for the most recent month | Change this each month
+  date: "2020-04-01"                  # Pulls in the data for the most recent month | Change this each month
   pastdate: "2019-01-01"              # Compiles Year to Date Dataset for previous year | Leave at January 1st 2019
-  pstdtmonth: "2019-03-01"            # Compiles Data for the most recent month of the previous year | This is the first day of the month
-  pstdtmonth2: "2019-03-31"           # Compiles Data for the most recent month of the previous year | This is the last day of month | Must be the 30th or 31st
+  pstdtmonth: "2019-04-01"            # Compiles Data for the most recent month of the previous year | This is the first day of the month
+  pstdtmonth2: "2019-04-30"           # Compiles Data for the most recent month of the previous year | This is the last day of month | Must be the 30th or 31st
 ---
 
 ```{r setup, include=FALSE}
@@ -78,6 +78,7 @@ dir.create(here(file.path("results", params$year, params$month, "sdb")))
 dir.create(here(file.path("results", params$year, params$month, "vd")))
 dir.create(here(file.path("results", params$year, params$month, "vp")))
 dir.create(here(file.path("results", params$year, params$month, "we")))
+dir.create(here(file.path("results", "presentations",  params$year, params$month)))
 ```
 
 
