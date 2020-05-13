@@ -49,6 +49,7 @@ library(knitr)
 library(tibble)
 library(rlang)
 library(officer)      # powerpoint output
+#devtools::install_github("davidgohel/officer")   # use github version until updates are made to CRAN
 library(customLayout) # custom powerpoint layout
 
 
@@ -94,10 +95,16 @@ wkdys <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 #tmap_options()
 ```
 
-```{r plot color palette, inlude = FALSE}
+```{r plot and text color palette, inlude = FALSE}
 cols <- c("Aggravated Assault" = "#e41a1c", "Arson" = "#A65628", "Burgalry" = "#377eb8", 
           "Homicide" = "#FFFF33", "Larceny" = "#4DAF4A", "Motor Vehicle Theft" = "#984EA3", 
           "Robbery" = "#FF7F00") 
+
+# summary note colors
+reg24 <- fp_text(color = 'black', font.size = 24)
+reg20 <- fp_text(color = 'black', font.size = 20)
+boldline <- fp_text(color = "black", font.size = 28, bold = TRUE, underlined = TRUE)
+bold <- fp_text(color = "black", font.size = 24, bold = TRUE)
 ```
 
 ```{r powerpoint title}
@@ -138,44 +145,36 @@ sprint_1 <- sprintf("%s total crimes in %s %s",
 sprint_2 <- sprintf("%s total crimes in %s", 
                     tc_ytdCurrent, params$year)
 
-# add to powerpoint
+# text formatting
+color24a <- fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 24)
+color20a <- fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 20)
+color24b <- fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 24)
+color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 20)
+  
+
+# create summary notes
+summary <- block_list(
+  fpar(ftext(sprint_1, boldline)),
+  fpar(ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
+       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
+       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
+  fpar(ftext(sprint_2, boldline)),
+  fpar(ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
+       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
+       ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
+)
+
+# write summary notes to powerpoint slide
 report%>%
-    add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
+  add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
   ph_with(value = "Skinker DeBaliviere: Summary Notes", location = ph_location_type(type = "title"))%>%
-    ph_with(value = empty_content(), location = ph_location_type(type = "body"))%>%
-    ph_add_par(level = 1L)%>%
-    ph_add_text(str = sprint_1, style = fp_text(color = "black", font.size = 28, bold = TRUE, underlined = TRUE))%>%
-    ph_add_par(level = 2L)%>%
-    ph_add_text(str = paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), 
-                style = fp_text(color = 'black', font.size = 28)) %>% 
-    ph_add_text(str = paste(pct_chg_mth, "change ", sep = " "),
-                style = fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 28)) %>%
-    ph_add_par(level = 2L) %>%
-    ph_add_text(str = paste(" in", params$month, params$year, sep = " "), 
-                style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(cap20, "crime(s) against persons", sep = " "), 
-                style = fp_text(color = "black", font.size = 28, bold = TRUE)) %>%
-    ph_add_par(level = 3L) %>%
-    ph_add_text(str = paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(pct_chg_cap, "change", sep = " "), 
-                style = fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 28))%>%
-    ph_add_par(level = 1L) %>%
-    ph_add_text(str = sprint_2, style = fp_text(color = "black", font.size = 28, bold = TRUE, underlined = TRUE))%>%
-    ph_add_par(level = 2L)%>%
-    ph_add_text(str = paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), 
-                style = fp_text(color = 'black', font.size = 28)) %>% 
-  ph_add_text(str = paste(pct_chg_ytd, "change ", sep = " "), 
-              style =  fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 28)) %>%
-    ph_add_par(level = 2L) %>%
-    ph_add_text(str = paste(" in", params$year, sep = " "), 
-                style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(cap20_ytd, "crime(s) against persons", sep = " "), 
-                style = fp_text(color = "black", font.size = 28, bold = TRUE)) %>%
-    ph_add_par(level = 3L) %>%
-    ph_add_text(str = paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), 
-                style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(pct_chg_ytd_cap, "change", sep = " "), 
-                style = fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 28)) -> report
+  ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 3, 1, 2, 2, 3)) -> report
 ```
 
 ## Skinker DeBaliviere: Year to Year Comparison
@@ -400,44 +399,36 @@ sprint_1 <- sprintf("%s total crimes in %s %s",
 sprint_2 <- sprintf("%s total crimes in %s", 
                     tc_ytdCurrent, params$year)
 
-# add to powerpoint
+# text formatting
+color24a <- fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 24)
+color20a <- fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 20)
+color24b <- fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 24)
+color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 20)
+  
+
+# create summary notes
+summary <- block_list(
+  fpar(ftext(sprint_1, boldline)),
+  fpar(ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
+       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
+       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
+  fpar(ftext(sprint_2, boldline)),
+  fpar(ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
+       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
+       ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
+)
+
+# write summary notes to powerpoint slide
 report%>%
-    add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
+  add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
   ph_with(value = "DeBaliviere Place: Summary Notes", location = ph_location_type(type = "title"))%>%
-    ph_with(value = empty_content(), location = ph_location_type(type = "body"))%>%
-    ph_add_par(level = 1L)%>%
-    ph_add_text(str = sprint_1, style = fp_text(color = "black", font.size = 28, bold = TRUE, underlined = TRUE))%>%
-    ph_add_par(level = 2L)%>%
-    ph_add_text(str = paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), 
-                style = fp_text(color = 'black', font.size = 28)) %>% 
-    ph_add_text(str = paste(pct_chg_mth, "change ", sep = " "),
-                style = fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 28)) %>%
-    ph_add_par(level = 2L) %>%
-    ph_add_text(str = paste(" in", params$month, params$year, sep = " "), 
-                style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(cap20, "crime(s) against persons", sep = " "), 
-                style = fp_text(color = "black", font.size = 28, bold = TRUE)) %>%
-    ph_add_par(level = 3L) %>%
-    ph_add_text(str = paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(pct_chg_cap, "change", sep = " "), 
-                style = fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 28))%>%
-    ph_add_par(level = 1L) %>%
-    ph_add_text(str = sprint_2, style = fp_text(color = "black", font.size = 28, bold = TRUE, underlined = TRUE))%>%
-    ph_add_par(level = 2L)%>%
-    ph_add_text(str = paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), 
-                style = fp_text(color = 'black', font.size = 28)) %>% 
-  ph_add_text(str = paste(pct_chg_ytd, "change ", sep = " "), 
-              style =  fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 28)) %>%
-    ph_add_par(level = 2L) %>%
-    ph_add_text(str = paste(" in", params$year, sep = " "), 
-                style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(cap20_ytd, "crime(s) against persons", sep = " "), 
-                style = fp_text(color = "black", font.size = 28, bold = TRUE)) %>%
-    ph_add_par(level = 3L) %>%
-    ph_add_text(str = paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), 
-                style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(pct_chg_ytd_cap, "change", sep = " "), 
-                style = fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 28)) -> report
+  ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 3, 1, 2, 2, 3)) -> report
 ```
 
 ## DeBaliviere Place: Year to Year Comparison
@@ -662,44 +653,36 @@ sprint_1 <- sprintf("%s total crimes in %s %s",
 sprint_2 <- sprintf("%s total crimes in %s", 
                     tc_ytdCurrent, params$year)
 
-# add to powerpoint
+# text formatting
+color24a <- fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 24)
+color20a <- fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 20)
+color24b <- fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 24)
+color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 20)
+  
+
+# create summary notes
+summary <- block_list(
+  fpar(ftext(sprint_1, boldline)),
+  fpar(ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
+       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
+       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
+  fpar(ftext(sprint_2, boldline)),
+  fpar(ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
+       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
+       ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
+)
+
+# write summary notes to powerpoint slide
 report%>%
-    add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
+  add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
   ph_with(value = "West End: Summary Notes", location = ph_location_type(type = "title"))%>%
-    ph_with(value = empty_content(), location = ph_location_type(type = "body"))%>%
-    ph_add_par(level = 1L)%>%
-    ph_add_text(str = sprint_1, style = fp_text(color = "black", font.size = 28, bold = TRUE, underlined = TRUE))%>%
-    ph_add_par(level = 2L)%>%
-    ph_add_text(str = paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), 
-                style = fp_text(color = 'black', font.size = 28)) %>% 
-    ph_add_text(str = paste(pct_chg_mth, "change ", sep = " "),
-                style = fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 28)) %>%
-    ph_add_par(level = 2L) %>%
-    ph_add_text(str = paste(" in", params$month, params$year, sep = " "), 
-                style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(cap20, "crime(s) against persons", sep = " "), 
-                style = fp_text(color = "black", font.size = 28, bold = TRUE)) %>%
-    ph_add_par(level = 3L) %>%
-    ph_add_text(str = paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(pct_chg_cap, "change", sep = " "), 
-                style = fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 28))%>%
-    ph_add_par(level = 1L) %>%
-    ph_add_text(str = sprint_2, style = fp_text(color = "black", font.size = 28, bold = TRUE, underlined = TRUE))%>%
-    ph_add_par(level = 2L)%>%
-    ph_add_text(str = paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), 
-                style = fp_text(color = 'black', font.size = 28)) %>% 
-  ph_add_text(str = paste(pct_chg_ytd, "change ", sep = " "), 
-              style =  fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 28)) %>%
-    ph_add_par(level = 2L) %>%
-    ph_add_text(str = paste(" in", params$year, sep = " "), 
-                style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(cap20_ytd, "crime(s) against persons", sep = " "), 
-                style = fp_text(color = "black", font.size = 28, bold = TRUE)) %>%
-    ph_add_par(level = 3L) %>%
-    ph_add_text(str = paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), 
-                style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(pct_chg_ytd_cap, "change", sep = " "), 
-                style = fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 28)) -> report
+  ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 3, 1, 2, 2, 3)) -> report
 ```
 
 ## West End: Year to Year Comparison
@@ -926,44 +909,36 @@ sprint_1 <- sprintf("%s total crimes in %s %s",
 sprint_2 <- sprintf("%s total crimes in %s", 
                     tc_ytdCurrent, params$year)
 
-# add to powerpoint
+# text formatting
+color24a <- fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 24)
+color20a <- fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 20)
+color24b <- fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 24)
+color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 20)
+  
+
+# create summary notes
+summary <- block_list(
+  fpar(ftext(sprint_1, boldline)),
+  fpar(ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
+       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
+       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
+  fpar(ftext(sprint_2, boldline)),
+  fpar(ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
+       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
+       ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
+)
+
+# write summary notes to powerpoint slide
 report%>%
-    add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
+  add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
   ph_with(value = "Visitation Park: Summary Notes", location = ph_location_type(type = "title"))%>%
-    ph_with(value = empty_content(), location = ph_location_type(type = "body"))%>%
-    ph_add_par(level = 1L)%>%
-    ph_add_text(str = sprint_1, style = fp_text(color = "black", font.size = 28, bold = TRUE, underlined = TRUE))%>%
-    ph_add_par(level = 2L)%>%
-    ph_add_text(str = paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), 
-                style = fp_text(color = 'black', font.size = 28)) %>% 
-    ph_add_text(str = paste(pct_chg_mth, "change ", sep = " "),
-                style = fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 28)) %>%
-    ph_add_par(level = 2L) %>%
-    ph_add_text(str = paste(" in", params$month, params$year, sep = " "), 
-                style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(cap20, "crime(s) against persons", sep = " "), 
-                style = fp_text(color = "black", font.size = 28, bold = TRUE)) %>%
-    ph_add_par(level = 3L) %>%
-    ph_add_text(str = paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(pct_chg_cap, "change", sep = " "), 
-                style = fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 28))%>%
-    ph_add_par(level = 1L) %>%
-    ph_add_text(str = sprint_2, style = fp_text(color = "black", font.size = 28, bold = TRUE, underlined = TRUE))%>%
-    ph_add_par(level = 2L)%>%
-    ph_add_text(str = paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), 
-                style = fp_text(color = 'black', font.size = 28)) %>% 
-  ph_add_text(str = paste(pct_chg_ytd, "change ", sep = " "), 
-              style =  fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 28)) %>%
-    ph_add_par(level = 2L) %>%
-    ph_add_text(str = paste(" in", params$year, sep = " "), 
-                style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(cap20_ytd, "crime(s) against persons", sep = " "), 
-                style = fp_text(color = "black", font.size = 28, bold = TRUE)) %>%
-    ph_add_par(level = 3L) %>%
-    ph_add_text(str = paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), 
-                style = fp_text(color = "black", font.size = 28))%>%
-    ph_add_text(str = paste(pct_chg_ytd_cap, "change", sep = " "), 
-                style = fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 28)) -> report
+  ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 3, 1, 2, 2, 3)) -> report
 ```
 
 ## Visitation Park: Year to Year Comparison
