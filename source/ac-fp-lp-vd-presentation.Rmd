@@ -7,11 +7,11 @@ output:
   powerpoint_presentation
 always_allow_html: yes
 params:
-  month: March
+  month: April
   pastyear: 2019
   year: 2020
-  date: "2020-03-01"
-  pastdate: "2019-03-01"
+  date: "2020-04-01"
+  pastdate: "2019-04-01"
 ---
 
 ```{r setup, include=FALSE}
@@ -35,7 +35,7 @@ library(tmaptools)    # tools for handeling spatial
 #library(oldtmaptools) # deprecated toolds for spatial analysis
 library(sf)           # spatial data tools
 library(ceramic)      # download online imagery tiles
-#library(compstatr)    # tools for STL crime data
+library(compstatr)    # tools for STL crime data
 library(raster)       # geograpic data analysis & modeling
 
 # other packages
@@ -43,13 +43,14 @@ library(here)         # file path management
 library(janitor)      # tools for examining data
 library(RColorBrewer) # cynthia brewer color palettes
 library(viridis)      # color palettes
-library(flextable)   # exporting pretty tables
 library(officer)      # powerpoint output
+#devtools::install_github("davidgohel/officer")   # use github version until updates are made to CRAN
+library(flextable)   # exporting pretty tables
 library(htmltools)
 library(knitr)
 library(tibble)
 library(rlang)
-
+library(customLayout) # custom powerpoint layout
 
 # load data
 load(file = here("data", "basemap-files", "mapbox-tiles.rda"))
@@ -63,6 +64,28 @@ load(file = here("data", "basemap-files", "nbhd-boundaries.rda"))
 report <- read_pptx()
 ```
 
+```{r officer layout}
+lay <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(2,2)) 
+title <- lay_new(1, widths = 2, heights = 2)
+layout <- lay_bind_row(title, lay, heights = c(1,6))
+lay_show(layout)
+
+lay01 <- lay_new(matrix(1:2)) 
+title01 <- lay_new(1, widths = 2, heights = 2)
+layout01 <- lay_bind_row(title01, lay01, heights = c(1,6))
+lay_show(layout01)
+
+## create officer layouts
+offlayout <- phl_layout(layout,
+    margins = c(0, 1, 1, 0),
+    innerMargins = rep(0.15,4))
+
+offlayout01 <- phl_layout(layout,
+    margins = c(0.25, 0.25, 0.25, 0.25),
+    innerMargins = rep(0.15,4))
+```
+
+
 ```{r Set column name keys for flextable, include = FALSE }
 colkeys19 <- totalCrimes19$monthVar
 colkeys20 <- ytdCrimes20$monthVar
@@ -72,20 +95,24 @@ wkdys <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 #tmap_options()
 ```
 
-```{r plot color palette, inlude = FALSE}
+```{r plot and text color palette, inlude = FALSE}
 cols <- c("Aggravated Assault" = "#e41a1c", "Arson" = "#A65628", "Burgalry" = "#377eb8", 
           "Homicide" = "#FFFF33", "Larceny" = "#4DAF4A", "Motor Vehicle Theft" = "#984EA3", 
           "Robbery" = "#FF7F00") 
+
+# summary note colors
+reg24 <- fp_text(color = 'black', font.size = 24)
+reg20 <- fp_text(color = 'black', font.size = 20)
+boldline <- fp_text(color = "black", font.size = 28, bold = TRUE, underlined = TRUE)
+bold <- fp_text(color = "black", font.size = 24, bold = TRUE)
 ```
 
 ```{r powerpoint title}
 #title slide
 report%>%
   add_slide(layout = "Title Slide", master = "Office Theme")%>%
-  ph_with(value = "Academy, Fountain Park, Lewis Place Place, Vandeventer Monthly Crime Report", location = ph_location_type(type = "ctrTitle"))%>%
-  ph_with(c(params$month, params$year), location = ph_location_type(type = "subTitle"))%>%
-  ph_with(value = "Washington University Medical Center", 
-          location = ph_location_type(type = "dt")) -> report
+  ph_with(value = "Academy, Fountain Park, Lewis Place Place, Vandeventer", location = ph_location_type(type = "ctrTitle"))%>%
+  ph_with(c(paste("Monthly Crime Report:", params$month, params$year, sep = " "), "Washington University Medical Center"), location = ph_location_type(type = "subTitle")) -> report
 ```
 
 
@@ -102,47 +129,52 @@ tc_ytdCurrent <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 51,])
 cap19_ytd <- nrow(ytdCrimes19[ytdCrimes19$neighborhood == 51 & ytdCrimes19$crimeCatNum == 4 | ytdCrimes19$neighborhood == 51 & ytdCrimes19$crimeCatNum == 3,])
 cap20_ytd <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 51 & ytdCrimes20$crimeCatNum == 4 | ytdCrimes20$neighborhood == 51 & ytdCrimes20$crimeCatNum == 3,])
 
-pct_chg_mth <- (tc20 - tc19)/tc19
-pct_chg_mth <- percent(pct_chg_mth)
+pct_chg_mth1 <- (tc20 - tc19)/tc19
+pct_chg_mth <- percent(pct_chg_mth1)
 
-pct_chg_cap <- (cap20 - cap19)/cap19
-pct_chg_cap <- percent(pct_chg_cap)
+pct_chg_cap1 <- (cap20 - cap19)/cap19
+pct_chg_cap <- percent(pct_chg_cap1)
 
-pct_chg_ytd <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
-pct_chg_ytd <- percent(pct_chg_ytd)
+pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
+pct_chg_ytd <- percent(pct_chg_ytd1)
 
-pct_chg_ytd_cap <- (cap20_ytd - cap19_ytd)/cap19_ytd
-pct_chg_ytd_cap <- percent(pct_chg_ytd_cap)
+pct_chg_ytd_cap1 <- (cap20_ytd - cap19_ytd)/cap19_ytd
+pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
                     tc20, params$month, params$year)
-sprint_2 <- sprintf("%s change compared to %s %s (%s total crimes)", 
-                    pct_chg_mth, params$month, params$pastyear, tc19)
-sprint_3 <- sprintf("%s crime(s) against persons in %s %s", 
-                    cap20, params$month, params$year)
-sprint_4 <- sprintf("%s change compared to %s %s (%s crimes against persons)", 
-                    pct_chg_cap, params$month, params$pastyear, cap19)
-sprint_5 <- sprintf("%s total crimes in %s", 
+sprint_2 <- sprintf("%s total crimes in %s", 
                     tc_ytdCurrent, params$year)
-sprint_6 <- sprintf("%s change compared to this time in %s (%s total crimes)", 
-                    pct_chg_ytd, params$pastyear, tc_ytd19)
-sprint_7 <- sprintf("%s crime(s) against persons in %s", 
-                    cap20_ytd, params$year)
-sprint_8 <- sprintf("%s change compared to this time in %s (%s crimes against persons)", 
-                    pct_chg_ytd_cap, params$pastyear, cap19_ytd)
 
-#write sprints to powerpoint
+# text formatting
+color24a <- fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 24)
+color20a <- fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 20)
+color24b <- fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 24)
+color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 20)
+  
+# create summary notes
+summary <- block_list(
+  fpar(ftext(sprint_1, boldline)),
+  fpar(ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
+       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
+       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
+  fpar(ftext(sprint_2, boldline)),
+  fpar(ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
+       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
+       ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
+)
+
+# write summary notes to powerpoint slide
 report%>%
-  add_slide(layout = "Title and Content", master = "Office Theme")%>%
+  add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
   ph_with(value = "Academy: Summary Notes", location = ph_location_type(type = "title"))%>%
-  ph_with(c(sprint_1, sprint_2, sprint_3, sprint_4), 
-          location = ph_location_type(type = "body"))%>%
-
-  #add extra slide for summary notes
-  add_slide(layout = "Title and Content", master = "Office Theme")%>%
-  ph_with(value = "Academy: Summary Notes", location = ph_location_type(type = "title"))%>%
-  ph_with(c(sprint_5, sprint_6, sprint_7, sprint_8), 
-          location = ph_location_type(type = "body")) -> report
+  ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 3, 1, 2, 2, 3)) -> report
 ```
 
 ## Academy: Year to Year Comparison
@@ -206,16 +238,14 @@ flextable(ac_2020) %>%
   colformat_num(., digits = 0) %>%
   autofit() -> flex01
 
-
-#####
-####
-###
-## Fix this powerpoint output
+# add powerpoint slide
 report%>%
-    add_slide()%>%
-    ph_with(value = "Academy: Year to Year Comparison", location = ph_location_type(type = "title"))%>%
-    ph_with(flex, location = ph_location_type("body"))%>%
-    ph_with(flex01, location = ph_location_type("body")) -> report
+  add_slide()%>%
+  ph_with("Academy: Year to Year Comparison", 
+               location = ph_location_type(
+                 type = "title"))%>%
+  phl_with_flextable(olay = offlayout01, 2, flex)%>%
+  phl_with_flextable(olay = offlayout01, 3, flex01) -> report
 ```
 
 ## Academy: Summary Tables
@@ -267,16 +297,27 @@ monthCrimes20 %>%
 
 ```{r AC Flextables Knit, echo = FALSE}
 flextable(ac_crimeCat) %>%
-  autofit()
+  autofit() -> flex01
 
 flextable(ac_weekDay) %>%
-  autofit()
+  autofit() -> flex02
 
 flextable(ac_violent) %>%
-  autofit()
+  autofit() -> flex03
 
 flextable(ac_dayNight) %>%
-  autofit()
+  autofit() -> flex04
+
+# add to powerpoint
+report%>%
+  add_slide()%>%
+  ph_with("Academy: Summary Tables", 
+               location = ph_location_type(
+                 type = "title"))%>%
+  phl_with_flextable(olay = offlayout, 4, flex01)%>%
+  phl_with_flextable(olay = offlayout, 2, flex02)%>%
+  phl_with_flextable(olay = offlayout, 3, flex03)%>%
+  phl_with_flextable(olay = offlayout, 5, flex04) -> report
 ```
 
 ## Academy: Total Crime Map
@@ -319,12 +360,12 @@ tm_shape(ac_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom")) -> ac_total_tm
 
-tmap_save(ac_total_tm, file = here("results", params$year, params$month, "ac", "ac_total_tm.jpeg"), dpi = 500)
+tmap_save(ac_total_tm, file = here("results", params$year, params$month, "ac", "ac_total_tm.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "ac", "ac_total_tm.jpeg"), width = 5.21, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "ac", "ac_total_tm.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Academy: Total Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -344,54 +385,53 @@ tc_ytdCurrent <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 53,])
 cap19_ytd <- nrow(ytdCrimes19[ytdCrimes19$neighborhood == 53 & ytdCrimes19$crimeCatNum == 4 | ytdCrimes19$neighborhood == 53 & ytdCrimes19$crimeCatNum == 3,])
 cap20_ytd <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 53 & ytdCrimes20$crimeCatNum == 4 | ytdCrimes20$neighborhood == 53 & ytdCrimes20$crimeCatNum == 3,])
 
-pct_chg_mth <- (tc20 - tc19)/tc19
-pct_chg_mth <- percent(pct_chg_mth)
-pct_chg_cap <- (cap20 - cap19)/cap19
-pct_chg_cap <- percent(pct_chg_cap)
-pct_chg_ytd <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
-pct_chg_ytd <- percent(pct_chg_ytd)
-pct_chg_ytd_cap <- (cap20_ytd - cap19_ytd)/cap19_ytd
-pct_chg_ytd_cap <- percent(pct_chg_ytd_cap)
+pct_chg_mth1 <- (tc20 - tc19)/tc19
+pct_chg_mth <- percent(pct_chg_mth1)
+
+pct_chg_cap1 <- (cap20 - cap19)/cap19
+pct_chg_cap <- percent(pct_chg_cap1)
+
+pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
+pct_chg_ytd <- percent(pct_chg_ytd1)
+
+pct_chg_ytd_cap1 <- (cap20_ytd - cap19_ytd)/cap19_ytd
+pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
                     tc20, params$month, params$year)
-sprint_2 <- sprintf("%s change compared to %s %s (%s total crimes)", 
-                    pct_chg_mth, params$month, params$pastyear, tc19)
-sprint_3 <- sprintf("%s crime(s) against persons in %s %s", 
-                    cap20, params$month, params$year)
-sprint_4 <- sprintf("%s change compared to %s %s (%s crimes against persons)", 
-                    pct_chg_cap, params$month, params$pastyear, cap19)
-sprint_5 <- sprintf("%s total crimes in %s", 
+sprint_2 <- sprintf("%s total crimes in %s", 
                     tc_ytdCurrent, params$year)
-sprint_6 <- sprintf("%s change compared to this time in %s (%s total crimes)", 
-                    pct_chg_ytd, params$pastyear, tc_ytd19)
-sprint_7 <- sprintf("%s crime(s) against persons in %s", 
-                    cap20_ytd, params$year)
-sprint_8 <- sprintf("%s change compared to this time in %s (%s crimes against persons)", 
-                    pct_chg_ytd_cap, params$pastyear, cap19_ytd)
 
-#write sprints to powerpoint
+# text formatting
+color24a <- fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 24)
+color20a <- fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 20)
+color24b <- fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 24)
+color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 20)
+  
+# create summary notes
+summary <- block_list(
+  fpar(ftext(sprint_1, boldline)),
+  fpar(ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
+       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
+       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
+  fpar(ftext(sprint_2, boldline)),
+  fpar(ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
+       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
+       ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
+)
+
+# write summary notes to powerpoint slide
 report%>%
-  add_slide(layout = "Title and Content", master = "Office Theme")%>%
+  add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
   ph_with(value = "Fountain Park: Summary Notes", location = ph_location_type(type = "title"))%>%
-  ph_with(c(sprint_1, sprint_2, sprint_3, sprint_4), 
-          location = ph_location_type(type = "body"))%>%
-
-  #add extra slide for summary notes
-  add_slide(layout = "Title and Content", master = "Office Theme")%>%
-  ph_with(value = "Fountain Park: Summary Notes", location = ph_location_type(type = "title"))%>%
-  ph_with(c(sprint_5, sprint_6, sprint_7, sprint_8), 
-          location = ph_location_type(type = "body")) -> report
+  ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 3, 1, 2, 2, 3)) -> report
 ```
-
-- **`r sprint_1`**
-- **`r sprint_2`**
-- **`r sprint_3`**
-- **`r sprint_4`**
-- **`r sprint_5`**
-- **`r sprint_6`**
-- **`r sprint_7`**
-- **`r sprint_8`**
 
 ## Fountain Park: Year to Year Comparison
 
@@ -431,7 +471,7 @@ fp_2019 %>%
 flextable(fp_2019) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
-  autofit()
+  autofit() -> flex
 ```
 
 ```{r fp Total Crimes Flextable 2020, echo = FALSE}
@@ -452,7 +492,14 @@ fp_2020 %>%
 flextable(fp_2020) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
-  autofit()
+  autofit() -> flex01
+
+# add powerpoint slide
+report%>%
+  add_slide()%>%
+  phl_with_text(olay = offlayout01, 1, "Fountain Park: Year to Year Comparison")%>%
+  phl_with_flextable(olay = offlayout01, 2, flex)%>%
+  phl_with_flextable(olay = offlayout01, 3, flex01) -> report
 ```
 
 ## Fountain Park: Summary Tables
@@ -504,16 +551,27 @@ monthCrimes20 %>%
 
 ```{r FP Flextables Knit, echo = FALSE}
 flextable(fp_crimeCat) %>%
-  autofit()
+  autofit() -> flex01
 
 flextable(fp_weekDay) %>%
-  autofit()
+  autofit() -> flex02
 
 flextable(fp_violent) %>%
-  autofit()
+  autofit() -> flex03
 
 flextable(fp_dayNight) %>%
-  autofit()
+  autofit() -> flex04
+
+# add to powerpoint
+report%>%
+  add_slide()%>%
+  ph_with("Fountain Park: Summary Tables", 
+               location = ph_location_type(
+                 type = "title"))%>%
+  phl_with_flextable(olay = offlayout, 4, flex01)%>%
+  phl_with_flextable(olay = offlayout, 2, flex02)%>%
+  phl_with_flextable(olay = offlayout, 3, flex03)%>%
+  phl_with_flextable(olay = offlayout, 5, flex04) -> report
 ```
 
 ## Fountain Park: Total Crime Map
@@ -556,13 +614,13 @@ tm_shape(fp_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom")) -> fp_total_tm
 
-tmap_save(fp_total_tm, file = here("results", params$year, params$month, "fp", "fp_total_crimes.jpeg"), dpi = 500)
+tmap_save(fp_total_tm, file = here("results", params$year, params$month, "fp", "fp_total_crimes.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fp", "fp_total_crimes.jpeg"), width = 4.06, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
-  ph_with("Fountain Park", 
+  ph_with(external_img(here::here("results", params$year, params$month, "fp", "fp_total_crimes.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Fountain Park: Total Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
 ```
@@ -582,41 +640,53 @@ tc_ytdCurrent <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 54,])
 cap19_ytd <- nrow(ytdCrimes19[ytdCrimes19$neighborhood == 54 & ytdCrimes19$crimeCatNum == 4 | ytdCrimes19$neighborhood == 54 & ytdCrimes19$crimeCatNum == 3,])
 cap20_ytd <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 54 & ytdCrimes20$crimeCatNum == 4 | ytdCrimes20$neighborhood == 54 & ytdCrimes20$crimeCatNum == 3,])
 
-pct_chg_mth <- (tc20 - tc19)/tc19
-pct_chg_mth <- percent(pct_chg_mth)
-#pct_chg_cap <- (cap20 - cap19)/cap19
-#pct_chg_cap <- percent(pct_chg_cap)
-pct_chg_ytd <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
-pct_chg_ytd <- percent(pct_chg_ytd)
-#pct_chg_ytd_cap <- (cap20_ytd - cap19_ytd)/cap19_ytd
-#pct_chg_ytd_cap <- percent(pct_chg_ytd_cap)
+pct_chg_mth1 <- (tc20 - tc19)/tc19
+pct_chg_mth <- percent(pct_chg_mth1)
+
+pct_chg_cap1 <- (cap20 - cap19)/cap19
+pct_chg_cap <- percent(pct_chg_cap1)
+
+pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
+pct_chg_ytd <- percent(pct_chg_ytd1)
+
+pct_chg_ytd_cap1 <- (cap20_ytd - cap19_ytd)/cap19_ytd
+pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
                     tc20, params$month, params$year)
-sprint_2 <- sprintf("%s change compared to %s %s (%s total crimes)", 
-                    pct_chg_mth, params$month, params$pastyear, tc19)
-#sprint_3 <- sprintf("%s crime(s) against persons in %s %s", 
-                    #cap20, params$month, params$year)
-#sprint_4 <- sprintf("%s change compared to %s %s (%s crimes against persons)", 
-                   # pct_chg_cap, params$month, params$pastyear, cap19)
-sprint_5 <- sprintf("%s total crimes in %s", 
+sprint_2 <- sprintf("%s total crimes in %s", 
                     tc_ytdCurrent, params$year)
-sprint_6 <- sprintf("%s change compared to this time in %s (%s total crimes)", 
-                    pct_chg_ytd, params$pastyear, tc_ytd19)
-#sprint_7 <- sprintf("%s crime(s) against persons in %s", 
-                   # cap20_ytd, params$year)
-#sprint_8 <- sprintf("%s change compared to this time in %s (%s crimes against persons)", 
-                    #pct_chg_ytd_cap, params$pastyear, cap19_ytd)
-```
 
-- **`r sprint_1`**
-- **`r sprint_2`**
-- **`r sprint_3`**
-- **`r sprint_4`**
-- **`r sprint_5`**
-- **`r sprint_6`**
-- **`r sprint_7`**
-- **`r sprint_8`**
+# text formatting
+color24a <- fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 24)
+color20a <- fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 20)
+color24b <- fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 24)
+color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 20)
+  
+# create summary notes
+summary <- block_list(
+  fpar(ftext(sprint_1, boldline)),
+  fpar(ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
+       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
+       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
+  fpar(ftext(sprint_2, boldline)),
+  fpar(ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
+       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
+       ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
+)
+
+# write summary notes to powerpoint slide
+report%>%
+  add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
+  ph_with(value = "Lewis Place: Summary Notes", location = ph_location_type(type = "title"))%>%
+  ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 3, 1, 2, 2, 3)) -> report
+```
 
 ## Lewis Place: Year to Year Comparison
 
@@ -656,7 +726,7 @@ lp_2019 %>%
 flextable(lp_2019) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
-  autofit()
+  autofit() -> flex
 ```
 
 ```{r lp Total Crimes Flextable 2020, echo = FALSE}
@@ -677,7 +747,14 @@ lp_2020 %>%
 flextable(lp_2020) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(., digits = 0) %>%
-  autofit()
+  autofit() -> flex01
+
+# add powerpoint slide
+report%>%
+  add_slide()%>%
+  phl_with_text(olay = offlayout01, 1, "Lewis Place: Year to Year Comparison")%>%
+  phl_with_flextable(olay = offlayout01, 2, flex)%>%
+  phl_with_flextable(olay = offlayout01, 3, flex01) -> report
 ```
 
 ## Lewis Place: Summary Tables
@@ -729,16 +806,27 @@ monthCrimes20 %>%
 
 ```{r LP Flextables Knit, echo = FALSE}
 flextable(lp_crimeCat) %>%
-  autofit()
+  autofit() -> flex01
 
 flextable(lp_weekDay) %>%
-  autofit()
+  autofit() -> flex02
 
 flextable(lp_violent) %>%
-  autofit()
+  autofit() -> flex03
 
 flextable(lp_dayNight) %>%
-  autofit()
+  autofit() -> flex04
+
+# add to powerpoint
+report%>%
+  add_slide()%>%
+  ph_with("Lewis Place: Summary Tables", 
+               location = ph_location_type(
+                 type = "title"))%>%
+  phl_with_flextable(olay = offlayout, 4, flex01)%>%
+  phl_with_flextable(olay = offlayout, 2, flex02)%>%
+  phl_with_flextable(olay = offlayout, 3, flex03)%>%
+  phl_with_flextable(olay = offlayout, 5, flex04) -> report
 ```
 
 ## Lewis Place: Total Crime Map
@@ -781,13 +869,13 @@ tm_shape(lp_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom")) -> lp_total_tm
 
-tmap_save(lp_total_tm, file = here("results", params$year, params$month, "lp", "lp_total_crimes.jpeg"), dpi = 500)
+tmap_save(lp_total_tm, file = here("results", params$year, params$month, "lp", "lp_total_crimes.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "lp", "lp_total_crimes.jpeg"), width = 6.18, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
-  ph_with("Lewis Place", 
+  ph_with(external_img(here::here("results", params$year, params$month, "lp", "lp_total_crimes.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Lewis Place: Total Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
 ```
@@ -806,41 +894,53 @@ tc_ytdCurrent <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 58,])
 cap19_ytd <- nrow(ytdCrimes19[ytdCrimes19$neighborhood == 58 & ytdCrimes19$crimeCatNum == 4 | ytdCrimes19$neighborhood == 58 & ytdCrimes19$crimeCatNum == 3,])
 cap20_ytd <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 58 & ytdCrimes20$crimeCatNum == 4 | ytdCrimes20$neighborhood == 58 & ytdCrimes20$crimeCatNum == 3,])
 
-pct_chg_mth <- (tc20 - tc19)/tc19
-pct_chg_mth <- percent(pct_chg_mth)
-pct_chg_cap <- (cap20 - cap19)/cap19
-pct_chg_cap <- percent(pct_chg_cap)
-pct_chg_ytd <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
-pct_chg_ytd <- percent(pct_chg_ytd)
-pct_chg_ytd_cap <- (cap20_ytd - cap19_ytd)/cap19_ytd
-pct_chg_ytd_cap <- percent(pct_chg_ytd_cap)
+pct_chg_mth1 <- (tc20 - tc19)/tc19
+pct_chg_mth <- percent(pct_chg_mth1)
+
+pct_chg_cap1 <- (cap20 - cap19)/cap19
+pct_chg_cap <- percent(pct_chg_cap1)
+
+pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
+pct_chg_ytd <- percent(pct_chg_ytd1)
+
+pct_chg_ytd_cap1 <- (cap20_ytd - cap19_ytd)/cap19_ytd
+pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
                     tc20, params$month, params$year)
-sprint_2 <- sprintf("%s change compared to %s %s (%s total crimes)", 
-                    pct_chg_mth, params$month, params$pastyear, tc19)
-sprint_3 <- sprintf("%s crime(s) against persons in %s %s", 
-                    cap20, params$month, params$year)
-sprint_4 <- sprintf("%s change compared to %s %s (%s crimes against persons)", 
-                    pct_chg_cap, params$month, params$pastyear, cap19)
-sprint_5 <- sprintf("%s total crimes in %s", 
+sprint_2 <- sprintf("%s total crimes in %s", 
                     tc_ytdCurrent, params$year)
-sprint_6 <- sprintf("%s change compared to this time in %s (%s total crimes)", 
-                    pct_chg_ytd, params$pastyear, tc_ytd19)
-sprint_7 <- sprintf("%s crime(s) against persons in %s", 
-                    cap20_ytd, params$year)
-sprint_8 <- sprintf("%s change compared to this time in %s (%s crimes against persons)", 
-                    pct_chg_ytd_cap, params$pastyear, cap19_ytd)
-```
 
-- **`r sprint_1`**
-- **`r sprint_2`**
-- **`r sprint_3`**
-- **`r sprint_4`**
-- **`r sprint_5`**
-- **`r sprint_6`**
-- **`r sprint_7`**
-- **`r sprint_8`**
+# text formatting
+color24a <- fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 24)
+color20a <- fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 20)
+color24b <- fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 24)
+color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 20)
+  
+# create summary notes
+summary <- block_list(
+  fpar(ftext(sprint_1, boldline)),
+  fpar(ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
+       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
+       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
+  fpar(ftext(sprint_2, boldline)),
+  fpar(ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
+       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$year, sep = " "), reg24)),
+  fpar(ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
+       ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
+)
+
+# write summary notes to powerpoint slide
+report%>%
+  add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
+  ph_with(value = "Vandeventer: Summary Notes", location = ph_location_type(type = "title"))%>%
+  ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 3, 1, 2, 2, 3)) -> report
+```
 
 ## Vandeventer: Year to Year Comparison
 
@@ -880,7 +980,7 @@ vd_2019 %>%
 flextable(vd_2019) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
-  autofit()
+  autofit() -> flex
 ```
 
 ```{r vd Total Crimes Flextable 2020, echo = FALSE}
@@ -901,7 +1001,14 @@ vd_2020 %>%
 flextable(vd_2020) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
-  autofit()
+  autofit() -> flex01
+
+# add powerpoint slide
+report%>%
+  add_slide()%>%
+  phl_with_text(olay = offlayout01, 1, "Vandeventer: Year to Year Comparison")%>%
+  phl_with_flextable(olay = offlayout01, 2, flex)%>%
+  phl_with_flextable(olay = offlayout01, 3, flex01) -> report
 ```
 
 ## Vandeventer: Summary Tables
@@ -953,16 +1060,27 @@ monthCrimes20 %>%
 
 ```{r VD Flextables Knit, echo = FALSE}
 flextable(vd_crimeCat) %>%
-  autofit()
+  autofit() -> flex01
 
 flextable(vd_weekDay) %>%
-  autofit()
+  autofit() -> flex02
 
 flextable(vd_violent) %>%
-  autofit()
+  autofit() -> flex03
 
 flextable(vd_dayNight) %>%
-  autofit()
+  autofit() -> flex04
+
+# add to powerpoint
+report%>%
+  add_slide()%>%
+  ph_with("Vandeventer: Summary Tables", 
+               location = ph_location_type(
+                 type = "title"))%>%
+  phl_with_flextable(olay = offlayout, 4, flex01)%>%
+  phl_with_flextable(olay = offlayout, 2, flex02)%>%
+  phl_with_flextable(olay = offlayout, 3, flex03)%>%
+  phl_with_flextable(olay = offlayout, 5, flex04) -> report
 ```
 
 ## Vandeventer: Total Crime Map
@@ -1005,13 +1123,13 @@ tm_shape(vd_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom")) -> vd_total_tm
 
-tmap_save(vd_total_tm, file = here("results", params$year, params$month, "vd", "vd_total_tm.jpeg"), dpi = 500)
+tmap_save(vd_total_tm, file = here("results", params$year, params$month, "vd", "vd_total_tm.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "vd", "vd_total_tm.jpeg"), width = 8.27, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
-  ph_with("Vandeventer", 
+  ph_with(external_img(here::here("results", params$year, params$month, "vd", "vd_total_tm.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Vandeventer: Total Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
 ```
@@ -1022,11 +1140,13 @@ report%>%
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "district-5", "dst5_rates.jpeg"), width = 7.88, height = 7.32), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "district-5", "dst5_rates.jpeg"), width = 9, height = 5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
   ph_with("District 5: Crime Rates Map", 
                location = ph_location_type(
                  type = "title") )-> report
 ```
+
+## District 5: Density Map Explanation
 
 ```{r District 5 Density Map Explanation Prep, include = FALSE}
 library(qwraps2)
@@ -1073,27 +1193,50 @@ dst_5_maxT <- dst_5_pop_sf[which.max(dst_5_pop_sf$crimeTotal),]
 dst_5_max_tot_nhd <- print(dst_5_maxT$NHD_NAME, max.levels = 0)
 dst_5_max_tot <- print(dst_5_maxT$crimeTotal, max.levels = 0)
 
-sprint_1 <- sprintf("The minimum number of crimes in one neighborhood was %s (%s)", dst_5_min_tot, dst_5_min_tot_nhd)
-sprint_2 <- sprintf("The maximum number of crimes in one neighborhood was %s (%s)", dst_5_max_tot, dst_5_max_tot_nhd)
-sprint_3 <- sprintf("The mean number of crimes in one neighborhood was %s", round(dst_5_total_mean, digits = 2))
-sprint_4 <- sprintf("The minimum rate of crimes in one neighborhood was %s (%s)", round(dst_5_min_rate, digits = 2), dst_5_min_rate_nhd)
-sprint_5 <- sprintf("The maximum rate of crimes in one neighborhood was %s (%s)", round(dst_5_max_rate, digits = 2), dst_5_max_rate_nhd)
-sprint_6 <- sprintf("The mean rate of crimes in one neighborhood was %s", round(dst_5_rate_mean, digits = 2))
+# add to powerpoint
+report%>%
+    add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
+  ph_with(value = "District 5: Density Map Explanation", location = ph_location_type(type = "title"))%>%
+    ph_with(block_list(fpar(ftext("There are 15 neighborhoods in District 5", fp_text(color = "black", font.size = 24)))), location = ph_location_type(type = "body"))%>%
+    ph_add_par()%>%
+    ph_add_text(str = paste(" in one neighborhood was ", dst_5_min_tot, " (", dst_5_min_tot_nhd, ")", sep = ""), style = fp_text(color = "black", font.size = 24)) %>%
+    ph_add_text(str = "The minimum number of crimes ", 
+                style = fp_text(color = "#00B050", font.size = 24))%>%
+    ph_add_par()%>%
+    ph_add_text(str = paste("in one neighborhood was ", dst_5_max_tot, " (", dst_5_max_tot_nhd, ")", sep = ""), style = fp_text(color = "black", font.size = 24))%>%
+    ph_add_text(str = "The maximum number of crimes ",
+                style = fp_text(color = "red", font.size = 24))%>%
+    ph_add_par()%>%
+    ph_add_text(str = paste("in one neighborhood was", round(dst_5_total_mean, digits = 2), 
+                            sep = " "), style = fp_text(color = "black", font.size = 24))%>%
+    ph_add_text(str = "The mean number of crimes ",
+                style = fp_text(color = "#00B0F0", font.size = 24))%>%
+    ph_add_par()%>%
+    ph_add_text(str = paste("in one neighborhood was ", round(dst_5_min_rate, digits = 2), " (", dst_5_min_rate_nhd, ")", sep = ""),
+                style = fp_text(color = "black", font.size = 24))%>%
+    ph_add_text(str = "The minimum rate of crimes ",
+                style = fp_text(color = "#00B050", font.size = 24))%>%
+    ph_add_par()%>%
+    ph_add_text(str = paste("in one neighborhood was ", round(dst_5_max_rate, digits = 2), " (", dst_5_max_rate_nhd, ")", sep = ""),
+                style = fp_text(color = "black", font.size = 24))%>%
+    ph_add_text(str = "The maximum rate of crimes ",
+                style = fp_text(color = "red", font.size = 24))%>%
+    ph_add_par()%>%
+    ph_add_text(str = paste("in one neighborhood was", round(dst_5_rate_mean, digits = 2), 
+                            sep = " "), style = fp_text(color = "black", font.size = 24))%>%
+    ph_add_text(str = "The mean rate of crimes ",
+                style = fp_text(color = "#00B0F0", font.size = 24)) -> report
 ```
-
-## District 5: Density Map Explanation
-
-There are 15 neighborhoods in District 5.
-
-- **`r sprint_1`**
-- **`r sprint_2`**
-- **`r sprint_3`**
-- **`r sprint_4`**
-- **`r sprint_5`**
-- **`r sprint_6`**
 
 ## Academy: Neighborhood Detail
 ### Appendix 1
+
+```{r}
+report%>%
+  add_slide(layout = "Title Slide", master = "Office Theme")%>%
+  ph_with(value = "Academy: Neighborhood Detail", location = ph_location_type(type = "ctrTitle"))%>%
+  ph_with("Appendix 1", location = ph_location_type(type = "subTitle")) -> report
+```
 
 ## Academy: Time of Crimes Map
 
@@ -1123,12 +1266,12 @@ ac_dn_tm <- tm_shape(ac_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(ac_dn_tm, file = here("results", params$year, params$month, "ac", "ac_day_night.jpeg"), dpi = 500)
+tmap_save(ac_dn_tm, file = here("results", params$year, params$month, "ac", "ac_day_night.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "ac", "ac_day_night.jpeg"), width = 5.21, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "ac", "ac_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Academy: Time of Crimes Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1162,12 +1305,12 @@ ac_vlnt_tm <- tm_shape(ac_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(ac_vlnt_tm, file = here("results", params$year, params$month, "ac", "ac_vlnt.jpeg"), dpi = 500)
+tmap_save(ac_vlnt_tm, file = here("results", params$year, params$month, "ac", "ac_vlnt.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "ac", "ac_vlnt.jpeg"), width = 5.21, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "ac", "ac_vlnt.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Academy: Violent Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1202,12 +1345,12 @@ ac_den_tm <- tm_shape(ac_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(ac_den_tm, file = here("results", params$year, params$month, "ac", "ac_density.jpeg"), dpi = 500)
+tmap_save(ac_den_tm, file = here("results", params$year, params$month, "ac", "ac_density.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "ac", "ac_density.jpeg"), width = 5.21, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "ac", "ac_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Academy: Crime Density Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1247,16 +1390,27 @@ larceny %>%
 
 ```{r AC Larceny Tables Knit, echo = FALSE}
 flextable(ac_larcenies_weekDay) %>%
-  autofit()
+  autofit() -> flex01
 
 flextable(ac_larcenies_dayNight) %>%
-  autofit()
+  autofit() -> flex02
 
 flextable(ac_larcenies_type) %>%
-  autofit()
+  autofit() -> flex03
 
 flextable(ac_larcenies_value) %>%
-  autofit()
+  autofit() -> flex04
+
+# add to powerpoint
+report%>%
+  add_slide()%>%
+  ph_with("Academy: Larceny Breakdown", 
+               location = ph_location_type(
+                 type = "title"))%>%
+  phl_with_flextable(olay = offlayout, 2, flex01)%>%
+  phl_with_flextable(olay = offlayout, 3, flex02)%>%
+  phl_with_flextable(olay = offlayout, 4, flex03)%>%
+  phl_with_flextable(olay = offlayout, 5, flex04) -> report
 ```
 
 ## Academy: Total Crimes by Days of the Week
@@ -1283,10 +1437,16 @@ if(test == FALSE) {
     xlab("Day of Week") + ylab("Total Crimes")
 
 ggsave(here("results", params$year, params$month, "ac", "ac_crime_weekday_graph.jpeg"), dpi = 500)
-```
 
-```{r AC Crime by Weekday Graph Knit, echo = FALSE}
-knitr::include_graphics(here("results", params$year, params$month, "ac", "ac_crime_weekday_graph.jpeg"), dpi = 500)
+#add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "ac",
+                                  "ac_crime_weekday_graph.jpeg"), width = 9, height = 5.45),
+          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Academy: Total Crimes by Days of the Week", 
+               location = ph_location_type(
+                 type = "title") )-> report
 ```
 
 ## Academy: Crimes by Time of Day
@@ -1301,11 +1461,17 @@ monthCrimes20 %>%
     xlab("Time of Day") + ylab("Total Crimes") +
     labs(fill = "Time")
 
-ggsave(here("results", params$year, params$month, "ac", "ac_crime_timeDay_graph.jpeg"), dpi = 500)
-```
+ggsave(here("results", params$year, params$month, "ac", "ac_crime_timeDay_graph.jpeg"), width = 9, height = 5, units = "in")
 
-```{r AC Crime by Time of Day Knit, echo = FALSE}
-knitr::include_graphics(here("results", params$year, params$month, "ac", "ac_crime_timeDay_graph.jpeg"), dpi = 500)
+#add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "ac",
+                                  "ac_crime_timeDay_graph.jpeg"), width = 9, height = 5),
+          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Academy: Crimes by Time of Day", 
+               location = ph_location_type(
+                 type = "title") )-> report
 ```
 
 ## Academy: Crimes by Day & Category
@@ -1323,15 +1489,28 @@ monthCrimes20 %>%
     xlab("Day of Week") + ylab("Total Crimes") +
     labs(fill = "Part 1 Crimes")
 
-ggsave(here("results", params$year, params$month, "ac", "ac_crimeCat_weekday_graph.jpeg"), dpi = 500)
-```
+ggsave(here("results", params$year, params$month, "ac", "ac_crimeCat_weekday_graph.jpeg"), width = 9, height = 5, units = "in")
 
-```{r AC Crime by Category Weekday Graph Knit, echo = FALSE}
-knitr::include_graphics(here("results", params$year, params$month, "ac", "ac_crimeCat_weekday_graph.jpeg"), dpi = 500)
+#add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "ac",
+                                  "ac_crimeCat_weekday_graph.jpeg"), width = 9, height = 5),
+          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Academy: Crimes by Day and Category", 
+               location = ph_location_type(
+                 type = "title") )-> report
 ```
 
 ## Fountain Park: Neighborhood Detail
 ### Appendix 2
+
+```{r}
+report%>%
+  add_slide(layout = "Title Slide", master = "Office Theme")%>%
+  ph_with(value = "Fountain Park: Neighborhood Detail", location = ph_location_type(type = "ctrTitle"))%>%
+  ph_with("Appendix 2", location = ph_location_type(type = "subTitle")) -> report
+```
 
 ## Fountain Park: Time of Crimes Map
 
@@ -1361,12 +1540,12 @@ fp_dn_tm <- tm_shape(fp_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(fp_dn_tm, file = here("results", params$year, params$month, "fp", "fp_day_night.jpeg"), dpi = 500)
+tmap_save(fp_dn_tm, file = here("results", params$year, params$month, "fp", "fp_day_night.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fp", "fp_day_night.jpeg"), width = 4.06, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "fp", "fp_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Fountain Park: Time of Crimes Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1400,11 +1579,11 @@ fp_vlnt_tm <- tm_shape(fp_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(fp_vlnt_tm, file = here("results", params$year, params$month, "fp", "fp_vlnt.jpeg"), dpi = 500)
+tmap_save(fp_vlnt_tm, file = here("results", params$year, params$month, "fp", "fp_vlnt.jpeg"), width = 9, height = 5, units = "in")
 
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fp", "fp_vlnt.jpeg"), width = 4.06, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "fp", "fp_vlnt.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Fountain Park: Violent Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1439,11 +1618,11 @@ fp_den_tm <- tm_shape(fp_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(fp_den_tm, file = here("results", params$year, params$month, "fp", "fp_density.jpeg"), dpi = 500)
+tmap_save(fp_den_tm, file = here("results", params$year, params$month, "fp", "fp_density.jpeg"), width = 9, height = 5, units = "in")
 
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fp", "fp_density.jpeg"), width = 4.06, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "fp", "fp_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Fountain Park: Crime Density Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1483,16 +1662,27 @@ larceny %>%
 
 ```{r FP Larceny Tables Knit, echo = FALSE}
 flextable(fp_larcenies_weekDay) %>%
-  autofit()
+  autofit() -> flex01
 
 flextable(fp_larcenies_dayNight) %>%
-  autofit()
+  autofit() -> flex02
 
 flextable(fp_larcenies_type) %>%
-  autofit()
+  autofit() -> flex03
 
 flextable(fp_larcenies_value) %>%
-  autofit()
+  autofit() -> flex04
+
+# add to powerpoint
+report%>%
+  add_slide()%>%
+  ph_with("Fountain Park: Larceny Breakdown", 
+               location = ph_location_type(
+                 type = "title"))%>%
+  phl_with_flextable(olay = offlayout, 2, flex01)%>%
+  phl_with_flextable(olay = offlayout, 3, flex02)%>%
+  phl_with_flextable(olay = offlayout, 4, flex03)%>%
+  phl_with_flextable(olay = offlayout, 5, flex04) -> report
 ```
 
 ## Fountain Park: Total Crimes by Days of the Week
@@ -1519,10 +1709,16 @@ if(test == FALSE) {
     xlab("Day of Week") + ylab("Total Crimes")
 
 ggsave(here("results", params$year, params$month, "fp", "fp_crime_weekday_graph.jpeg"), dpi = 500)
-```
 
-```{r FP Crime by Weekday Graph Knit, echo = FALSE}
-knitr::include_graphics(here("results", params$year, params$month, "fp", "fp_crime_weekday_graph.jpeg"), dpi = 500)
+#add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "fp",
+                                  "fp_crime_weekday_graph.jpeg"), width = 9, height = 5.45),
+          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Fountain Park: Total Crimes by Days of the Week", 
+               location = ph_location_type(
+                 type = "title") )-> report
 ```
 
 ## Fountain Park: Crimes by Time of Day
@@ -1537,11 +1733,17 @@ monthCrimes20 %>%
     xlab("Time of Day") + ylab("Total Crimes") +
     labs(fill = "Time")
 
-ggsave(here("results", params$year, params$month, "fp", "fp_crime_timeDay_graph.jpeg"), dpi = 500)
-```
+ggsave(here("results", params$year, params$month, "fp", "fp_crime_timeDay_graph.jpeg"), width = 9, height = 5, units = "in")
 
-```{r FP Crime by Time of Day Knit, echo = FALSE}
-knitr::include_graphics(here("results", params$year, params$month, "fp", "fp_crime_timeDay_graph.jpeg"), dpi = 500)
+#add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "fp",
+                                  "fp_crime_timeDay_graph.jpeg"), width = 9, height = 5),
+          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Fountain Park: Crimes by Time of Day", 
+               location = ph_location_type(
+                 type = "title") )-> report
 ```
 
 ## Fountain Park: Crimes by Day & Category
@@ -1559,15 +1761,28 @@ monthCrimes20 %>%
     xlab("Day of Week") + ylab("Total Crimes") +
     labs(fill = "Part 1 Crimes")
 
-ggsave(here("results", params$year, params$month, "fp", "fp_crimeCat_weekday_graph.jpeg"), dpi = 500)
-```
+ggsave(here("results", params$year, params$month, "fp", "fp_crimeCat_weekday_graph.jpeg"), width = 9, height = 5, units = "in")
 
-```{r FP Crime by Category Weekday Graph Knit, echo = FALSE}
-knitr::include_graphics(here("results", params$year, params$month, "fp", "fp_crimeCat_weekday_graph.jpeg"), dpi = 500)
+#add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "fp",
+                                  "fp_crimeCat_weekday_graph.jpeg"), width = 9, height = 5),
+          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Fountain Park: Crimes by Day and Category", 
+               location = ph_location_type(
+                 type = "title") )-> report
 ```
 
 ## Lewis Place: Neighborhood Detail
 ### Appendix 3
+
+```{r}
+report%>%
+  add_slide(layout = "Title Slide", master = "Office Theme")%>%
+  ph_with(value = "Lewis Place: Neighborhood Detail", location = ph_location_type(type = "ctrTitle"))%>%
+  ph_with("Appendix 3", location = ph_location_type(type = "subTitle")) -> report
+```
 
 ## Lewis Place: Time of Crimes Map
 
@@ -1597,12 +1812,12 @@ lp_dn_tm <- tm_shape(lp_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(lp_dn_tm, file = here("results", params$year, params$month, "lp", "lp_day_night.jpeg"), dpi = 500)
+tmap_save(lp_dn_tm, file = here("results", params$year, params$month, "lp", "lp_day_night.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "lp", "lp_day_night.jpeg"), width = 6.18, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "lp", "lp_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Lewis Place: Time of Crimes Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1636,12 +1851,12 @@ lp_vlnt_tm <- tm_shape(lp_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(lp_vlnt_tm, file = here("results", params$year, params$month, "lp", "lp_vlnt.jpeg"), dpi = 500)
+tmap_save(lp_vlnt_tm, file = here("results", params$year, params$month, "lp", "lp_vlnt.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "lp", "lp_vlnt.jpeg"), width = 6.18, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "lp", "lp_vlnt.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Lewis Place: Violent Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1676,19 +1891,15 @@ lp_den_tm <- tm_shape(lp_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(lp_den_tm, file = here("results", params$year, params$month, "lp", "lp_density.jpeg"), dpi = 500)
+tmap_save(lp_den_tm, file = here("results", params$year, params$month, "lp", "lp_density.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "lp", "lp_density.jpeg"), width = 6.18, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "lp", "lp_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Lewis Place: Crime Density Map", 
                location = ph_location_type(
                  type = "title") )-> report
-```
-
-```{r LP Density Map Knit, echo = FALSE}
-knitr::include_graphics(here("results", params$year, params$month, "lp", "lp_density.jpeg"))
 ```
 
 ## Lewis Place: Larceny Breakdown
@@ -1725,16 +1936,27 @@ larceny %>%
 
 ```{r LP Larceny Tables Knit, echo = FALSE}
 flextable(lp_larcenies_weekDay) %>%
-  autofit()
+  autofit() -> flex01
 
 flextable(lp_larcenies_dayNight) %>%
-  autofit()
+  autofit() -> flex02
 
 flextable(lp_larcenies_type) %>%
-  autofit()
+  autofit() -> flex03
 
 flextable(lp_larcenies_value) %>%
-  autofit()
+  autofit() -> flex04
+
+# add to powerpoint
+report%>%
+  add_slide()%>%
+  ph_with("Lewis Place: Larceny Breakdown", 
+               location = ph_location_type(
+                 type = "title"))%>%
+  phl_with_flextable(olay = offlayout, 2, flex01)%>%
+  phl_with_flextable(olay = offlayout, 3, flex02)%>%
+  phl_with_flextable(olay = offlayout, 4, flex03)%>%
+  phl_with_flextable(olay = offlayout, 5, flex04) -> report
 ```
 
 ## Lewis Place: Total Crimes by Days of the Week
@@ -1761,10 +1983,16 @@ if(test == FALSE) {
     xlab("Day of Week") + ylab("Total Crimes")
 
 ggsave(here("results", params$year, params$month, "lp", "lp_crime_weekday_graph.jpeg"), dpi = 500)
-```
 
-```{r LP Crime by Weekday Graph Knit, echo = FALSE}
-knitr::include_graphics(here("results", params$year, params$month, "lp", "lp_crime_weekday_graph.jpeg"), dpi = 500)
+#add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "lp",
+                                  "lp_crime_weekday_graph.jpeg"), width = 9, height = 5.45),
+          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Lewis Place: Total Crimes by Days of the Week", 
+               location = ph_location_type(
+                 type = "title") )-> report
 ```
 
 ## Lewis Place: Crimes by Time of Day
@@ -1779,11 +2007,17 @@ monthCrimes20 %>%
     xlab("Time of Day") + ylab("Total Crimes") +
     labs(fill = "Time")
 
-ggsave(here("results", params$year, params$month, "lp", "lp_crime_timeDay_graph.jpeg"), dpi = 500)
-```
+ggsave(here("results", params$year, params$month, "lp", "lp_crime_timeDay_graph.jpeg"), width = 9, height = 5, units = "in")
 
-```{r LP Crime by Time of Day Knit, echo = FALSE}
-knitr::include_graphics(here("results", params$year, params$month, "lp", "lp_crime_timeDay_graph.jpeg"), dpi = 500)
+#add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "lp",
+                                  "lp_crime_timeDay_graph.jpeg"), width = 9, height = 5),
+          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Lewis Place: Crimes by Time of Day", 
+               location = ph_location_type(
+                 type = "title") )-> report
 ```
 
 ## Lewis Place: Crimes by Day & Category
@@ -1801,15 +2035,28 @@ monthCrimes20 %>%
     xlab("Day of Week") + ylab("Total Crimes") +
     labs(fill = "Part 1 Crimes")
 
-ggsave(here("results", params$year, params$month, "lp", "lp_crimeCat_weekday_graph.jpeg"), dpi = 500)
-```
+ggsave(here("results", params$year, params$month, "lp", "lp_crimeCat_weekday_graph.jpeg"), width = 9, height = 5, units = "in")
 
-```{r LP Crime by Category Weekday Graph Knit, echo = FALSE}
-knitr::include_graphics(here("results", params$year, params$month, "lp", "lp_crimeCat_weekday_graph.jpeg"), dpi = 500)
+#add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "lp",
+                                  "lp_crimeCat_weekday_graph.jpeg"), width = 9, height = 5),
+          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Lewis Place: Crimes by Day and Category", 
+               location = ph_location_type(
+                 type = "title") )-> report
 ```
 
 ## Vandeventer: Neighborhood Detail
 ### Appendix 4
+
+```{r}
+report%>%
+  add_slide(layout = "Title Slide", master = "Office Theme")%>%
+  ph_with(value = "Vandevneter: Neighborhood Detail", location = ph_location_type(type = "ctrTitle"))%>%
+  ph_with("Appendix 4", location = ph_location_type(type = "subTitle")) -> report
+```
 
 ## Vandeventer: Time of Crimes Map
 
@@ -1839,12 +2086,12 @@ vd_dn_tm <- tm_shape(vd_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(vd_dn_tm, file = here("results", params$year, params$month, "vd", "vd_day_night.jpeg"), dpi = 500)
+tmap_save(vd_dn_tm, file = here("results", params$year, params$month, "vd", "vd_day_night.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "vd", "vd_day_night.jpeg"), width = 8.27, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "vd", "vd_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Vandeventer: Time of Crimes Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1878,12 +2125,12 @@ vd_vlnt_tm <- tm_shape(vd_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(vd_vlnt_tm, file = here("results", params$year, params$month, "vd", "vd_vlnt.jpeg"), dpi = 500)
+tmap_save(vd_vlnt_tm, file = here("results", params$year, params$month, "vd", "vd_vlnt.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "vd", "vd_vlnt.jpeg"), width = 8.27, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "vd", "vd_vlnt.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Vandeventer: Violent Crime Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -1918,19 +2165,15 @@ vd_den_tm <- tm_shape(vd_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(vd_den_tm, file = here("results", params$year, params$month, "vd", "vd_density.jpeg"), dpi = 500)
+tmap_save(vd_den_tm, file = here("results", params$year, params$month, "vd", "vd_density.jpeg"), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "vd", "vd_day_night.jpeg"), width = 8.27, height = 7.5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "vd", "vd_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Vandeventer: Crime Density Map", 
                location = ph_location_type(
                  type = "title") )-> report
-```
-
-```{r VD Density Map Knit, echo = FALSE}
-knitr::include_graphics(here("results", params$year, params$month, "vd", "vd_density.jpeg"))
 ```
 
 ## Vandeventer: Larceny Breakdown
@@ -1967,16 +2210,27 @@ larceny %>%
 
 ```{r VD Larceny Tables Knit, echo = FALSE}
 flextable(vd_larcenies_weekDay) %>%
-  autofit()
+  autofit() -> flex01
 
 flextable(vd_larcenies_dayNight) %>%
-  autofit()
+  autofit() -> flex02
 
 flextable(vd_larcenies_type) %>%
-  autofit()
+  autofit() -> flex03
 
 flextable(vd_larcenies_value) %>%
-  autofit()
+  autofit() -> flex04
+
+# add to powerpoint
+report%>%
+  add_slide()%>%
+  ph_with("Vandeventer: Larceny Breakdown", 
+               location = ph_location_type(
+                 type = "title"))%>%
+  phl_with_flextable(olay = offlayout, 2, flex01)%>%
+  phl_with_flextable(olay = offlayout, 3, flex02)%>%
+  phl_with_flextable(olay = offlayout, 4, flex03)%>%
+  phl_with_flextable(olay = offlayout, 5, flex04) -> report
 ```
 
 ## Vandeventer: Total Crimes by Days of the Week
@@ -2012,10 +2266,16 @@ monthCrimes20 %>%
     xlab("Day of Week") + ylab("Total Crimes")
 
 ggsave(here("results", params$year, params$month, "vd", "vd_crime_weekday_graph.jpeg"), dpi = 500)
-```
 
-```{r VD Crime by Weekday Graph Knit, echo = FALSE}
-knitr::include_graphics(here("results", params$year, params$month, "vd", "vd_crime_weekday_graph.jpeg"), dpi = 500)
+#add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "vd",
+                                  "vd_crime_weekday_graph.jpeg"), width = 9, height = 5.45),
+          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Vandeventer: Total Crimes by Days of the Week", 
+               location = ph_location_type(
+                 type = "title") )-> report
 ```
 
 ## Vandeventer: Crimes by Time of Day
@@ -2030,11 +2290,17 @@ monthCrimes20 %>%
     xlab("Time of Day") + ylab("Total Crimes") +
     labs(fill = "Time")
 
-ggsave(here("results", params$year, params$month, "vd", "vd_crime_timeDay_graph.jpeg"), dpi = 500)
-```
+ggsave(here("results", params$year, params$month, "vd", "vd_crime_timeDay_graph.jpeg"), width = 9, height = 5, units = "in")
 
-```{r VD Crime by Time of Day Knit, echo = FALSE}
-knitr::include_graphics(here("results", params$year, params$month, "vd", "vd_crime_timeDay_graph.jpeg"), dpi = 500)
+#add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "vd",
+                                  "vd_crime_timeDay_graph.jpeg"), width = 9, height = 5),
+          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Vandeventer: Crimes by Time of Day", 
+               location = ph_location_type(
+                 type = "title") )-> report
 ```
 
 ## Vandeventer: Crimes by Day & Category
@@ -2052,9 +2318,21 @@ monthCrimes20 %>%
     xlab("Day of Week") + ylab("Total Crimes") +
     labs(fill = "Part 1 Crimes")
 
-ggsave(here("results", params$year, params$month, "vd", "vd_crimeCat_weekday_graph.jpeg"), dpi = 500)
+ggsave(here("results", params$year, params$month, "vd", "vd_crimeCat_weekday_graph.jpeg"), width = 9, height = 5, units = "in")
+
+#add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "vd",
+                                  "vd_crimeCat_weekday_graph.jpeg"), width = 9, height = 5),
+          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Vandeventer: Crimes by Day and Category", 
+               location = ph_location_type(
+                 type = "title") )-> report
 ```
 
-```{r VD Crime by Category Weekday Graph Knit, echo = FALSE}
-knitr::include_graphics(here("results", params$year, params$month, "vd", "vd_crimeCat_weekday_graph.jpeg"), dpi = 500)
+```{r}
+# save powerpoint report
+print(report, target = here::here("results", "presentations",  params$year, params$month, paste("ac-fp-lp-vd-", params$month, params$year, ".pptx", sep = "")))
 ```
+
