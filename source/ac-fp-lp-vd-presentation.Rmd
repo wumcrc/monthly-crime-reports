@@ -1,5 +1,5 @@
 ---
-title: "Academy, Fountain Park, Lewis Place Place, Vandeventer"
+title: "Academy, Fountain Park, Lewis Place, Vandeventer"
 subtitle: "Monthly Crime report: March 2020" 
 author: "Washington University Medical Center"
 date: '(`r format(Sys.time(), "%B %d, %Y")`)'
@@ -7,11 +7,11 @@ output:
   powerpoint_presentation
 always_allow_html: yes
 params:
-  month: April
+  month: May
   pastyear: 2019
   year: 2020
-  date: "2020-04-01"
-  pastdate: "2019-04-01"
+  date: "2020-05-01"
+  pastdate: "2019-05-01"
 ---
 
 ```{r setup, include=FALSE}
@@ -65,7 +65,7 @@ report <- read_pptx()
 ```
 
 ```{r officer layout}
-lay <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(2,2)) 
+lay <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(2,1)) 
 title <- lay_new(1, widths = 2, heights = 2)
 layout <- lay_bind_row(title, lay, heights = c(1,6))
 lay_show(layout)
@@ -80,7 +80,7 @@ offlayout <- phl_layout(layout,
     margins = c(0, 1, 1, 0),
     innerMargins = rep(0.15,4))
 
-offlayout01 <- phl_layout(layout,
+offlayout01 <- phl_layout(layout01,
     margins = c(0.25, 0.25, 0.25, 0.25),
     innerMargins = rep(0.15,4))
 ```
@@ -111,7 +111,7 @@ bold <- fp_text(color = "black", font.size = 24, bold = TRUE)
 #title slide
 report%>%
   add_slide(layout = "Title Slide", master = "Office Theme")%>%
-  ph_with(value = "Academy, Fountain Park, Lewis Place Place, Vandeventer", location = ph_location_type(type = "ctrTitle"))%>%
+  ph_with(value = "Academy, Fountain Park, Lewis Place, Vandeventer", location = ph_location_type(type = "ctrTitle"))%>%
   ph_with(c(paste("Monthly Crime Report:", params$month, params$year, sep = " "), "Washington University Medical Center"), location = ph_location_type(type = "subTitle")) -> report
 ```
 
@@ -131,15 +131,23 @@ cap20_ytd <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 51 & ytdCrimes20$crime
 
 pct_chg_mth1 <- (tc20 - tc19)/tc19
 pct_chg_mth <- percent(pct_chg_mth1)
+if(is.nan(pct_chg_mth1)){pct_chg_mth[is.nan(pct_chg_mth1)] <- 0}
+if(is.infinite(pct_chg_mth1)){pct_chg_mth[is.infinite(pct_chg_mth1)] <- "Infinite"}
 
 pct_chg_cap1 <- (cap20 - cap19)/cap19
 pct_chg_cap <- percent(pct_chg_cap1)
+if(is.nan(pct_chg_cap1)){pct_chg_cap[is.nan(pct_chg_cap1)] <- 0}
+if(is.infinite(pct_chg_cap1)){pct_chg_cap[is.infinite(pct_chg_cap1)] <- "Infinite"}
 
 pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
 pct_chg_ytd <- percent(pct_chg_ytd1)
+if(is.nan(pct_chg_ytd1)){pct_chg_ytd[is.nan(pct_chg_ytd1)] <- 0}
+if(is.infinite(pct_chg_ytd1)){pct_chg_ytd[is.infinite(pct_chg_ytd1)] <- "Infinite"}
 
 pct_chg_ytd_cap1 <- (cap20_ytd - cap19_ytd)/cap19_ytd
 pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
+if(is.nan(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.nan(pct_chg_ytd_cap1)] <- 0}
+if(is.infinite(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.infinite(pct_chg_ytd_cap1)] <- "Infinite"}
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
                     tc20, params$month, params$year)
@@ -215,6 +223,7 @@ ac_2019 %>%
 flextable(ac_2019) %>%
   colformat_num(., digits = 0) %>%
   colformat_num(., digits = 0) %>%
+  add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
 ```
 
@@ -236,6 +245,7 @@ ac_2020 %>%
 flextable(ac_2020) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(., digits = 0) %>%
+  add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
 # add powerpoint slide
@@ -387,15 +397,23 @@ cap20_ytd <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 53 & ytdCrimes20$crime
 
 pct_chg_mth1 <- (tc20 - tc19)/tc19
 pct_chg_mth <- percent(pct_chg_mth1)
+if(is.nan(pct_chg_mth1)){pct_chg_mth[is.nan(pct_chg_mth1)] <- 0}
+if(is.infinite(pct_chg_mth1)){pct_chg_mth[is.infinite(pct_chg_mth1)] <- "Infinite"}
 
 pct_chg_cap1 <- (cap20 - cap19)/cap19
 pct_chg_cap <- percent(pct_chg_cap1)
+if(is.nan(pct_chg_cap1)){pct_chg_cap[is.nan(pct_chg_cap1)] <- 0}
+if(is.infinite(pct_chg_cap1)){pct_chg_cap[is.infinite(pct_chg_cap1)] <- "Infinite"}
 
 pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
 pct_chg_ytd <- percent(pct_chg_ytd1)
+if(is.nan(pct_chg_ytd1)){pct_chg_ytd[is.nan(pct_chg_ytd1)] <- 0}
+if(is.infinite(pct_chg_ytd1)){pct_chg_ytd[is.infinite(pct_chg_ytd1)] <- "Infinite"}
 
 pct_chg_ytd_cap1 <- (cap20_ytd - cap19_ytd)/cap19_ytd
 pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
+if(is.nan(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.nan(pct_chg_ytd_cap1)] <- 0}
+if(is.infinite(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.infinite(pct_chg_ytd_cap1)] <- "Infinite"}
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
                     tc20, params$month, params$year)
@@ -471,6 +489,7 @@ fp_2019 %>%
 flextable(fp_2019) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
+  add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
 ```
 
@@ -492,6 +511,7 @@ fp_2020 %>%
 flextable(fp_2020) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
+  add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
 # add powerpoint slide
@@ -726,6 +746,7 @@ lp_2019 %>%
 flextable(lp_2019) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
+  add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
 ```
 
@@ -747,6 +768,7 @@ lp_2020 %>%
 flextable(lp_2020) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(., digits = 0) %>%
+  add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
 # add powerpoint slide
@@ -896,15 +918,23 @@ cap20_ytd <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 58 & ytdCrimes20$crime
 
 pct_chg_mth1 <- (tc20 - tc19)/tc19
 pct_chg_mth <- percent(pct_chg_mth1)
+if(is.nan(pct_chg_mth1)){pct_chg_mth[is.nan(pct_chg_mth1)] <- 0}
+if(is.infinite(pct_chg_mth1)){pct_chg_mth[is.infinite(pct_chg_mth1)] <- "Infinite"}
 
 pct_chg_cap1 <- (cap20 - cap19)/cap19
 pct_chg_cap <- percent(pct_chg_cap1)
+if(is.nan(pct_chg_cap1)){pct_chg_cap[is.nan(pct_chg_cap1)] <- 0}
+if(is.infinite(pct_chg_cap1)){pct_chg_cap[is.infinite(pct_chg_cap1)] <- "Infinite"}
 
 pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
 pct_chg_ytd <- percent(pct_chg_ytd1)
+if(is.nan(pct_chg_ytd1)){pct_chg_ytd[is.nan(pct_chg_ytd1)] <- 0}
+if(is.infinite(pct_chg_ytd1)){pct_chg_ytd[is.infinite(pct_chg_ytd1)] <- "Infinite"}
 
 pct_chg_ytd_cap1 <- (cap20_ytd - cap19_ytd)/cap19_ytd
 pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
+if(is.nan(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.nan(pct_chg_ytd_cap1)] <- 0}
+if(is.infinite(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.infinite(pct_chg_ytd_cap1)] <- "Infinite"}
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
                     tc20, params$month, params$year)
@@ -980,6 +1010,7 @@ vd_2019 %>%
 flextable(vd_2019) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
+  add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
 ```
 
@@ -1001,6 +1032,7 @@ vd_2020 %>%
 flextable(vd_2020) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
+  add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
 # add powerpoint slide
@@ -1140,7 +1172,7 @@ report%>%
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "district-5", "dst5_rates.jpeg"), width = 9, height = 5), location = ph_location_type(type = "title"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "district-5", "dst5_rates.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("District 5: Crime Rates Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -2054,7 +2086,7 @@ report%>%
 ```{r}
 report%>%
   add_slide(layout = "Title Slide", master = "Office Theme")%>%
-  ph_with(value = "Vandevneter: Neighborhood Detail", location = ph_location_type(type = "ctrTitle"))%>%
+  ph_with(value = "Vandeventer: Neighborhood Detail", location = ph_location_type(type = "ctrTitle"))%>%
   ph_with("Appendix 4", location = ph_location_type(type = "subTitle")) -> report
 ```
 
@@ -2170,7 +2202,7 @@ tmap_save(vd_den_tm, file = here("results", params$year, params$month, "vd", "vd
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "vd", "vd_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "vd", "vd_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with("Vandeventer: Crime Density Map", 
                location = ph_location_type(
                  type = "title") )-> report
@@ -2336,3 +2368,10 @@ report%>%
 print(report, target = here::here("results", "presentations",  params$year, params$month, paste("ac-fp-lp-vd-", params$month, params$year, ".pptx", sep = "")))
 ```
 
+```{r}
+# This code cleans our Global Environment.
+
+rm(list = ls())
+
+print("Great job! The code ran all the way through. You did AMAZING!")
+```

@@ -7,11 +7,11 @@ output:
   powerpoint_presentation
 always_allow_html: yes
 params:
-  month: April
+  month: May
   pastyear: 2019
   year: 2020
-  date: "2020-04-01"
-  pastdate: "2019-04-01"
+  date: "2020-05-01"
+  pastdate: "2019-05-01"
 ---
 
 ```{r setup, include=FALSE}
@@ -66,7 +66,7 @@ report <- read_pptx()
 ```
 
 ```{r officer layout}
-lay <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(2,2)) 
+lay <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(2,1)) 
 title <- lay_new(1, widths = 2, heights = 2)
 layout <- lay_bind_row(title, lay, heights = c(1,6))
 lay_show(layout)
@@ -81,7 +81,7 @@ offlayout <- phl_layout(layout,
     margins = c(0, 1, 1, 0),
     innerMargins = rep(0.15,4))
 
-offlayout01 <- phl_layout(layout,
+offlayout01 <- phl_layout(layout01,
     margins = c(0.25, 0.25, 0.25, 0.25),
     innerMargins = rep(0.15,4))
 ```
@@ -131,15 +131,23 @@ cap20_ytd <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 39 & ytdCrimes20$crime
 
 pct_chg_mth1 <- (tc20 - tc19)/tc19
 pct_chg_mth <- percent(pct_chg_mth1)
+if(is.nan(pct_chg_mth1)){pct_chg_mth[is.nan(pct_chg_mth1)] <- 0}
+if(is.infinite(pct_chg_mth1)){pct_chg_mth[is.infinite(pct_chg_mth1)] <- "Infinite"}
 
 pct_chg_cap1 <- (cap20 - cap19)/cap19
 pct_chg_cap <- percent(pct_chg_cap1)
+if(is.nan(pct_chg_cap1)){pct_chg_cap[is.nan(pct_chg_cap1)] <- 0}
+if(is.infinite(pct_chg_cap1)){pct_chg_cap[is.infinite(pct_chg_cap1)] <- "Infinite"}
 
 pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
 pct_chg_ytd <- percent(pct_chg_ytd1)
+if(is.nan(pct_chg_ytd1)){pct_chg_ytd[is.nan(pct_chg_ytd1)] <- 0}
+if(is.infinite(pct_chg_ytd1)){pct_chg_ytd[is.infinite(pct_chg_ytd1)] <- "Infinite"}
 
 pct_chg_ytd_cap1 <- (cap20_ytd - cap19_ytd)/cap19_ytd
 pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
+if(is.nan(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.nan(pct_chg_ytd_cap1)] <- 0}
+if(is.infinite(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.infinite(pct_chg_ytd_cap1)] <- "Infinite"}
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
                     tc20, params$month, params$year)
@@ -215,6 +223,7 @@ fpse_2019 %>%
 flextable(fpse_2019) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(., digits = 0) %>%
+  add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
 ```
 
@@ -236,6 +245,7 @@ fpse_2020 %>%
 flextable(fpse_2020) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
+  add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
 # add powerpoint slide
@@ -385,15 +395,23 @@ cap20_ytd <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 28 & ytdCrimes20$crime
 
 pct_chg_mth1 <- (tc20 - tc19)/tc19
 pct_chg_mth <- percent(pct_chg_mth1)
+if(is.nan(pct_chg_mth1)){pct_chg_mth[is.nan(pct_chg_mth1)] <- 0}
+if(is.infinite(pct_chg_mth1)){pct_chg_mth[is.infinite(pct_chg_mth1)] <- "Infinite"}
 
 pct_chg_cap1 <- (cap20 - cap19)/cap19
 pct_chg_cap <- percent(pct_chg_cap1)
+if(is.nan(pct_chg_cap1)){pct_chg_cap[is.nan(pct_chg_cap1)] <- 0}
+if(is.infinite(pct_chg_cap1)){pct_chg_cap[is.infinite(pct_chg_cap1)] <- "Infinite"}
 
 pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
 pct_chg_ytd <- percent(pct_chg_ytd1)
+if(is.nan(pct_chg_ytd1)){pct_chg_ytd[is.nan(pct_chg_ytd1)] <- 0}
+if(is.infinite(pct_chg_ytd1)){pct_chg_ytd[is.infinite(pct_chg_ytd1)] <- "Infinite"}
 
 pct_chg_ytd_cap1 <- (cap20_ytd - cap19_ytd)/cap19_ytd
 pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
+if(is.nan(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.nan(pct_chg_ytd_cap1)] <- 0}
+if(is.infinite(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.infinite(pct_chg_ytd_cap1)] <- "Infinite"}
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
                     tc20, params$month, params$year)
@@ -470,6 +488,7 @@ bot_2019 %>%
 flextable(bot_2019) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
+  add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
 ```
 
@@ -491,6 +510,7 @@ bot_2020 %>%
 flextable(bot_2020) %>%
   colformat_num(., digits = 0) %>%
   colformat_num(., digits = 0) %>%
+  add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
 # add powerpoint slide
@@ -787,15 +807,23 @@ cap20_ytd <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 38 & ytdCrimes20$crime
 
 pct_chg_mth1 <- (tc20 - tc19)/tc19
 pct_chg_mth <- percent(pct_chg_mth1)
+if(is.nan(pct_chg_mth1)){pct_chg_mth[is.nan(pct_chg_mth1)] <- 0}
+if(is.infinite(pct_chg_mth1)){pct_chg_mth[is.infinite(pct_chg_mth1)] <- "Infinite"}
 
 pct_chg_cap1 <- (cap20 - cap19)/cap19
 pct_chg_cap <- percent(pct_chg_cap1)
+if(is.nan(pct_chg_cap1)){pct_chg_cap[is.nan(pct_chg_cap1)] <- 0}
+if(is.infinite(pct_chg_cap1)){pct_chg_cap[is.infinite(pct_chg_cap1)] <- "Infinite"}
 
 pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
 pct_chg_ytd <- percent(pct_chg_ytd1)
+if(is.nan(pct_chg_ytd1)){pct_chg_ytd[is.nan(pct_chg_ytd1)] <- 0}
+if(is.infinite(pct_chg_ytd1)){pct_chg_ytd[is.infinite(pct_chg_ytd1)] <- "Infinite"}
 
 pct_chg_ytd_cap1 <- (cap20_ytd - cap19_ytd)/cap19_ytd
 pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
+if(is.nan(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.nan(pct_chg_ytd_cap1)] <- 0}
+if(is.infinite(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.infinite(pct_chg_ytd_cap1)] <- "Infinite"}
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
                     tc20, params$month, params$year)
@@ -871,6 +899,7 @@ cwe_2019 %>%
 flextable(cwe_2019) %>%
   colformat_num(., digits = 0) %>%
   colformat_num(., digits = 0) %>%
+  add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
 ```
 
@@ -892,6 +921,7 @@ cwe_2020 %>%
 flextable(cwe_2020) %>%
   colformat_num(., digits = 0) %>%
   colformat_num(., digits = 0) %>%
+  add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
 # add powerpoint slide
@@ -1041,15 +1071,23 @@ cap20_ytd <- nrow(mc_crimes_ytd20[mc_crimes_ytd20$crimeCatNum == 4 | mc_crimes_y
 
 pct_chg_mth1 <- (tc20 - tc19)/tc19
 pct_chg_mth <- percent(pct_chg_mth1)
+if(is.nan(pct_chg_mth1)){pct_chg_mth[is.nan(pct_chg_mth1)] <- 0}
+if(is.infinite(pct_chg_mth1)){pct_chg_mth[is.infinite(pct_chg_mth1)] <- "Infinite"}
 
 pct_chg_cap1 <- (cap20 - cap19)/cap19
 pct_chg_cap <- percent(pct_chg_cap1)
+if(is.nan(pct_chg_cap1)){pct_chg_cap[is.nan(pct_chg_cap1)] <- 0}
+if(is.infinite(pct_chg_cap1)){pct_chg_cap[is.infinite(pct_chg_cap1)] <- "Infinite"}
 
 pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
 pct_chg_ytd <- percent(pct_chg_ytd1)
+if(is.nan(pct_chg_ytd1)){pct_chg_ytd[is.nan(pct_chg_ytd1)] <- 0}
+if(is.infinite(pct_chg_ytd1)){pct_chg_ytd[is.infinite(pct_chg_ytd1)] <- "Infinite"}
 
 pct_chg_ytd_cap1 <- (cap20_ytd - cap19_ytd)/cap19_ytd
 pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
+if(is.nan(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.nan(pct_chg_ytd_cap1)] <- 0}
+if(is.infinite(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.infinite(pct_chg_ytd_cap1)] <- "Infinite"}
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
                     tc20, params$month, params$year)
@@ -1123,6 +1161,7 @@ mc_2019 %>%
 flextable(mc_2019) %>%
   colformat_num(., digits = 0) %>%
   colformat_num(., digits = 0) %>%
+  add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
 ```
 
@@ -1144,6 +1183,7 @@ mc_2020 %>%
 flextable(mc_2020) %>%
   colformat_num(., digits = 0) %>%
   colformat_num(., digits = 0) %>%
+  add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
 # add powerpoint slide
@@ -2028,3 +2068,10 @@ report%>%
 print(report, target = here::here("results", "presentations",  params$year, params$month, paste("fpse-bot-cwe-mc-", params$month, params$year, ".pptx", sep = "")))
 ```
 
+```{r}
+# This code cleans our Global Environment.
+
+rm(list = ls())
+
+print("Great job! The code ran all the way through. You did AMAZING!")
+```
