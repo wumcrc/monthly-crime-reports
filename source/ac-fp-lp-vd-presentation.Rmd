@@ -1383,7 +1383,7 @@ tmap_save(ac_den_tm, file = here("results", params$year, params$month, "ac", "ac
 report%>%
   add_slide()%>%
   ph_with(external_img(here::here("results", params$year, params$month, "ac", "ac_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Academy: Crime Density Map", 
+  ph_with(paste("Academy: Crime Density Map", params$year, sep = " "),
                location = ph_location_type(
                  type = "title") )-> report
 ```
@@ -1655,7 +1655,7 @@ tmap_save(fp_den_tm, file = here("results", params$year, params$month, "fp", "fp
 report%>%
   add_slide()%>%
   ph_with(external_img(here::here("results", params$year, params$month, "fp", "fp_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Fountain Park: Crime Density Map", 
+  ph_with(paste("Fountain Park: Crime Density Map", params$year, sep = " "),
                location = ph_location_type(
                  type = "title") )-> report
 ```
@@ -1929,7 +1929,7 @@ tmap_save(lp_den_tm, file = here("results", params$year, params$month, "lp", "lp
 report%>%
   add_slide()%>%
   ph_with(external_img(here::here("results", params$year, params$month, "lp", "lp_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Lewis Place: Crime Density Map", 
+  ph_with(paste("Lewis Place: Crime Density Map", params$year, sep = " "),
                location = ph_location_type(
                  type = "title") )-> report
 ```
@@ -2203,7 +2203,7 @@ tmap_save(vd_den_tm, file = here("results", params$year, params$month, "vd", "vd
 report%>%
   add_slide()%>%
   ph_with(external_img(here::here("results", params$year, params$month, "vd", "vd_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Vandeventer: Crime Density Map", 
+  ph_with(paste("Vandeventer: Crime Density Map", params$year, sep = " "),
                location = ph_location_type(
                  type = "title") )-> report
 ```
