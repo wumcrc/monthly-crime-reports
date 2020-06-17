@@ -1659,7 +1659,7 @@ tmap_save(dbp_den_tm, file = here("results", params$year, params$month, "dbp", "
 report%>%
   add_slide()%>%
   ph_with(external_img(here::here("results", params$year, params$month, "dbp", "dbp_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("DeBaliviere Place: Crime Density Map", 
+  ph_with("DeBaliviere Place: Crime Density Map",
                location = ph_location_type(
                  type = "title") )-> report
 ```
