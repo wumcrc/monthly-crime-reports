@@ -1388,7 +1388,7 @@ tmap_save(sdb_den_tm, file = here("results", params$year, params$month, "sdb", "
 report%>%
   add_slide()%>%
   ph_with(external_img(here::here("results", params$year, params$month, "sdb", "sdb_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with(paste("Skinker DeBaliviere: Crime Density Map", params$year, sep = " "),
+  ph_with("Skinker DeBaliviere: Crime Density Map", 
                location = ph_location_type(
                  type = "title") )-> report
 ```
@@ -1659,7 +1659,7 @@ tmap_save(dbp_den_tm, file = here("results", params$year, params$month, "dbp", "
 report%>%
   add_slide()%>%
   ph_with(external_img(here::here("results", params$year, params$month, "dbp", "dbp_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with(paste("DeBaliviere Place: Crime Density Map", params$year, sep = " "),
+  ph_with("DeBaliviere Place: Crime Density Map",
                location = ph_location_type(
                  type = "title") )-> report
 ```
@@ -1930,7 +1930,7 @@ tmap_save(we_den_tm, file = here("results", params$year, params$month, "we", "we
 report%>%
   add_slide()%>%
   ph_with(external_img(here::here("results", params$year, params$month, "we", "we_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with(paste("West End: Crime Density Map", params$year, sep = " "),
+  ph_with("West End: Crime Density", 
                location = ph_location_type(
                  type = "title") )-> report
 ```
