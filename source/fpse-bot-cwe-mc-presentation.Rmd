@@ -1588,7 +1588,7 @@ tmap_save(fpse_den_tm, file = here("results", params$year, params$month, "fpse",
 report%>%
   add_slide()%>%
   ph_with(external_img(here::here("results", params$year, params$month, "fpse", "fpse_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with(paste("Forest Park Southeast: Crime Density Map", params$year, sep = " "),
+  ph_with("Forest Park Southeast: Crime Density Map",
                location = ph_location_type(
                  type = "title") )-> report
 ```
@@ -1914,7 +1914,7 @@ tmap_save(cwe_den_tm, file = here("results", params$year, params$month, "cwe", "
 report%>%
   add_slide()%>%
   ph_with(external_img(here::here("results", params$year, params$month, "cwe", "cwe_density.jpeg"), width = 9, height = 5), location = ph_location_type(type="body"), use_loc_size = FALSE)%>%
-  ph_with(paste("Central West End: Crime Density Map", params$year, sep = " "),
+  ph_with("Central West End: Crime Density Map", 
                location = ph_location_type(
                  type = "title") )-> report
 ```
