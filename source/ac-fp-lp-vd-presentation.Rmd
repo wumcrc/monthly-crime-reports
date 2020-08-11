@@ -7,11 +7,11 @@ output:
   powerpoint_presentation
 always_allow_html: yes
 params:
-  month: June
+  month: July
   pastyear: 2019
   year: 2020
-  date: "2020-06-01"
-  pastdate: "2019-06-01"
+  date: "2020-07-01"
+  pastdate: "2019-07-01"
 ---
 
 ```{r setup, include=FALSE}
@@ -163,18 +163,22 @@ color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_
 # create summary notes
 summary <- block_list(
   fpar(ftext(sprint_1, boldline)),
-  fpar(ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
+  fpar(ftext(paste(" ", sep = ""), reg24),
+       ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
        ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
   fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
-  fpar(ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
+  fpar(ftext(paste(" ", sep = ""), reg20),
+       ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
        ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
   fpar(ftext(sprint_2, boldline)),
-  fpar(ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
+  fpar(ftext(paste(" ", sep = ""), reg24),
+       ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
        ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
   fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$year, sep = " "), reg24)),
-  fpar(ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
+  fpar(ftext(paste(" ", sep = ""), reg20),
+       ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
        ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
 )
 
@@ -429,18 +433,22 @@ color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_
 # create summary notes
 summary <- block_list(
   fpar(ftext(sprint_1, boldline)),
-  fpar(ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
+  fpar(ftext(paste(" ", sep = ""), reg24),
+       ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
        ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
   fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
-  fpar(ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
+  fpar(ftext(paste(" ", sep = ""), reg20),
+       ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
        ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
   fpar(ftext(sprint_2, boldline)),
-  fpar(ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
+  fpar(ftext(paste(" ", sep = ""), reg24),
+       ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
        ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
   fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$year, sep = " "), reg24)),
-  fpar(ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
+  fpar(ftext(paste(" ", sep = ""), reg20),
+       ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
        ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
 )
 
@@ -686,18 +694,22 @@ color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_
 # create summary notes
 summary <- block_list(
   fpar(ftext(sprint_1, boldline)),
-  fpar(ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
+  fpar(ftext(paste(" ", sep = ""), reg24),
+       ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
        ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
   fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
-  fpar(ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
+  fpar(ftext(paste(" ", sep = ""), reg20),
+       ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
        ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
   fpar(ftext(sprint_2, boldline)),
-  fpar(ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
+  fpar(ftext(paste(" ", sep = ""), reg24),
+       ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
        ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
   fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$year, sep = " "), reg24)),
-  fpar(ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
+  fpar(ftext(paste(" ", sep = ""), reg20),
+       ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
        ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
 )
 
@@ -950,18 +962,22 @@ color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_
 # create summary notes
 summary <- block_list(
   fpar(ftext(sprint_1, boldline)),
-  fpar(ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
+  fpar(ftext(paste(" ", sep = ""), reg24),
+       ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
        ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
   fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
-  fpar(ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
+  fpar(ftext(paste(" ", sep = ""), reg20),
+       ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
        ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
   fpar(ftext(sprint_2, boldline)),
-  fpar(ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
+  fpar(ftext(paste(" ", sep = ""), reg24),
+       ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
        ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
   fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$year, sep = " "), reg24)),
-  fpar(ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
+  fpar(ftext(paste(" ", sep = ""), reg20),
+       ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
        ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
 )
 
