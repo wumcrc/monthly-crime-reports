@@ -7,11 +7,11 @@ output:
   powerpoint_presentation
 always_allow_html: yes
 params:
-  month: July
+  month: August
   pastyear: 2019
   year: 2020
-  date: "2020-07-01"
-  pastdate: "2019-07-01"
+  date: "2020-08-01"
+  pastdate: "2019-08-01"
 ---
 
 ```{r setup, include=FALSE}
@@ -32,7 +32,7 @@ library(scales)
 # spatial packages
 library(tmap)         # map layouts
 library(tmaptools)    # tools for handeling spatial
-#library(oldtmaptools) # deprecated toolds for spatial analysis
+library(oldtmaptools) # deprecated toolds for spatial analysis
 library(sf)           # spatial data tools
 library(ceramic)      # download online imagery tiles
 library(compstatr)    # tools for STL crime data
