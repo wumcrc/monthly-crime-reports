@@ -2088,11 +2088,11 @@ file <- read_pptx(here::here("results", "presentations",  params$year, params$mo
 
 #delete any existing fpse-bot-cwe-mc file in the Shiny app
 mydir <- "/Users/loganbogenut/Documents/GitHub/crime_interactive/crime_interactive/www/"
-file.remove(file.path(mydir, dir(path = mydir, pattern = "fpse-bot-cwe-mc-")))
+file.remove(file.path(mydir, dir(path = mydir, pattern = "Center_crime")))
 
 #convert & save powerpoint as PDF to Shiny app
 convert_to_pdf(path = here::here("results", "presentations",  params$year, params$month, paste("fpse-bot-cwe-mc-", params$month, params$year, ".pptx", sep = "")),
-               pdf_file = sub("[.]pptx", ".pdf", paste("~/Documents/GitHub/crime_interactive/crime_interactive/www/", "fpse-bot-cwe-mc-", params$month, params$year, ".pptx", sep = "")))
+               pdf_file = sub("[.]pptx", ".pdf", paste("~/Documents/GitHub/crime_interactive/crime_interactive/www/", "Forest Park Southeast, Botanical Heights, Central West End, Medical Center_crime", ".pptx", sep = "")))
 ```
 
 ```{r}

@@ -2386,11 +2386,11 @@ print(report, target = here::here("results", "presentations",  params$year, para
 
 #delete any existing ac-fp-lp-vd file in the Shiny app
 mydir <- "/Users/loganbogenut/Documents/GitHub/crime_interactive/crime_interactive/www/"
-file.remove(file.path(mydir, dir(path = mydir, pattern = "ac-fp-lp-vd-")))
+file.remove(file.path(mydir, dir(path = mydir, pattern = "Vandeventer_crime")))
 
 #convert & save powerpoint as PDF to Shiny app
 convert_to_pdf(path = here::here("results", "presentations",  params$year, params$month, paste("ac-fp-lp-vd-", params$month, params$year, ".pptx", sep = "")),
-               pdf_file = sub("[.]pptx", ".pdf", paste("~/Documents/GitHub/crime_interactive/crime_interactive/www/", "ac-fp-lp-vd-", params$month, params$year, ".pptx", sep = "")))
+               pdf_file = sub("[.]pptx", ".pdf", paste("~/Documents/GitHub/crime_interactive/crime_interactive/www/", "Academy, Fountain Park, Lewis Place, Vandeventer_crime", ".pptx", sep = "")))
 ```
 
 ```{r}
