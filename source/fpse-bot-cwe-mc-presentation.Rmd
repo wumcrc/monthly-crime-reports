@@ -7,11 +7,11 @@ output:
   powerpoint_presentation
 always_allow_html: yes
 params:
-  month: September
+  month: October
   pastyear: 2019
   year: 2020
-  date: "2020-09-01"
-  pastdate: "2019-09-01"
+  date: "2020-10-01"
+  pastdate: "2019-10-01"
 ---
 
 ```{r setup, include=FALSE}
