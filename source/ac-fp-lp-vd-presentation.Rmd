@@ -1642,9 +1642,19 @@ report%>%
 
 ```{r FP Density Map Prep, include = FALSE}
 monthCrimes20_sf %>%
-  filter(neighborhood == 53) %>%
+  filter(neighborhood == 53) -> TEST
+
+TEST %>% 
+  filter(., complaint != "20-049181") -> TEST
+
+TEST %>% 
   smooth_map(., bandwidth = 0.5, style = "pretty",
   cover = fp) -> fp_densities
+
+#monthCrimes20_sf %>%
+#  filter(neighborhood == 53) %>%
+#  smooth_map(., bandwidth = 0.5, style = "pretty",
+#  cover = fp) -> fp_densities
 
 fp_den_tm <- tm_shape(fp_tiles) +
   tm_rgb() +
