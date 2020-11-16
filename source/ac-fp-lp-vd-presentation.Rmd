@@ -100,6 +100,7 @@ wkdys <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 cols <- c("Aggravated Assault" = "#e41a1c", "Arson" = "#A65628", "Burgalry" = "#377eb8", 
           "Homicide" = "#FFFF33", "Larceny" = "#4DAF4A", "Motor Vehicle Theft" = "#984EA3", 
           "Robbery" = "#FF7F00") 
+tf_cols <- c("TRUE" = "#FEE0D2", "FALSE" = "#DE2D26")
 
 # summary note colors
 reg24 <- fp_text(color = 'black', font.size = 24)
@@ -1344,7 +1345,7 @@ ac_vlnt_tm <- tm_shape(ac_tiles) +
   tm_shape() +
     tm_bubbles(size = .25,
                col = "violent",
-               palette = "Reds",
+               palette = tf_cols,
                title.col = "Violent") +
   tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
   tm_layout(
@@ -1618,7 +1619,7 @@ fp_vlnt_tm <- tm_shape(fp_tiles) +
   tm_shape() +
     tm_bubbles(size = .25,
                col = "violent",
-               palette = "Reds",
+               palette = tf_cols,
                title.col = "Violent") +
   tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
   tm_layout(
@@ -1900,7 +1901,7 @@ lp_vlnt_tm <- tm_shape(lp_tiles) +
   tm_shape() +
     tm_bubbles(size = .25,
                col = "violent",
-               palette = "Reds",
+               palette = tf_cols,
                title.col = "Violent") +
   tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
   tm_layout(
@@ -2174,7 +2175,7 @@ vd_vlnt_tm <- tm_shape(vd_tiles) +
   tm_shape() +
     tm_bubbles(size = .25,
                col = "violent",
-               palette = "Reds",
+               palette = tf_cols,
                title.col = "Violent") +
   tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
   tm_layout(

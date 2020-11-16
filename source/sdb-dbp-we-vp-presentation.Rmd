@@ -7,11 +7,11 @@ output:
   powerpoint_presentation
 always_allow_html: yes
 params:
-  month: September
+  month: October
   pastyear: 2019
   year: 2020
-  date: "2020-09-01"
-  pastdate: "2019-09-01"
+  date: "2020-10-01"
+  pastdate: "2019-10-01"
 ---
 
 ```{r setup, include=FALSE}
@@ -100,6 +100,8 @@ wkdys <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 cols <- c("Aggravated Assault" = "#e41a1c", "Arson" = "#A65628", "Burgalry" = "#377eb8", 
           "Homicide" = "#FFFF33", "Larceny" = "#4DAF4A", "Motor Vehicle Theft" = "#984EA3", 
           "Robbery" = "#FF7F00") 
+
+tf_cols <- c("TRUE" = "#FEE0D2", "FALSE" = "#DE2D26")
 
 # summary note colors
 reg24 <- fp_text(color = 'black', font.size = 24)
@@ -1349,7 +1351,7 @@ sdb_vlnt_tm <- tm_shape(sdb_tiles) +
   tm_shape() +
     tm_bubbles(size = .25,
                col = "violent",
-               palette = "Reds",
+               palette = tf_cols,
                title.col = "Violent") +
   tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
   tm_layout(
@@ -1620,7 +1622,7 @@ dbp_vlnt_tm <- tm_shape(dbp_tiles) +
   tm_shape() +
     tm_bubbles(size = .25,
                col = "violent",
-               palette = "Reds",
+               palette = tf_cols,
                title.col = "Violent") +
   tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
   tm_layout(
@@ -1891,7 +1893,7 @@ we_vlnt_tm <- tm_shape(we_tiles) +
   tm_shape() +
     tm_bubbles(size = .25,
                col = "violent",
-               palette = "Reds",
+               palette = tf_cols,
                title.col = "Violent") +
   tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
   tm_layout(
@@ -2162,7 +2164,7 @@ vp_vlnt_tm <- tm_shape(vp_tiles) +
   tm_shape() +
     tm_bubbles(size = .25,
                col = "violent",
-               palette = "Reds",
+               palette = tf_cols,
                title.col = "Violent") +
   tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
   tm_layout(
