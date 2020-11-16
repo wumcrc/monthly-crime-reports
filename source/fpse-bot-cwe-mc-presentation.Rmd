@@ -102,7 +102,7 @@ cols <- c("Aggravated Assault" = "#e41a1c", "Arson" = "#A65628", "Burgalry" = "#
           "Homicide" = "#FFFF33", "Larceny" = "#4DAF4A", "Motor Vehicle Theft" = "#984EA3", 
           "Robbery" = "#FF7F00") 
 
-tf_cols <- c("TRUE" = "#FEE0D2", "FALSE" = "#DE2D26")
+tf_cols <- c("TRUE" = "#DE2D26", "FALSE" = "#FEE0D2")
 
 # summary note colors
 reg24 <- fp_text(color = 'black', font.size = 24)
