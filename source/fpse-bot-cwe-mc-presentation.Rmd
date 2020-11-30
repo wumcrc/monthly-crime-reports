@@ -249,9 +249,19 @@ fpse_2020 %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Part 1 Crimes" = crimeCatName) -> fpse_2020
 
-flextable(fpse_2020) %>%
-  colformat_num(.,  digits = 0) %>%
-  colformat_num(.,  digits = 0) %>%
+#compare dataframes and get common columns
+common_cols <- intersect(colnames(fpse_2020), colnames(fpse_2019))
+#drop columns that aren't shared
+fpse_2020 <- fpse_2020[,common_cols, drop=FALSE]
+fpse_2019 <- fpse_2019[,common_cols, drop=FALSE]
+#assign colors, green is a decrease in crime, red is an increase, transparent is no change
+colors <- unlist(fpse_2020[-1] - fpse_2019[-1]) %>% 
+  cut(breaks = c(-Inf, -.1, 0.1, Inf),
+      labels = c("green", "transparent", "red")) %>% 
+  as.character()
+#make flextable, color all columns except the first
+flextable(fpse_2020) %>% 
+  bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
@@ -518,9 +528,19 @@ bot_2020 %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Part 1 Crimes" = crimeCatName) -> bot_2020
 
-flextable(bot_2020) %>%
-  colformat_num(., digits = 0) %>%
-  colformat_num(., digits = 0) %>%
+#compare dataframes and get common columns
+common_cols <- intersect(colnames(bot_2020), colnames(bot_2019))
+#drop columns that aren't shared
+bot_2020 <- bot_2020[,common_cols, drop=FALSE]
+bot_2019 <- bot_2019[,common_cols, drop=FALSE]
+#assign colors, green is a decrease in crime, red is an increase, transparent is no change
+colors <- unlist(bot_2020[-1] - bot_2019[-1]) %>% 
+  cut(breaks = c(-Inf, -.1, 0.1, Inf),
+      labels = c("green", "transparent", "red")) %>% 
+  as.character()
+#make flextable, color all columns except the first
+flextable(bot_2020) %>% 
+  bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
@@ -933,9 +953,19 @@ cwe_2020 %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Part 1 Crimes" = crimeCatName) -> cwe_2020
 
-flextable(cwe_2020) %>%
-  colformat_num(., digits = 0) %>%
-  colformat_num(., digits = 0) %>%
+#compare dataframes and get common columns
+common_cols <- intersect(colnames(cwe_2020), colnames(cwe_2019))
+#drop columns that aren't shared
+cwe_2020 <- cwe_2020[,common_cols, drop=FALSE]
+cwe_2019 <- cwe_2019[,common_cols, drop=FALSE]
+#assign colors, green is a decrease in crime, red is an increase, transparent is no change
+colors <- unlist(cwe_2020[-1] - cwe_2019[-1]) %>% 
+  cut(breaks = c(-Inf, -.1, 0.1, Inf),
+      labels = c("green", "transparent", "red")) %>% 
+  as.character()
+#make flextable, color all columns except the first
+flextable(cwe_2020) %>% 
+  bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
@@ -1199,9 +1229,19 @@ mc_2020 %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Part 1 Crimes" = crimeCatName) -> mc_2020
 
-flextable(mc_2020) %>%
-  colformat_num(., digits = 0) %>%
-  colformat_num(., digits = 0) %>%
+#compare dataframes and get common columns
+common_cols <- intersect(colnames(mc_2020), colnames(mc_2019))
+#drop columns that aren't shared
+mc_2020 <- mc_2020[,common_cols, drop=FALSE]
+mc_2019 <- mc_2019[,common_cols, drop=FALSE]
+#assign colors, green is a decrease in crime, red is an increase, transparent is no change
+colors <- unlist(mc_2020[-1] - mc_2019[-1]) %>% 
+  cut(breaks = c(-Inf, -.1, 0.1, Inf),
+      labels = c("green", "transparent", "red")) %>% 
+  as.character()
+#make flextable, color all columns except the first
+flextable(mc_2020) %>% 
+  bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
