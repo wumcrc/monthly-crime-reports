@@ -91,7 +91,7 @@ offlayout01 <- phl_layout(layout01,
 colkeys19 <- totalCrimes19$monthVar
 colkeys20 <- ytdCrimes20$monthVar
 colkeystotal <- c("Total")
-part1crimes <- c("Aggravated Assault", "Arson", "Burgalry", "Homicide", "Larceny", "Motor Vehicle Theft", "Robbery")
+part1crimes <- c("Aggravated Assault", "Arson", "Burgalry", "Homicide", "Larceny", "Motor Vehicle Theft", "Robbery", "Rape")
 wkdys <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 #tmap_options()
 ```
@@ -248,9 +248,19 @@ ac_2020 %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Part 1 Crimes" = crimeCatName) -> ac_2020
 
-flextable(ac_2020) %>%
-  colformat_num(.,  digits = 0) %>%
-  colformat_num(., digits = 0) %>%
+#compare dataframes and get common columns
+common_cols <- intersect(colnames(ac_2020), colnames(ac_2019))
+#drop columns that aren't shared
+ac_2020 <- ac_2020[,common_cols, drop=FALSE]
+ac_2019 <- ac_2019[,common_cols, drop=FALSE]
+#assign colors, green is a decrease in crime, red is an increase, transparent is no change
+colors <- unlist(ac_2020[-1] - ac_2019[-1]) %>% 
+  cut(breaks = c(-Inf, -.1, 0.1, Inf),
+      labels = c("green", "transparent", "red")) %>% 
+  as.character()
+#make flextable, color all columns except the first
+flextable(ac_2020) %>% 
+  bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
@@ -518,9 +528,19 @@ fp_2020 %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Part 1 Crimes" = crimeCatName) -> fp_2020
 
-flextable(fp_2020) %>%
-  colformat_num(.,  digits = 0) %>%
-  colformat_num(.,  digits = 0) %>%
+#compare dataframes and get common columns
+common_cols <- intersect(colnames(fp_2020), colnames(fp_2019))
+#drop columns that aren't shared
+fp_2020 <- fp_2020[,common_cols, drop=FALSE]
+fp_2019 <- fp_2019[,common_cols, drop=FALSE]
+#assign colors, green is a decrease in crime, red is an increase, transparent is no change
+colors <- unlist(fp_2020[-1] - fp_2019[-1]) %>% 
+  cut(breaks = c(-Inf, -.1, 0.1, Inf),
+      labels = c("green", "transparent", "red")) %>% 
+  as.character()
+#make flextable, color all columns except the first
+flextable(fp_2020) %>% 
+  bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
@@ -779,9 +799,19 @@ lp_2020 %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Part 1 Crimes" = crimeCatName) -> lp_2020
 
-flextable(lp_2020) %>%
-  colformat_num(.,  digits = 0) %>%
-  colformat_num(., digits = 0) %>%
+#compare dataframes and get common columns
+common_cols <- intersect(colnames(lp_2020), colnames(lp_2019))
+#drop columns that aren't shared
+lp_2020 <- lp_2020[,common_cols, drop=FALSE]
+lp_2019 <- lp_2019[,common_cols, drop=FALSE]
+#assign colors, green is a decrease in crime, red is an increase, transparent is no change
+colors <- unlist(lp_2020[-1] - lp_2019[-1]) %>% 
+  cut(breaks = c(-Inf, -.1, 0.1, Inf),
+      labels = c("green", "transparent", "red")) %>% 
+  as.character()
+#make flextable, color all columns except the first
+flextable(lp_2020) %>% 
+  bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
@@ -1047,9 +1077,19 @@ vd_2020 %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Part 1 Crimes" = crimeCatName) -> vd_2020
 
-flextable(vd_2020) %>%
-  colformat_num(.,  digits = 0) %>%
-  colformat_num(.,  digits = 0) %>%
+#compare dataframes and get common columns
+common_cols <- intersect(colnames(vd_2020), colnames(vd_2019))
+#drop columns that aren't shared
+vd_2020 <- vd_2020[,common_cols, drop=FALSE]
+vd_2019 <- vd_2019[,common_cols, drop=FALSE]
+#assign colors, green is a decrease in crime, red is an increase, transparent is no change
+colors <- unlist(vd_2020[-1] - vd_2019[-1]) %>% 
+  cut(breaks = c(-Inf, -.1, 0.1, Inf),
+      labels = c("green", "transparent", "red")) %>% 
+  as.character()
+#make flextable, color all columns except the first
+flextable(vd_2020) %>% 
+  bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
 
