@@ -231,6 +231,8 @@ flextable(ac_2019) %>%
   colformat_num(., digits = 0) %>%
   add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
+#Adjust flextable height to fit powerpoint slide
+flex <- height_all(flex, height = .25, part = "all")
 ```
 
 ```{r ac Total Crimes Flextable 2020, echo = FALSE}
@@ -263,6 +265,8 @@ flextable(ac_2020) %>%
   bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
+#Adjust flextable height to fit powerpoint slide
+flex01 <- height_all(flex01, height = .25, part = "all")
 
 # add powerpoint slide
 report%>%
@@ -511,6 +515,8 @@ flextable(fp_2019) %>%
   colformat_num(.,  digits = 0) %>%
   add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
+#Adjust flextable height to fit powerpoint slide
+flex <- height_all(flex, height = .25, part = "all")
 ```
 
 ```{r fp Total Crimes Flextable 2020, echo = FALSE}
@@ -543,6 +549,8 @@ flextable(fp_2020) %>%
   bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
+#Adjust flextable height to fit powerpoint slide
+flex01 <- height_all(flex01, height = .25, part = "all")
 
 # add powerpoint slide
 report%>%
@@ -782,6 +790,8 @@ flextable(lp_2019) %>%
   colformat_num(.,  digits = 0) %>%
   add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
+#Adjust flextable height to fit powerpoint slide
+flex <- height_all(flex, height = .25, part = "all")
 ```
 
 ```{r lp Total Crimes Flextable 2020, echo = FALSE}
@@ -814,6 +824,8 @@ flextable(lp_2020) %>%
   bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
+#Adjust flextable height to fit powerpoint slide
+flex01 <- height_all(flex01, height = .25, part = "all")
 
 # add powerpoint slide
 report%>%
@@ -1060,6 +1072,8 @@ flextable(vd_2019) %>%
   colformat_num(.,  digits = 0) %>%
   add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
+#Adjust flextable height to fit powerpoint slide
+flex <- height_all(flex, height = .25, part = "all")
 ```
 
 ```{r vd Total Crimes Flextable 2020, echo = FALSE}
@@ -1092,6 +1106,8 @@ flextable(vd_2020) %>%
   bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
+#Adjust flextable height to fit powerpoint slide
+flex01 <- height_all(flex01, height = .25, part = "all")
 
 # add powerpoint slide
 report%>%

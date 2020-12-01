@@ -92,7 +92,7 @@ offlayout01 <- phl_layout(layout01,
 colkeys19 <- totalCrimes19$monthVar
 colkeys20 <- ytdCrimes20$monthVar
 colkeystotal <- c("Total")
-part1crimes <- c("Aggravated Assault", "Arson", "Burgalry", "Homicide", "Larceny", "Motor Vehicle Theft", "Robbery")
+part1crimes <- c("Aggravated Assault", "Arson", "Burgalry", "Homicide", "Larceny", "Motor Vehicle Theft", "Robbery", "Rape")
 wkdys <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 #tmap_options()
 ```
@@ -233,6 +233,8 @@ flextable(sdb_2019) %>%
   colformat_num(.,  digits = 0) %>%
   add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
+#Adjust flextable height to fit powerpoint slide
+flex <- height_all(flex, height = .25, part = "all")
 ```
 
 ```{r SDB Total Crimes Flextable 2020, echo = FALSE}
@@ -265,7 +267,8 @@ flextable(sdb_2020) %>%
   bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
-
+#Adjust flextable height to fit powerpoint slide
+flex01 <- height_all(flex01, height = .25, part = "all")
 # add powerpoint slide
 report%>%
   add_slide()%>%
@@ -511,6 +514,8 @@ flextable(dbp_2019) %>%
   colformat_num(.,  digits = 0) %>%
   add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
+#Adjust flextable height to fit powerpoint slide
+flex <- height_all(flex, height = .25, part = "all")
 ```
 
 ```{r dbp Total Crimes Flextable 2020, echo = FALSE}
@@ -543,6 +548,8 @@ flextable(dbp_2020) %>%
   bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>%
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
+#Adjust flextable height to fit powerpoint slide
+flex01 <- height_all(flex01, height = .25, part = "all")
 
 # add powerpoint slide
 report%>%
@@ -789,6 +796,8 @@ flextable(we_2019) %>%
   colformat_num(.,  digits = 0) %>%
   add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
+#Adjust flextable height to fit powerpoint slide
+flex <- height_all(flex, height = .25, part = "all")
 ```
 
 ```{r we Total Crimes Flextable 2020, echo = FALSE}
@@ -821,6 +830,8 @@ flextable(we_2020) %>%
   bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
+#Adjust flextable height to fit powerpoint slide
+flex01 <- height_all(flex01, height = .25, part = "all")
 
 # add powerpoint slide
 report%>%
@@ -1069,6 +1080,8 @@ flextable(vp_2019) %>%
   colformat_num(.,  digits = 0) %>%
   add_header_lines(values = params$pastyear)%>%
   autofit() -> flex
+#Adjust flextable height to fit powerpoint slide
+flex <- height_all(flex, height = .25, part = "all")
 ```
 
 ```{r vp Total Crimes Flextable 2020, echo = FALSE}
@@ -1101,6 +1114,8 @@ flextable(vp_2020) %>%
   bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
+#Adjust flextable height to fit powerpoint slide
+flex01 <- height_all(flex01, height = .25, part = "all")
 
 # add powerpoint slide
 report%>%
