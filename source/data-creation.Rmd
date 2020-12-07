@@ -148,6 +148,17 @@ ytdCrimes20 <- ytdCrimes20 %>%
   filter(district == 2 | district == 5) %>%                                               # Filters all district 2 & district 5 crime
   mutate(weekday = wday(dateOcc, label = TRUE)) %>%                                       # Creates a variable of the weekday based on previously created date variable
   mutate(monthVar = dateOcc) %>%
+  # Recode values to neighborood names
+  mutate(nbhd_name = ifelse(grepl("38", neighborhood), "Central West End",
+                                             ifelse(grepl("39", neighborhood), "Forest Park Southeast",
+                                             ifelse(grepl("46", neighborhood), "Skinker DeBaliviere",  
+                                             ifelse(grepl("47", neighborhood), "DeBaliviere Place",
+                                             ifelse(grepl("48", neighborhood), "West End",
+                                             ifelse(grepl("49", neighborhood), "Visitation Park",       
+                                             ifelse(grepl("51", neighborhood), "Academy",       
+                                             ifelse(grepl("53", neighborhood), "Fountain Park",       
+                                             ifelse(grepl("54", neighborhood), "Lewis Place",       
+                                             ifelse(grepl("58", neighborhood), "Vandeventer", NA)))))))))))%>%
   mutate(tod = timeOcc)
 
 ytdCrimes20$monthVar <- month(as.Date(ytdCrimes20$monthVar, 
@@ -248,7 +259,7 @@ ytdCrimes19 <- totalCrimes19%>%
 #### External Shapefiles 
 
 ```{r Load Shapefiles, include=FALSE}
-st_read(here("data", "external", "med-campus", "medcampus.shp")) %>%
+st_read(here("data", "external", "med-campus", "medcampus.shp"))%>%
   st_transform(crs = 102696) -> med_campus
 
 st_read(here("data", "external", "cortex-boundary", "CORTEX BOUNDARY.shp")) %>%
@@ -413,4 +424,5 @@ rm(xyfpse, xycwe, xybot, xydbp, xysdb, xywe, xyvp, xyac, xyfp, xylp, xyvd, xymc,
 
 rm(list = ls())
 ```
+
 
