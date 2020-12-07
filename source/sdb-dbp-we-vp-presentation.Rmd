@@ -67,6 +67,105 @@ load(file = here("data", "basemap-files", "nbhd-boundaries.rda"))
 report <- read_pptx()
 ```
 
+#Function References
+
+`lay_new` creates a custom layout. You use the `matrix` argument to specify the location of figures.
+
+`lay_bind_row` combines custom layouts. In this instance, we are combining the title layout with the body layout for our powerpoint slide.
+
+`phl_layout` transforms your custom layout to an officer PowerPoint slide.
+
+`fp_text` creates a font style for an officer powerpoint slide.
+
+`ftext` creates a formatted chunk of text, often referencing `fp_text` for formatting instructions.
+
+`fpar` creates formatted paragraphs in Powerpoint. Used to concatenate `ftext` objects into a paragraph.
+
+`block_list` combines several blocks, or `fpar` objects, into a single object. Used to create formatted paragraphs in Powerpoint.
+
+`read_pptx` creates a powerpoint presentation. You can use a variety of functions to add content to the presentation once the object is created.
+
+`add_slide` adds a powerpoint slide to an existing powerpoint object. Specify what kind of layout you want the slide to be.
+
+`ph_with` adds content to an existing powerpoint slide. This function often follows the `add_slide` function. This function is used to add everything from tables, to titles to body paragraphs on your powerpoint slide.
+
+`sprintf` creates a character vector containing a formatted combination of text and variable values. In this notebook it is used for summary notes where it references the paramaters as well as certain variable values.
+
+`filter` is a dplyr function that is used to clean data. Specifically it is used to find rows/cases where a condition is true. If the condition is true then the values are kept, if not they are dropped.
+
+`group_by` takes an existing tbl and converts it into a grouped tbl based on a specific variable.
+
+`rename` does exactly what you think it does. It renames variables based on name.
+
+`replace` replaces a certain value with another. It is used in this notebook to replace NAs with 0.
+
+`pivot_wider` increases the number of columns and decreases the number of rows. It is used in this notebook to widen the number of columns based on month. So the final output table has a column for each month of the year.
+
+`add_row` adds a row to a dataframe. It is used to add rows to tables based on whether or not a specific crime was committed. So, if there were no arsons that month, the `add_row` function is used to add this crime with values of 0.
+
+`arrange` sorts a variable in ascending order
+
+`adorn_totals` adds a "totals" row or column to a data frame.
+
+
+`colformat_num` formats numeric variables in a flextable. Specifically aimed at controlling the number of digits displayed.
+
+`add_header_lines` adds a header to a flextable.
+
+`autofit` is used to automatically adjust flextable height and width to fit the size of desired content.
+
+`intersect` is used to figure out what columns and rows are shared between dataframes. 
+
+`unlist` 
+
+`cut` divides the unlisted dataframe into intervals and codes their values based on what interval the value falls into. This is how we color the flextables based on their values.
+
+`bg` changes the background color of selected rows/columns in a flextable. We get these values from the `cut` function.
+
+`height_all` sets the height of the flextable. This is used to fit the flextables on the powerpoint slide.
+
+`phl_with_text` adds text to custom layout created via `phl_layout`.
+
+`phl_with_flextable` adds flextable to custom layout created via `phl_layout`.
+
+`is_empty` checks if an object has a value or not. If the value is missing, then we use `add_row` to add the missing crime.
+
+`tm_shape` creates a tmap-element that draws polygons.
+
+`tm_fill` fills map shapes based on what you want. You can either choose a fixed color or map create a color palette mapped to a variable.
+
+`tm_border` adds borders to a map shape
+
+`tm_credits` adds map credits.
+
+`tm_bubbles` creates bubbles. This is how we represent crime points on a map.
+
+`tm_layout` specifies map layout. Used for controlling/creating map legend
+
+`which_min` `which_max` finds the location of the min/max of a vector. This is useful because it gives you the whole row where the min/max is as opposed to just the value of the lowest observation. This is beneficial in the District summaries because it tells us where a min/max value occurs (i.e. what neighborhood)
+
+`ph_add_text` add text to a paragraph.
+
+`ph_add_par` adds an empty paragraph to a powerpoint slide. This is used in the district summaries to create bullet points with only one level per paragraph.
+
+`tmap_save` saves a tmap object.
+
+`ggsave` saves a ggplot object.
+
+`convert_to_pdf` uses libreOffice (another application) to convert the saved powerpoint into a PDF.
+
+`ggplot`initializes a ggplot object. Can be used to specify the data frame and the plot aesthetics.
+
+`geom_bar` creates a bar plot in a ggplot object
+
+`geom_point` creates points in a ggplot object
+
+`geom_line` creates a line plot in a ggplot object.
+
+`scale_colour_manual` used to assign specific color values to ggplot. This references the `cols` vector to make sure that symbology is consistent throughout the report.
+
+`xlab` `ylab` creates axis labels in a ggplot object.
+
 ```{r officer layout}
 lay <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(2,1)) 
 title <- lay_new(1, widths = 2, heights = 2)
