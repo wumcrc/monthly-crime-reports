@@ -4,14 +4,14 @@ author: "Jes Stevens, M.A."
 date: '(`r format(Sys.time(), "%B %d, %Y")`)'
 output:
 params:
-  month: October                      # Refers to the month throughout the .Rmd Document | Change this to reflect the month you are analyzing
+  month: November                      # Refers to the month throughout the .Rmd Document | Change this to reflect the month you are analyzing
   pastyear: 2019                      # Refers to the previous year throughout the .Rmd Document | Change this when your year changes
   year: 2020                          # Refers to the current year you are analyzing | Change this when your year changes
   ytd: "2020-01-01"                   # Compiles Year to Date Dataset for this year | Leave at January 1st 2020
-  date: "2020-10-01"                  # Pulls in the data for the most recent month | Change this each month
+  date: "2020-11-01"                  # Pulls in the data for the most recent month | Change this each month
   pastdate: "2019-01-01"              # Compiles Year to Date Dataset for previous year | Leave at January 1st 2019
-  pstdtmonth: "2019-10-01"            # Compiles Data for the most recent month of the previous year | This is the first day of the month
-  pstdtmonth2: "2019-10-31"           # Compiles Data for the most recent month of the previous year | This is the last day of month | Must be the 30th or 31st
+  pstdtmonth: "2019-11-01"            # Compiles Data for the most recent month of the previous year | This is the first day of the month
+  pstdtmonth2: "2019-11-30"           # Compiles Data for the most recent month of the previous year | This is the last day of month | Must be the 30th or 31st
 ---
 
 ```{r setup, include=FALSE}
@@ -91,7 +91,22 @@ i <- cs_create_index()
 yearlist19 <- cs_get_data(year = params$pastyear, index = i)
 yearlist20 <- cs_get_data(year = params$year, index = i)        # Constructs a table for finding a table of crime data
 cs_validate(yearlist19, year = 2019)                            # Identifies problems with SLMPD Data
-cs_validate(yearlist20, year = 2020)                            # Identifies problems with SLMPD Data
+cs_validate(yearlist20, year = 2020)
+#correct November 2020 issues
+# extract data and unit test column name
+nov20 <- cs_extract_month(yearlist20, month = "November")
+expect_equal("ycoord" %in% names(nov20), TRUE)
+
+# standardize variable names
+nov20 <- rename(nov20, y_coord = ycoord)
+
+# replace data
+yearlist20 <- cs_replace_month(yearlist20, month = "November", monthData = nov20)
+
+# validate
+expect_equal(cs_validate(yearlist20, year = "2020"), TRUE)
+
+# Identifies problems with SLMPD Data
 ```
 
 #### Standardize Data for Cleaning
@@ -260,7 +275,7 @@ ytdCrimes19 <- totalCrimes19%>%
 
 ```{r Load Shapefiles, include=FALSE}
 st_read(here("data", "external", "med-campus", "medcampus.shp"))%>%
-  st_transform(crs = 102696) -> med_campus
+  st_transform(crs = 102696)-> med_campus
 
 st_read(here("data", "external", "cortex-boundary", "CORTEX BOUNDARY.shp")) %>%
   st_transform(crs = 102696) -> cortex
