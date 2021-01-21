@@ -8,6 +8,8 @@ output:
 always_allow_html: yes
 params:
   month: November
+  abbr: Nov
+  num: 11
   pastyear: 2019
   year: 2020
   date: "2020-11-01"
@@ -193,6 +195,8 @@ colkeystotal <- c("Total")
 part1crimes <- c("Aggravated Assault", "Arson", "Burgalry", "Homicide", "Larceny", "Motor Vehicle Theft", "Robbery", "Rape")
 wkdys <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 #tmap_options()
+#create column ID for coloring flextable
+colID <- c(params$abbr, "Total")
 ```
 
 ```{r plot and text color palette, inlude = FALSE}
@@ -350,18 +354,20 @@ fpse_2020 %>%
   rename(., "Part 1 Crimes" = crimeCatName) -> fpse_2020
 
 #compare dataframes and get common columns
-common_cols <- intersect(colnames(fpse_2020), colnames(fpse_2019))
-#drop columns that aren't shared
-fpse_2020 <- fpse_2020[,common_cols, drop=FALSE]
-fpse_2019 <- fpse_2019[,common_cols, drop=FALSE]
+common_cols <- intersect(colnames(fpse_2020[, (params$num + 1)]), colnames(fpse_2019[, (params$num + 1)]))
+
+#assign to temporary dataframe
+temp19 <- fpse_2019[,common_cols, drop=FALSE]
+temp20 <- fpse_2020[,common_cols, drop=FALSE]
+
 #assign colors, green is a decrease in crime, red is an increase, transparent is no change
-colors <- unlist(fpse_2020[-1] - fpse_2019[-1]) %>% 
+colors <- unlist(temp20 - temp19)%>%
   cut(breaks = c(-Inf, -.1, 0.1, Inf),
-      labels = c("green", "transparent", "red")) %>% 
+      labels = c("lightgreen", "transparent", "lightcoral")) %>% 
   as.character()
 #make flextable, color all columns except the first
 flextable(fpse_2020) %>% 
-  bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
+  bg(j = params$abbr, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
 #Adjust flextable height to fit powerpoint slide
@@ -633,18 +639,20 @@ bot_2020 %>%
   rename(., "Part 1 Crimes" = crimeCatName) -> bot_2020
 
 #compare dataframes and get common columns
-common_cols <- intersect(colnames(bot_2020), colnames(bot_2019))
-#drop columns that aren't shared
-bot_2020 <- bot_2020[,common_cols, drop=FALSE]
-bot_2019 <- bot_2019[,common_cols, drop=FALSE]
+common_cols <- intersect(colnames(bot_2020[, (params$num + 1)]), colnames(bot_2019[, (params$num + 1)]))
+
+#assign to temporary dataframe
+temp19 <- bot_2019[,common_cols, drop=FALSE]
+temp20 <- bot_2020[,common_cols, drop=FALSE]
+
 #assign colors, green is a decrease in crime, red is an increase, transparent is no change
-colors <- unlist(bot_2020[-1] - bot_2019[-1]) %>% 
+colors <- unlist(temp20 - temp19)%>%
   cut(breaks = c(-Inf, -.1, 0.1, Inf),
-      labels = c("green", "transparent", "red")) %>% 
+      labels = c("lightgreen", "transparent", "lightcoral")) %>% 
   as.character()
 #make flextable, color all columns except the first
 flextable(bot_2020) %>% 
-  bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
+  bg(j = params$abbr, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
 #Adjust flextable height to fit powerpoint slide
@@ -1062,18 +1070,20 @@ cwe_2020 %>%
   rename(., "Part 1 Crimes" = crimeCatName) -> cwe_2020
 
 #compare dataframes and get common columns
-common_cols <- intersect(colnames(cwe_2020), colnames(cwe_2019))
-#drop columns that aren't shared
-cwe_2020 <- cwe_2020[,common_cols, drop=FALSE]
-cwe_2019 <- cwe_2019[,common_cols, drop=FALSE]
+common_cols <- intersect(colnames(cwe_2020[, (params$num + 1)]), colnames(cwe_2019[, (params$num + 1)]))
+
+#assign to temporary dataframe
+temp19 <- cwe_2019[,common_cols, drop=FALSE]
+temp20 <- cwe_2020[,common_cols, drop=FALSE]
+
 #assign colors, green is a decrease in crime, red is an increase, transparent is no change
-colors <- unlist(cwe_2020[-1] - cwe_2019[-1]) %>% 
+colors <- unlist(temp20 - temp19)%>%
   cut(breaks = c(-Inf, -.1, 0.1, Inf),
-      labels = c("green", "transparent", "red")) %>% 
+      labels = c("lightgreen", "transparent", "lightcoral")) %>% 
   as.character()
 #make flextable, color all columns except the first
 flextable(cwe_2020) %>% 
-  bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
+  bg(j = params$abbr, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
 #Adjust flextable height to fit powerpoint slide
@@ -1342,18 +1352,20 @@ mc_2020 %>%
   rename(., "Part 1 Crimes" = crimeCatName) -> mc_2020
 
 #compare dataframes and get common columns
-common_cols <- intersect(colnames(mc_2020), colnames(mc_2019))
-#drop columns that aren't shared
-mc_2020 <- mc_2020[,common_cols, drop=FALSE]
-mc_2019 <- mc_2019[,common_cols, drop=FALSE]
+common_cols <- intersect(colnames(mc_2020[, (params$num + 1)]), colnames(mc_2019[, (params$num + 1)]))
+
+#assign to temporary dataframe
+temp19 <- mc_2019[,common_cols, drop=FALSE]
+temp20 <- mc_2020[,common_cols, drop=FALSE]
+
 #assign colors, green is a decrease in crime, red is an increase, transparent is no change
-colors <- unlist(mc_2020[-1] - mc_2019[-1]) %>% 
+colors <- unlist(temp20 - temp19)%>%
   cut(breaks = c(-Inf, -.1, 0.1, Inf),
-      labels = c("green", "transparent", "red")) %>% 
+      labels = c("lightgreen", "transparent", "lightcoral")) %>% 
   as.character()
 #make flextable, color all columns except the first
 flextable(mc_2020) %>% 
-  bg(j = ~ . -`Part 1 Crimes`, bg = colors) %>% 
+  bg(j = params$abbr, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
 #Adjust flextable height to fit powerpoint slide
