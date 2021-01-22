@@ -1211,7 +1211,7 @@ colors <- unlist(temp20 - temp19)%>%
   as.character()
 #make flextable, color all columns except the first
 flextable(vd_2020) %>% 
-  bg(j = abbr, bg = colors) %>% 
+  bg(j = params$abbr, bg = colors) %>% 
   add_header_lines(values = params$year)%>%
   autofit() -> flex01
 #Adjust flextable height to fit powerpoint slide
