@@ -197,6 +197,11 @@ ytdCrimes20 <- ytdCrimes20 %>%
   cs_replace0(., var = y_coord) %>% 
   filter(., missing == FALSE) 
 
+#create geocoder
+geocoder <- gw_build_geocoder(class = "sf")
+#geocode current year
+ytdCrimes20 <- gw_geocode(ytdCrimes20, type = "local", class = "sf", address = "address", geocoder = geocoder)
+
 monthCrimes20 <- ytdCrimes20 %>% 
     filter(dateOcc >= as.Date(params$date))                                             # Filters dataset of crimes that happened in the month determined by the parameters
 ```
@@ -261,6 +266,9 @@ totalCrimes19 <- totalCrimes19 %>%
   cs_replace0(., var = y_coord) %>% 
   filter(., missing == FALSE) %>% 
   filter(dateOcc >= as.Date(params$pastdate))
+
+#geocode results
+totalCrimes19 <- gw_geocode(totalCrimes19, type = "local", class = "sf", address = "address", geocoder = geocoder)
 
 monthCrimes19 <- totalCrimes19 %>% 
     filter(dateOcc >= as.Date(params$pstdtmonth) & dateOcc <= as.Date(params$pstdtmonth2))
