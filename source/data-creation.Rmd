@@ -54,6 +54,9 @@ dst5 <- c(38,46:58,78)                        # These are the neighborhoods that
 
 load(here("data", "nbhd_pop10.rda"))             # Loads neighborhood population data from the 2010 Census
 cs_last_update(output = "string")
+
+#create geocoder
+geocoder <- gw_build_geocoder(class = "sf")
 ```
 
 ## Create Folders for Final Output
@@ -197,10 +200,16 @@ ytdCrimes20 <- ytdCrimes20 %>%
   cs_replace0(., var = y_coord) %>% 
   filter(., missing == FALSE) 
 
-#create geocoder
-geocoder <- gw_build_geocoder(class = "sf")
+#remove observations that are missing xy coordinates
+nocoord <- dplyr::filter(ytdCrimes20, x_coord == 0 | y_coord == 0)
 #geocode current year
-ytdCrimes20 <- gw_geocode(ytdCrimes20, type = "local", class = "sf", address = "address", geocoder = geocoder)
+nocoord <- gw_geocode(nocoord, type = "local", class = "sf", address = "address", geocoder = geocoder)
+#remove xy columns
+nocoord <- dplyr::select(nocoord, -x_coord, -ycoord)
+#extract xy coordinates from geometry
+nocoord <- gw_get_coords(nocoord, names = c("x_coord","y_coord"), crs = 102696)
+#merge back to ytdCrimes20
+ytdCrimes20 <- rbind(ytdCrimes20, nocoord)
 
 monthCrimes20 <- ytdCrimes20 %>% 
     filter(dateOcc >= as.Date(params$date))                                             # Filters dataset of crimes that happened in the month determined by the parameters
@@ -267,8 +276,16 @@ totalCrimes19 <- totalCrimes19 %>%
   filter(., missing == FALSE) %>% 
   filter(dateOcc >= as.Date(params$pastdate))
 
-#geocode results
-totalCrimes19 <- gw_geocode(totalCrimes19, type = "local", class = "sf", address = "address", geocoder = geocoder)
+#remove observations that are missing xy coordinates
+nocoord <- dplyr::filter(totalCrimes19, x_coord == 0 | y_coord == 0)
+#geocode current year
+nocoord <- gw_geocode(nocoord, type = "local", class = "sf", address = "address", geocoder = geocoder)
+#remove xy columns
+nocoord <- dplyr::select(nocoord, -x_coord, -ycoord)
+#extract xy coordinates from geometry
+nocoord <- gw_get_coords(nocoord, names = c("x_coord","y_coord"), crs = 102696)
+#merge back to ytdCrimes20
+totalCrimes19 <- rbind(totalCrimes19, nocoord)
 
 monthCrimes19 <- totalCrimes19 %>% 
     filter(dateOcc >= as.Date(params$pstdtmonth) & dateOcc <= as.Date(params$pstdtmonth2))
