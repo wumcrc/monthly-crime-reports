@@ -48,6 +48,7 @@ library(raster)       # geograpic data analysis & modeling
 library(here)         # file path management
 library(janitor)      # tools for examining data
 library(testthat)
+library(gateway)
 
 dst2 <- c(7:15,27:29, 39:45,81,82,87,88)      # These are the neighborhoods that make up Police District 2
 dst5 <- c(38,46:58,78)                        # These are the neighborhoods that make up Police District 5
@@ -56,7 +57,7 @@ load(here("data", "nbhd_pop10.rda"))             # Loads neighborhood population
 cs_last_update(output = "string")
 
 #create geocoder
-geocoder <- gw_build_geocoder(class = "sf")
+#geocoder <- gw_build_geocoder()
 ```
 
 ## Create Folders for Final Output
@@ -197,23 +198,40 @@ ytdCrimes20 <- ytdCrimes20 %>%
   cs_missingXY(., varX = x_coord, 
                varY = y_coord, newVar = missing) %>%                                     # Filters out incidents that cannot be spatially mapped
   cs_replace0(., var = x_coord) %>%
-  cs_replace0(., var = y_coord) %>% 
+  cs_replace0(., var = y_coord)  %>%
   filter(., missing == FALSE) 
 
-#remove observations that are missing xy coordinates
-nocoord <- dplyr::filter(ytdCrimes20, x_coord == 0 | y_coord == 0)
-#geocode current year
-nocoord <- gw_geocode(nocoord, type = "local", class = "sf", address = "address", geocoder = geocoder)
-#remove xy columns
-nocoord <- dplyr::select(nocoord, -x_coord, -ycoord)
-#extract xy coordinates from geometry
-nocoord <- gw_get_coords(nocoord, names = c("x_coord","y_coord"), crs = 102696)
-#merge back to ytdCrimes20
-ytdCrimes20 <- rbind(ytdCrimes20, nocoord)
-
-monthCrimes20 <- ytdCrimes20 %>% 
+monthCrimes20_all <- ytdCrimes20 %>% 
     filter(dateOcc >= as.Date(params$date))                                             # Filters dataset of crimes that happened in the month determined by the parameters
+
+
 ```
+
+```{r}
+#monthCrimes20_nocoord <- monthCrimes20_all %>% 
+#  filter(., missing == TRUE)
+
+#monthCrimes20 <- monthCrimes20 %>% 
+#  filter(., missing == FALSE)
+
+#geocoder <- gw_build_geocoder(return = c("coords", "parcel", "zip"), crs = 4296)
+
+#geocode current year
+#monthCrimes20_nocoord %>%
+#  mutate(address = paste(cad_address, cad_street, sep = " ")) -> monthCrimes20_nocoord
+
+#remove xy columns
+#nocoord_test <- dplyr::select(nocoord, -x_coord, -y_coord)
+
+#nocoord_geo <- gw_geocode(monthCrimes20_nocoord, type = "local", var = "address",  class = "tibble", geocoder = geocoder)
+
+#extract xy coordinates from geometry
+#nocoord <- gw_get_coords(nocoord, names = c("x_coord","y_coord"), crs = 4296)
+#merge back to ytdCrimes20
+#ytdCrimes20 <- rbind(ytdCrimes20, nocoord)
+
+```
+
 
 ##### Larcenies 
 
@@ -277,15 +295,15 @@ totalCrimes19 <- totalCrimes19 %>%
   filter(dateOcc >= as.Date(params$pastdate))
 
 #remove observations that are missing xy coordinates
-nocoord <- dplyr::filter(totalCrimes19, x_coord == 0 | y_coord == 0)
+#nocoord <- dplyr::filter(totalCrimes19, x_coord == 0 | y_coord == 0)
 #geocode current year
-nocoord <- gw_geocode(nocoord, type = "local", class = "sf", address = "address", geocoder = geocoder)
+#nocoord <- gw_geocode(nocoord, type = "local", class = "sf", address = "address", geocoder = geocoder)
 #remove xy columns
-nocoord <- dplyr::select(nocoord, -x_coord, -ycoord)
+#nocoord <- dplyr::select(nocoord, -x_coord, -ycoord)
 #extract xy coordinates from geometry
-nocoord <- gw_get_coords(nocoord, names = c("x_coord","y_coord"), crs = 102696)
+#nocoord <- gw_get_coords(nocoord, names = c("x_coord","y_coord"), crs = 4296)
 #merge back to ytdCrimes20
-totalCrimes19 <- rbind(totalCrimes19, nocoord)
+#totalCrimes19 <- rbind(totalCrimes19, nocoord)
 
 monthCrimes19 <- totalCrimes19 %>% 
     filter(dateOcc >= as.Date(params$pstdtmonth) & dateOcc <= as.Date(params$pstdtmonth2))
@@ -301,16 +319,16 @@ ytdCrimes19 <- totalCrimes19%>%
 
 ```{r Load Shapefiles, include=FALSE}
 st_read(here("data", "external", "med-campus", "medcampus.shp"))%>%
-  st_transform(crs = 102696)-> med_campus
+  st_transform(crs = 4296)-> med_campus
 
 st_read(here("data", "external", "cortex-boundary", "CORTEX BOUNDARY.shp")) %>%
-  st_transform(crs = 102696) -> cortex
+  st_transform(crs = 4296) -> cortex
 
 st_read(here("data", "external", "grove-cid", "grovecid.shp")) %>%
-  st_transform(crs = 102696) -> grove_cid
+  st_transform(crs = 4296) -> grove_cid
 
 st_read(here("data", "external", "stl_neighborhoods", "nbhds.shp")) %>%
-  st_transform(crs = 102696) %>% 
+  st_transform(crs = 4296) %>% 
   rename(., "neighborhood" = NHD_NUM)-> nhoods_sf
 
 save(med_campus, cortex, grove_cid, nhoods_sf, file = here("data", "basemap-files", "boundaries.rda"))
@@ -318,14 +336,14 @@ save(med_campus, cortex, grove_cid, nhoods_sf, file = here("data", "basemap-file
 
 ```{r Create SF objects for 2019 & 2020 Crimes}
 # all crimes 
-totalCrimes19_sf <- cs_projectXY(totalCrimes19, varX = x_coord, varY = y_coord, crs = 102696)
-ytdCrimes19_sf <- cs_projectXY(ytdCrimes19, varX = x_coord, varY = y_coord, crs = 102696)
-ytdCrimes20_sf <- cs_projectXY(ytdCrimes20, varX = x_coord, varY = y_coord, crs = 102696)
+totalCrimes19_sf <- cs_projectXY(totalCrimes19, varX = x_coord, varY = y_coord, crs = 4296)
+ytdCrimes19_sf <- cs_projectXY(ytdCrimes19, varX = x_coord, varY = y_coord, crs = 4296)
+ytdCrimes20_sf <- cs_projectXY(ytdCrimes20, varX = x_coord, varY = y_coord, crs = 4296)
 
-monthCrimes19_sf <- cs_projectXY(monthCrimes19, varX = x_coord, varY = y_coord, crs = 102696)
-monthCrimes20_sf <- cs_projectXY(monthCrimes20, varX = x_coord, varY = y_coord, crs = 102696)
+monthCrimes19_sf <- cs_projectXY(monthCrimes19, varX = x_coord, varY = y_coord, crs = 4296)
+monthCrimes20_sf <- cs_projectXY(monthCrimes20, varX = x_coord, varY = y_coord, crs = 4296)
 
-larceny_sf <- cs_projectXY(larceny, varX = x_coord, varY = y_coord, crs = 102696)
+larceny_sf <- cs_projectXY(larceny, varX = x_coord, varY = y_coord, crs = 4296)
 
 # med campus
 mc_crimes_month19_sf <- st_intersection(monthCrimes19_sf, med_campus) 
@@ -375,12 +393,12 @@ dst_5 <- monthCrimes20 %>%
   drop_na()
 
 dst_2_pop_sf <- left_join(nhoods_sf, dst_2, by = "neighborhood") %>% 
-  st_transform(crs = 102696) %>%
+  st_transform(crs = 4296) %>%
   drop_na() %>% 
   subset(., neighborhood != 88)
 
 dst_5_pop_sf <- left_join(nhoods_sf, dst_5, by = "neighborhood") %>% 
-  st_transform(crs = 102696) %>%
+  st_transform(crs = 4296) %>%
   drop_na()
 
 # Save
