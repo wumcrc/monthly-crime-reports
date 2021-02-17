@@ -7,13 +7,13 @@ output:
   powerpoint_presentation
 always_allow_html: yes
 params:
-  month: November
-  abbr: Nov
-  num: 11 #Month number
+  month: December
+  abbr: Dec
+  num: 12 #Month number
   pastyear: 2019
   year: 2020
-  date: "2020-11-01"
-  pastdate: "2019-11-01"
+  date: "2020-12-01"
+  pastdate: "2019-12-01"
 ---
 
 ```{r setup, include=FALSE}
@@ -331,7 +331,7 @@ sdb_2019 %>%
 flextable(sdb_2019) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
-  add_header_lines(values = params$pastyear)%>%
+  add_header_lines(values = paste(params$pastyear))%>%
   autofit() -> flex
 #Adjust flextable height to fit powerpoint slide
 flex <- height_all(flex, height = .25, part = "all")
@@ -367,7 +367,7 @@ colors <- unlist(temp20 - temp19)%>%
 #make flextable, color all columns except the first
 flextable(sdb_2020) %>% 
   bg(j = params$abbr, bg = colors) %>% 
-  add_header_lines(values = params$year)%>%
+  add_header_lines(values = paste(params$year))%>%
   autofit() -> flex01
 #Adjust flextable height to fit powerpoint slide
 flex01 <- height_all(flex01, height = .25, part = "all")
@@ -614,7 +614,7 @@ dbp_2019 %>%
 flextable(dbp_2019) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
-  add_header_lines(values = params$pastyear)%>%
+  add_header_lines(values = paste(params$pastyear))%>%
   autofit() -> flex
 #Adjust flextable height to fit powerpoint slide
 flex <- height_all(flex, height = .25, part = "all")
@@ -639,8 +639,8 @@ dbp_2020 %>%
 common_cols <- intersect(colnames(sdb_2020[, (params$num + 1)]), colnames(sdb_2019[, (params$num + 1)]))
 
 #assign to temporary dataframe
-temp19 <- sdb_2019[,common_cols, drop=FALSE]
-temp20 <- sdb_2020[,common_cols, drop=FALSE]
+temp19 <- dbp_2019[,common_cols, drop=FALSE]
+temp20 <- dbp_2020[,common_cols, drop=FALSE]
 
 #assign colors, green is a decrease in crime, red is an increase, transparent is no change
 colors <- unlist(temp20 - temp19)%>%
@@ -648,9 +648,9 @@ colors <- unlist(temp20 - temp19)%>%
       labels = c("lightgreen", "transparent", "lightcoral")) %>% 
   as.character()
 #make flextable, color all columns except the first
-flextable(sdb_2020) %>% 
+flextable(dbp_2020) %>% 
   bg(j = params$abbr, bg = colors) %>% 
-  add_header_lines(values = params$year)%>%
+  add_header_lines(values = paste(params$year))%>%
   autofit() -> flex01
 #Adjust flextable height to fit powerpoint slide
 flex01 <- height_all(flex01, height = .25, part = "all")
@@ -898,7 +898,7 @@ we_2019 %>%
 flextable(we_2019) %>%
   colformat_num(., digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
-  add_header_lines(values = params$pastyear)%>%
+  add_header_lines(values = paste(params$pastyear))%>%
   autofit() -> flex
 #Adjust flextable height to fit powerpoint slide
 flex <- height_all(flex, height = .25, part = "all")
@@ -934,7 +934,7 @@ colors <- unlist(temp20 - temp19)%>%
 #make flextable, color all columns except the first
 flextable(we_2020) %>% 
   bg(j = params$abbr, bg = colors) %>% 
-  add_header_lines(values = params$year)%>%
+  add_header_lines(values = paste(params$year))%>%
   autofit() -> flex01
 #Adjust flextable height to fit powerpoint slide
 flex01 <- height_all(flex01, height = .25, part = "all")
@@ -1184,7 +1184,7 @@ vp_2019 %>%
 flextable(vp_2019) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
-  add_header_lines(values = params$pastyear)%>%
+  add_header_lines(values = paste(params$pastyear))%>%
   autofit() -> flex
 #Adjust flextable height to fit powerpoint slide
 flex <- height_all(flex, height = .25, part = "all")
@@ -1220,7 +1220,7 @@ colors <- unlist(temp20 - temp19)%>%
 #make flextable, color all columns except the first
 flextable(vp_2020) %>% 
   bg(j = params$abbr, bg = colors) %>% 
-  add_header_lines(values = params$year)%>%
+  add_header_lines(values = paste(params$year))%>%
   autofit() -> flex01
 #Adjust flextable height to fit powerpoint slide
 flex01 <- height_all(flex01, height = .25, part = "all")
@@ -1538,7 +1538,7 @@ report%>%
 
 ## Skinker DeBaliviere: Crime Density Map
 
-```{r SDB Density Map Prep, include = FALSE}
+```{r SDB Density Map Prep, eval = FALSE}
 monthCrimes20_sf %>%
   filter(neighborhood == 46) %>%
   smooth_map(., bandwidth = 0.5, style = "pretty",
@@ -1809,7 +1809,7 @@ report%>%
 
 ## DeBaliviere Place: Crime Density Map
 
-```{r DBP Density Map Prep, include = FALSE}
+```{r DBP Density Map Prep, eval = FALSE}
 monthCrimes20_sf %>%
   filter(neighborhood == 47) %>%
   smooth_map(., bandwidth = 0.5, style = "pretty",
@@ -2080,7 +2080,7 @@ report%>%
 
 ## West End: Crime Density Map
 
-```{r WE Density Map Prep, include = FALSE}
+```{r WE Density Map Prep, eval = FALSE}
 monthCrimes20_sf %>%
   filter(neighborhood == 48) %>%
   smooth_map(., bandwidth = 0.5, style = "pretty",

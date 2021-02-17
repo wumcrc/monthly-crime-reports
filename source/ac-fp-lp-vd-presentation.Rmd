@@ -7,13 +7,13 @@ output:
   powerpoint_presentation
 always_allow_html: yes
 params:
-  month: November
-  abbr: Nov
-  num: 11 #month number
+  month: December
+  abbr: Dec
+  num: 12 #month number
   pastyear: 2019
   year: 2020
-  date: "2020-11-01"
-  pastdate: "2019-11-01"
+  date: "2020-12-01"
+  pastdate: "2019-12-01"
 ---
 
 ```{r setup, include=FALSE}
@@ -329,7 +329,7 @@ ac_2019 %>%
 flextable(ac_2019) %>%
   colformat_num(., digits = 0) %>%
   colformat_num(., digits = 0) %>%
-  add_header_lines(values = params$pastyear)%>%
+  add_header_lines(values = paste(params$pastyear))%>%
   autofit() -> flex
 #Adjust flextable height to fit powerpoint slide
 flex <- height_all(flex, height = .25, part = "all")
@@ -365,7 +365,7 @@ colors <- unlist(temp20 - temp19)%>%
 #make flextable, color all columns except the first
 flextable(ac_2020) %>% 
   bg(j = params$abbr, bg = colors) %>% 
-  add_header_lines(values = params$year)%>%
+  add_header_lines(values = paste(params$year))%>%
   autofit() -> flex01
 #Adjust flextable height to fit powerpoint slide
 flex01 <- height_all(flex01, height = .25, part = "all")
@@ -615,7 +615,7 @@ fp_2019 %>%
 flextable(fp_2019) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
-  add_header_lines(values = params$pastyear)%>%
+  add_header_lines(values = paste(params$pastyear))%>%
   autofit() -> flex
 #Adjust flextable height to fit powerpoint slide
 flex <- height_all(flex, height = .25, part = "all")
@@ -651,7 +651,7 @@ colors <- unlist(temp20 - temp19)%>%
 #make flextable, color all columns except the first
 flextable(fp_2020) %>% 
   bg(j = params$abbr, bg = colors) %>% 
-  add_header_lines(values = params$year)%>%
+  add_header_lines(values = paste(params$year))%>%
   autofit() -> flex01
 #Adjust flextable height to fit powerpoint slide
 flex01 <- height_all(flex01, height = .25, part = "all")
@@ -892,7 +892,7 @@ lp_2019 %>%
 flextable(lp_2019) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
-  add_header_lines(values = params$pastyear)%>%
+  add_header_lines(values = paste(params$pastyear))%>%
   autofit() -> flex
 #Adjust flextable height to fit powerpoint slide
 flex <- height_all(flex, height = .25, part = "all")
@@ -928,7 +928,7 @@ colors <- unlist(temp20 - temp19)%>%
 #make flextable, color all columns except the first
 flextable(lp_2020) %>% 
   bg(j = params$abbr, bg = colors) %>% 
-  add_header_lines(values = params$year)%>%
+  add_header_lines(values = paste(params$year))%>%
   autofit() -> flex01
 #Adjust flextable height to fit powerpoint slide
 flex01 <- height_all(flex01, height = .25, part = "all")
@@ -1176,7 +1176,7 @@ vd_2019 %>%
 flextable(vd_2019) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
-  add_header_lines(values = params$pastyear)%>%
+  add_header_lines(values = paste(params$pastyear))%>%
   autofit() -> flex
 #Adjust flextable height to fit powerpoint slide
 flex <- height_all(flex, height = .25, part = "all")
@@ -1212,7 +1212,7 @@ colors <- unlist(temp20 - temp19)%>%
 #make flextable, color all columns except the first
 flextable(vd_2020) %>% 
   bg(j = params$abbr, bg = colors) %>% 
-  add_header_lines(values = params$year)%>%
+  add_header_lines(values = paste(params$year))%>%
   autofit() -> flex01
 #Adjust flextable height to fit powerpoint slide
 flex01 <- height_all(flex01, height = .25, part = "all")
@@ -1532,7 +1532,7 @@ report%>%
 
 ## Academy: Crime Density Map
 
-```{r AC Density Map Prep, include = FALSE}
+```{r AC Density Map Prep, eval = FALSE}
 monthCrimes20_sf %>%
   filter(neighborhood == 51) %>%
   smooth_map(., bandwidth = 0.5, style = "pretty",
@@ -1805,7 +1805,7 @@ report%>%
 
 ## Fountain Park: Crime Density Map
 
-```{r FP Density Map Prep, include = FALSE}
+```{r FP Density Map Prep, eval = FALSE}
 monthCrimes20_sf %>%
   filter(neighborhood == 53) -> TEST
 
@@ -2088,7 +2088,46 @@ report%>%
 
 ## Lewis Place: Crime Density Map
 
-```{r LP Density Map Prep, include = FALSE}
+```{eval = FALSE}
+#lewis place lat lon coordinates
+map <- get_googlemap(center = c(lon = -90.2514, lat = 38.6540), zoom = 15)
+
+boundary <- filter(bound, NHD_NUM == 39)
+
+monthCrimes20%>%
+  filter(nbhd_name == "Lewis Place") -> temp
+test <- st_as_sf(boundary)%>%st_transform(4269)
+
+  ggmap(map)+
+  stat_density_2d(
+      aes(x = lon, y = lat, fill = as.factor(..level..), alpha = .6),
+      size = .1, bins = 4, data = temp,
+      geom = "polygon"
+    )+
+    geom_sf(data = test, fill = NA, color = "black", inherit.aes = FALSE)+
+    theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank()
+        )+ 
+    scale_fill_discrete(name = "Number of Crimes", labels = c("0-1", "1-2", "2-3"))+
+    guides(alpha = FALSE)
+  
+ggsave(here("results", params$year, params$month, "lp", "lp_density.jpeg"), dpi = 500)
+  
+  #add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "lp", "lp_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with("Lewis Place: Crime Density Map",
+               location = ph_location_type(
+                 type = "title") )-> report
+```
+
+
+```{r LP Density Map Prep, eval = FALSE}
 monthCrimes20_sf %>%
   filter(neighborhood == 54) %>%
   smooth_map(., bandwidth = 0.5, style = "pretty",
@@ -2362,7 +2401,7 @@ report%>%
 
 ## Vandeventer: Crime Density Map
 
-```{r VD Density Map Prep, include = FALSE}
+```{r VD Density Map Prep, eval = FALSE}
 monthCrimes20_sf %>%
   filter(neighborhood == 58) %>%
   smooth_map(., bandwidth = 0.5, style = "pretty",
