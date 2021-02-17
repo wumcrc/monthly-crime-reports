@@ -179,10 +179,14 @@ ytdCrimes20 <- ytdCrimes20 %>%
                                              ifelse(grepl("53", neighborhood), "Fountain Park",       
                                              ifelse(grepl("54", neighborhood), "Lewis Place",       
                                              ifelse(grepl("58", neighborhood), "Vandeventer", NA)))))))))))%>%
-  mutate(tod = timeOcc)
+  mutate(tod = timeOcc)%>%
+  drop_na("ileads_street")
 
 ytdCrimes20$monthVar <- month(as.Date(ytdCrimes20$monthVar, 
                                       format="%d/%m/%Y"), label = TRUE)                   # Pulls out the Month based on the Date | i.e 10/01/2018 = "October" 
+
+#Replace NAs with 0 to prep for geocoding
+ytdCrimes20$ileads_address[is.na(ytdCrimes20$ileads_address)] <- 0
 
 ytdCrimes20$neighborhood <- as.numeric(ytdCrimes20$neighborhood)                          # Formats the neighborhood variable as numeric
 ytdCrimes20$tod <- strptime(ytdCrimes20$tod, tz = "America/Chicago", "%H:%M")             # Strips & Reformats the structure of the time variable
@@ -194,44 +198,21 @@ ytdCrimes20 <- ytdCrimes20 %>%
                               "Night", "Day")) %>% 
   dplyr::select(-dateTime, -tod, -flag_crime, 
                 -flag_administrative, -flag_unfounded, 
-                -flag_cleanup)  %>%                                                      # Removes unneccessary variables from the database
-  cs_missingXY(., varX = x_coord, 
-               varY = y_coord, newVar = missing) %>%                                     # Filters out incidents that cannot be spatially mapped
-  cs_replace0(., var = x_coord) %>%
-  cs_replace0(., var = y_coord)  %>%
-  filter(., missing == FALSE) 
+                 -flag_cleanup) 
+#create district_crimes for creating district crimes maps
+district_crimes <- ytdCrimes20
 
-monthCrimes20_all <- ytdCrimes20 %>% 
+# Filter out 10 neighborhoods we want to study
+  ytdCrimes20%>%
+    filter(neighborhood %in% c("28", "38", "39", "46", "47", "48", "49", "51", "53", "54", "58"))->ytdCrimes20
+#Prepare data for geocoding
+ytdCrimes20 <- mutate(ytdCrimes20, "address" = ifelse(ytdCrimes20$ileads_address > 0, paste(ytdCrimes20$ileads_address, ytdCrimes20$ileads_street, ", St. Louis, MO"), paste(ytdCrimes20$ileads_street, ", St. Louis, MO"))) 
+#Geocode
+ytdCrimes20 <- mutate_geocode(ytdCrimes20, address)
+
+monthCrimes20 <- ytdCrimes20 %>% 
     filter(dateOcc >= as.Date(params$date))                                             # Filters dataset of crimes that happened in the month determined by the parameters
-
-
 ```
-
-```{r}
-#monthCrimes20_nocoord <- monthCrimes20_all %>% 
-#  filter(., missing == TRUE)
-
-#monthCrimes20 <- monthCrimes20 %>% 
-#  filter(., missing == FALSE)
-
-#geocoder <- gw_build_geocoder(return = c("coords", "parcel", "zip"), crs = 4296)
-
-#geocode current year
-#monthCrimes20_nocoord %>%
-#  mutate(address = paste(cad_address, cad_street, sep = " ")) -> monthCrimes20_nocoord
-
-#remove xy columns
-#nocoord_test <- dplyr::select(nocoord, -x_coord, -y_coord)
-
-#nocoord_geo <- gw_geocode(monthCrimes20_nocoord, type = "local", var = "address",  class = "tibble", geocoder = geocoder)
-
-#extract xy coordinates from geometry
-#nocoord <- gw_get_coords(nocoord, names = c("x_coord","y_coord"), crs = 4296)
-#merge back to ytdCrimes20
-#ytdCrimes20 <- rbind(ytdCrimes20, nocoord)
-
-```
-
 
 ##### Larcenies 
 
@@ -276,7 +257,7 @@ totalCrimes19 <- totalCrimes19 %>%
   filter(district == 2 | district == 5) %>%
   mutate(weekday = wday(dateOcc, label = TRUE)) %>%
   mutate(monthVar = dateOcc) %>%
-  mutate(tod = timeOcc) 
+  mutate(tod = timeOcc)
 
 totalCrimes19$monthVar <- month(as.Date(totalCrimes19$monthVar, format="%d/%m/%Y"), label = TRUE)
 
@@ -293,17 +274,6 @@ totalCrimes19 <- totalCrimes19 %>%
   cs_replace0(., var = y_coord) %>% 
   filter(., missing == FALSE) %>% 
   filter(dateOcc >= as.Date(params$pastdate))
-
-#remove observations that are missing xy coordinates
-#nocoord <- dplyr::filter(totalCrimes19, x_coord == 0 | y_coord == 0)
-#geocode current year
-#nocoord <- gw_geocode(nocoord, type = "local", class = "sf", address = "address", geocoder = geocoder)
-#remove xy columns
-#nocoord <- dplyr::select(nocoord, -x_coord, -ycoord)
-#extract xy coordinates from geometry
-#nocoord <- gw_get_coords(nocoord, names = c("x_coord","y_coord"), crs = 4296)
-#merge back to ytdCrimes20
-#totalCrimes19 <- rbind(totalCrimes19, nocoord)
 
 monthCrimes19 <- totalCrimes19 %>% 
     filter(dateOcc >= as.Date(params$pstdtmonth) & dateOcc <= as.Date(params$pstdtmonth2))
@@ -336,12 +306,15 @@ save(med_campus, cortex, grove_cid, nhoods_sf, file = here("data", "basemap-file
 
 ```{r Create SF objects for 2019 & 2020 Crimes}
 # all crimes 
+monthCrimes20_sf <- st_as_sf(x = monthCrimes20,                         
+           coords = c("lon", "lat"),
+           crs = 4296)
+ytdCrimes20_sf <- st_as_sf(x = ytdCrimes20,                         
+           coords = c("lon", "lat"),
+           crs = 4296)
 totalCrimes19_sf <- cs_projectXY(totalCrimes19, varX = x_coord, varY = y_coord, crs = 4296)
 ytdCrimes19_sf <- cs_projectXY(ytdCrimes19, varX = x_coord, varY = y_coord, crs = 4296)
-ytdCrimes20_sf <- cs_projectXY(ytdCrimes20, varX = x_coord, varY = y_coord, crs = 4296)
-
 monthCrimes19_sf <- cs_projectXY(monthCrimes19, varX = x_coord, varY = y_coord, crs = 4296)
-monthCrimes20_sf <- cs_projectXY(monthCrimes20, varX = x_coord, varY = y_coord, crs = 4296)
 
 larceny_sf <- cs_projectXY(larceny, varX = x_coord, varY = y_coord, crs = 4296)
 
@@ -374,7 +347,7 @@ mc_larcenies <- mc_larcenies_sf %>%
 ctx_crimes_sf <- st_intersection(monthCrimes20_sf, cortex)
 
 # police districts 
-dst_2 <- monthCrimes20 %>% 
+dst_2 <- district_crimes %>% 
   filter(., neighborhood %in% dst2) %>% 
   group_by(., neighborhood) %>%
   count() %>% 
@@ -383,7 +356,7 @@ dst_2 <- monthCrimes20 %>%
   mutate(., crimeRate = (crimeTotal/pop10)*1000) %>% 
   drop_na()
 
-dst_5 <- monthCrimes20 %>% 
+dst_5 <- district_crimes %>% 
   filter(., neighborhood %in% dst5) %>% 
   group_by(., neighborhood) %>%
   count() %>% 
