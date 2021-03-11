@@ -189,9 +189,6 @@ offlayout01 <- phl_layout(layout01,
 
 
 ```{r Set column name keys for flextable, include = FALSE }
-colkeys19 <- totalCrimes19$monthVar
-colkeys20 <- ytdCrimes20$monthVar
-colkeystotal <- c("Total")
 part1crimes <- c("Aggravated Assault", "Arson", "Burgalry", "Homicide", "Larceny", "Motor Vehicle Theft", "Robbery", "Rape")
 wkdys <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 #tmap_options()
@@ -221,38 +218,38 @@ report%>%
 ## Academy: Summary Notes
 
 ```{r AC Summary Prep, include=FALSE}
-tc19 <- nrow(monthCrimes19[monthCrimes19$neighborhood == 51,])
-tc20 <- nrow(monthCrimes20[monthCrimes20$neighborhood == 51,])
-cap19 <- nrow(monthCrimes19[monthCrimes19$neighborhood == 51 & monthCrimes19$crimeCatNum == 4 | monthCrimes19$neighborhood == 51 & monthCrimes19$crimeCatNum == 3,])
-cap20 <- nrow(monthCrimes20[monthCrimes20$neighborhood == 51 & monthCrimes20$crimeCatNum == 4 | monthCrimes20$neighborhood == 51 & monthCrimes20$crimeCatNum == 3,])
+tc_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 51,])
+tc_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 51,])
+cap_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 51 & monthCrimes_past$crimeCatNum == 4 | monthCrimes_past$neighborhood == 51 & monthCrimes_past$crimeCatNum == 3,])
+cap_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 51 & monthCrimes_pres$crimeCatNum == 4 | monthCrimes_pres$neighborhood == 51 & monthCrimes_pres$crimeCatNum == 3,])
 
-tc_ytd19 <- nrow(ytdCrimes19[ytdCrimes19$neighborhood == 51,])
-tc_ytdCurrent <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 51,])
-cap19_ytd <- nrow(ytdCrimes19[ytdCrimes19$neighborhood == 51 & ytdCrimes19$crimeCatNum == 4 | ytdCrimes19$neighborhood == 51 & ytdCrimes19$crimeCatNum == 3,])
-cap20_ytd <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 51 & ytdCrimes20$crimeCatNum == 4 | ytdCrimes20$neighborhood == 51 & ytdCrimes20$crimeCatNum == 3,])
+tc_ytd_past <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 51,])
+tc_ytdCurrent <- nrow(ytdCrimes[ytdCrimes$neighborhood == 51,])
+cap_past_ytd <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 51 & ytdCrimes_past$crimeCatNum == 4 | ytdCrimes_past$neighborhood == 51 & ytdCrimes_past$crimeCatNum == 3,])
+cap_pres_ytd <- nrow(ytdCrimes[ytdCrimes$neighborhood == 51 & ytdCrimes$crimeCatNum == 4 | ytdCrimes$neighborhood == 51 & ytdCrimes$crimeCatNum == 3,])
 
-pct_chg_mth1 <- (tc20 - tc19)/tc19
+pct_chg_mth1 <- (tc_pres - tc_past)/tc_past
 pct_chg_mth <- percent(pct_chg_mth1)
 if(is.nan(pct_chg_mth1)){pct_chg_mth[is.nan(pct_chg_mth1)] <- 0}
 if(is.infinite(pct_chg_mth1)){pct_chg_mth[is.infinite(pct_chg_mth1)] <- "Infinite"}
 
-pct_chg_cap1 <- (cap20 - cap19)/cap19
+pct_chg_cap1 <- (cap_pres - cap_past)/cap_past
 pct_chg_cap <- percent(pct_chg_cap1)
 if(is.nan(pct_chg_cap1)){pct_chg_cap[is.nan(pct_chg_cap1)] <- 0}
 if(is.infinite(pct_chg_cap1)){pct_chg_cap[is.infinite(pct_chg_cap1)] <- "Infinite"}
 
-pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
+pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd_past)/tc_ytd_past
 pct_chg_ytd <- percent(pct_chg_ytd1)
 if(is.nan(pct_chg_ytd1)){pct_chg_ytd[is.nan(pct_chg_ytd1)] <- 0}
 if(is.infinite(pct_chg_ytd1)){pct_chg_ytd[is.infinite(pct_chg_ytd1)] <- "Infinite"}
 
-pct_chg_ytd_cap1 <- (cap20_ytd - cap19_ytd)/cap19_ytd
+pct_chg_ytd_cap1 <- (cap_pres_ytd - cap_past_ytd)/cap_past_ytd
 pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
 if(is.nan(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.nan(pct_chg_ytd_cap1)] <- 0}
 if(is.infinite(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.infinite(pct_chg_ytd_cap1)] <- "Infinite"}
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
-                    tc20, params$month, params$year)
+                    tc_pres, params$month, params$year)
 sprint_2 <- sprintf("%s total crimes in %s", 
                     tc_ytdCurrent, params$year)
 
@@ -267,21 +264,21 @@ summary <- block_list(
   fpar(ftext(sprint_1, boldline)),
   fpar(ftext(paste(" ", sep = ""), reg24),
        ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
-       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
-  fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
+       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc_past, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap_pres, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
   fpar(ftext(paste(" ", sep = ""), reg20),
        ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
-       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
+       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap_past, " crimes against persons)", sep = ""), reg20)),
   fpar(ftext(sprint_2, boldline)),
   fpar(ftext(paste(" ", sep = ""), reg24),
        ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
-       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
-  fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
+       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd_past, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap_pres_ytd, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$year, sep = " "), reg24)),
   fpar(ftext(paste(" ", sep = ""), reg20),
        ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
-       ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
+       ftext(paste(" compared to this time in ", params$pastyear, " (", cap_past_ytd, " crimes against persons)", sep = ""), reg20))
 )
 
 # write summary notes to powerpoint slide
@@ -294,39 +291,39 @@ report%>%
 ## Academy: Year to Year Comparison
 
 ```{r ac Year Comps Prep, include=FALSE}
-totalCrimes19 %>%
+totalCrimes_past %>%
   filter(., neighborhood == 51) %>%
   group_by(monthVar, .drop = FALSE) %>%
   count(crimeCatName) %>%
   rename(., "Number of Crimes" = n) %>%
   pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0)  -> ac_2019
+  replace(., is.na(.), 0)  -> ac_past
 
-ytdCrimes20 %>%
+ytdCrimes %>%
   filter(., neighborhood == 51) %>%
   group_by(monthVar) %>%
   count(crimeCatName) %>%
   rename(., "Number of Crimes" = n) %>%
   pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0) -> ac_2020
+  replace(., is.na(.), 0) -> ac_pres
 ```
 
-```{r AC Total Crimes Flextable 2019, echo = FALSE}
-part1crimes[!(part1crimes %in% ac_2019$crimeCatName)] -> missing_category
+```{r AC Total Crimes Flextable past year, echo = FALSE}
+part1crimes[!(part1crimes %in% ac_past$crimeCatName)] -> missing_category
 is_empty(missing_category) -> test
 
 if(test == FALSE) {
-   add_row(ac_2019, crimeCatName = missing_category) -> ac_2019
+   add_row(ac_past, crimeCatName = missing_category) -> ac_past
 }
 
-ac_2019 %>% 
+ac_past %>% 
   arrange(., crimeCatName) %>%
   replace(., is.na(.), 0) %>%
   adorn_totals(., "col", name = "Total") %>%
   adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> ac_2019
+  rename(., "Part 1 Crimes" = crimeCatName) -> ac_past
 
-flextable(ac_2019) %>%
+flextable(ac_past) %>%
   colformat_num(., digits = 0) %>%
   colformat_num(., digits = 0) %>%
   add_header_lines(values = paste(params$pastyear))%>%
@@ -335,35 +332,35 @@ flextable(ac_2019) %>%
 flex <- height_all(flex, height = .25, part = "all")
 ```
 
-```{r ac Total Crimes Flextable 2020, echo = FALSE}
-part1crimes[!(part1crimes %in% ac_2020$crimeCatName)] -> missing_category
+```{r ac Total Crimes Flextable current year, echo = FALSE}
+part1crimes[!(part1crimes %in% ac_pres$crimeCatName)] -> missing_category
 is_empty(missing_category) -> test
 
 if(test == FALSE) {
-   add_row(ac_2020, crimeCatName = missing_category) -> ac_2020
+   add_row(ac_pres, crimeCatName = missing_category) -> ac_pres
 }
 
-ac_2020 %>% 
+ac_pres %>% 
   arrange(., crimeCatName) %>%
   replace(., is.na(.), 0) %>%
   adorn_totals(., "col", name = "Total") %>%
   adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> ac_2020
+  rename(., "Part 1 Crimes" = crimeCatName) -> ac_pres
 
 #compare dataframes and get common columns
-common_cols <- intersect(colnames(ac_2020[, (params$num + 1)]), colnames(ac_2019[, (params$num + 1)]))
+common_cols <- intersect(colnames(ac_pres[, (params$num + 1)]), colnames(ac_past[, (params$num + 1)]))
 
 #assign to temporary dataframe
-temp19 <- ac_2019[,common_cols, drop=FALSE]
-temp20 <- ac_2020[,common_cols, drop=FALSE]
+temp_past <- ac_past[,common_cols, drop=FALSE]
+temp_pres <- ac_pres[,common_cols, drop=FALSE]
 
 #assign colors, green is a decrease in crime, red is an increase, transparent is no change
-colors <- unlist(temp20 - temp19)%>%
+colors <- unlist(temp_pres - temp_past)%>%
   cut(breaks = c(-Inf, -.1, 0.1, Inf),
       labels = c("lightgreen", "transparent", "lightcoral")) %>% 
   as.character()
 #make flextable, color all columns except the first
-flextable(ac_2020) %>% 
+flextable(ac_pres) %>% 
   bg(j = params$abbr, bg = colors) %>% 
   add_header_lines(values = paste(params$year))%>%
   autofit() -> flex01
@@ -383,14 +380,14 @@ report%>%
 ## Academy: Summary Tables
 
 ```{r AC Tables Prep, include = FALSE}
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 51) %>%
   group_by(crimeCatName) %>%
   count() %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Number of Crimes" = n, "Part 1 Crimes" = crimeCatName) -> ac_crimeCat
 
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 51) %>%
   group_by(weekday, .drop = FALSE) %>%
   count() %>%
@@ -411,14 +408,14 @@ ac_weekDay %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Day of the Week" = weekday) -> ac_weekDay
 
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 51) %>%
   group_by(violent) %>%
   count() %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Number of Crimes" = n, "Crimes Against Persons" = violent) -> ac_violent
 
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 51) %>%
   group_by(dayNight) %>%
   count() %>%
@@ -455,7 +452,7 @@ report%>%
 ## Academy: Total Crime Map
 
 ```{r Academy color palette, include = FALSE}
-sub <- filter(monthCrimes20_sf, neighborhood == 51)
+sub <- filter(monthCrimes_pres_sf, neighborhood == 51)
 col <- character(0)
 if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
 if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
@@ -477,7 +474,7 @@ tm_shape(ac_tiles) +
     tm_borders(col = "black",
                lwd = 2,
                lty = "dashed") +
-  filter(monthCrimes20_sf,
+  filter(monthCrimes_pres_sf,
          neighborhood == 51) %>%
   tm_shape() +
     tm_bubbles(size = .25,
@@ -507,38 +504,38 @@ report%>%
 ## Fountain Park: Summary Notes
 
 ```{r FP Summary Prep, include=FALSE}
-tc19 <- nrow(monthCrimes19[monthCrimes19$neighborhood == 53,])
-tc20 <- nrow(monthCrimes20[monthCrimes20$neighborhood == 53,])
-cap19 <- nrow(monthCrimes19[monthCrimes19$neighborhood == 53 & monthCrimes19$crimeCatNum == 4 | monthCrimes19$neighborhood == 53 & monthCrimes19$crimeCatNum == 3,])
-cap20 <- nrow(monthCrimes20[monthCrimes20$neighborhood == 53 & monthCrimes20$crimeCatNum == 4 | monthCrimes20$neighborhood == 53 & monthCrimes20$crimeCatNum == 3,])
+tc_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 53,])
+tc_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 53,])
+cap_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 53 & monthCrimes_past$crimeCatNum == 4 | monthCrimes_past$neighborhood == 53 & monthCrimes_past$crimeCatNum == 3,])
+cap_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 53 & monthCrimes_pres$crimeCatNum == 4 | monthCrimes_pres$neighborhood == 53 & monthCrimes_pres$crimeCatNum == 3,])
 
-tc_ytd19 <- nrow(ytdCrimes19[ytdCrimes19$neighborhood == 53,])
-tc_ytdCurrent <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 53,])
-cap19_ytd <- nrow(ytdCrimes19[ytdCrimes19$neighborhood == 53 & ytdCrimes19$crimeCatNum == 4 | ytdCrimes19$neighborhood == 53 & ytdCrimes19$crimeCatNum == 3,])
-cap20_ytd <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 53 & ytdCrimes20$crimeCatNum == 4 | ytdCrimes20$neighborhood == 53 & ytdCrimes20$crimeCatNum == 3,])
+tc_ytd_past <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 53,])
+tc_ytdCurrent <- nrow(ytdCrimes[ytdCrimes$neighborhood == 53,])
+cap_past_ytd <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 53 & ytdCrimes_past$crimeCatNum == 4 | ytdCrimes_past$neighborhood == 53 & ytdCrimes_past$crimeCatNum == 3,])
+cap_pres_ytd <- nrow(ytdCrimes[ytdCrimes$neighborhood == 53 & ytdCrimes$crimeCatNum == 4 | ytdCrimes$neighborhood == 53 & ytdCrimes$crimeCatNum == 3,])
 
-pct_chg_mth1 <- (tc20 - tc19)/tc19
+pct_chg_mth1 <- (tc_pres - tc_past)/tc_past
 pct_chg_mth <- percent(pct_chg_mth1)
 if(is.nan(pct_chg_mth1)){pct_chg_mth[is.nan(pct_chg_mth1)] <- 0}
 if(is.infinite(pct_chg_mth1)){pct_chg_mth[is.infinite(pct_chg_mth1)] <- "Infinite"}
 
-pct_chg_cap1 <- (cap20 - cap19)/cap19
+pct_chg_cap1 <- (cap_pres - cap_past)/cap_past
 pct_chg_cap <- percent(pct_chg_cap1)
 if(is.nan(pct_chg_cap1)){pct_chg_cap[is.nan(pct_chg_cap1)] <- 0}
 if(is.infinite(pct_chg_cap1)){pct_chg_cap[is.infinite(pct_chg_cap1)] <- "Infinite"}
 
-pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
+pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd_past)/tc_ytd_past
 pct_chg_ytd <- percent(pct_chg_ytd1)
 if(is.nan(pct_chg_ytd1)){pct_chg_ytd[is.nan(pct_chg_ytd1)] <- 0}
 if(is.infinite(pct_chg_ytd1)){pct_chg_ytd[is.infinite(pct_chg_ytd1)] <- "Infinite"}
 
-pct_chg_ytd_cap1 <- (cap20_ytd - cap19_ytd)/cap19_ytd
+pct_chg_ytd_cap1 <- (cap_pres_ytd - cap_past_ytd)/cap_past_ytd
 pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
 if(is.nan(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.nan(pct_chg_ytd_cap1)] <- 0}
 if(is.infinite(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.infinite(pct_chg_ytd_cap1)] <- "Infinite"}
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
-                    tc20, params$month, params$year)
+                    tc_pres, params$month, params$year)
 sprint_2 <- sprintf("%s total crimes in %s", 
                     tc_ytdCurrent, params$year)
 
@@ -553,21 +550,21 @@ summary <- block_list(
   fpar(ftext(sprint_1, boldline)),
   fpar(ftext(paste(" ", sep = ""), reg24),
        ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
-       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
-  fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
+       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc_past, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap_pres, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
   fpar(ftext(paste(" ", sep = ""), reg20),
        ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
-       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
+       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap_past, " crimes against persons)", sep = ""), reg20)),
   fpar(ftext(sprint_2, boldline)),
   fpar(ftext(paste(" ", sep = ""), reg24),
        ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
-       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
-  fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
+       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd_past, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap_pres_ytd, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$year, sep = " "), reg24)),
   fpar(ftext(paste(" ", sep = ""), reg20),
        ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
-       ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
+       ftext(paste(" compared to this time in ", params$pastyear, " (", cap_past_ytd, " crimes against persons)", sep = ""), reg20))
 )
 
 # write summary notes to powerpoint slide
@@ -580,39 +577,39 @@ report%>%
 ## Fountain Park: Year to Year Comparison
 
 ```{r fp Year Comps Prep, include=FALSE}
-totalCrimes19 %>%
+totalCrimes_past %>%
   filter(., neighborhood == 53) %>%
   group_by(monthVar, .drop = FALSE) %>%
   count(crimeCatName) %>%
   rename(., "Number of Crimes" = n) %>%
   pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0)  -> fp_2019
+  replace(., is.na(.), 0)  -> fp_past
 
-ytdCrimes20 %>%
+ytdCrimes %>%
   filter(., neighborhood == 53) %>%
   group_by(monthVar) %>%
   count(crimeCatName) %>%
   rename(., "Number of Crimes" = n) %>%
   pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0) -> fp_2020
+  replace(., is.na(.), 0) -> fp_pres
 ```
 
-```{r FP Total Crimes Flextable 2019, echo = FALSE}
-part1crimes[!(part1crimes %in% fp_2019$crimeCatName)] -> missing_category
+```{r FP Total Crimes Flextable past year, echo = FALSE}
+part1crimes[!(part1crimes %in% fp_past$crimeCatName)] -> missing_category
 is_empty(missing_category) -> test
 
 if(test == FALSE) {
-   add_row(fp_2019, crimeCatName = missing_category) -> fp_2019
+   add_row(fp_past, crimeCatName = missing_category) -> fp_past
 }
 
-fp_2019 %>% 
+fp_past %>% 
   arrange(., crimeCatName) %>%
   replace(., is.na(.), 0) %>%
   adorn_totals(., "col", name = "Total") %>%
   adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> fp_2019
+  rename(., "Part 1 Crimes" = crimeCatName) -> fp_past
 
-flextable(fp_2019) %>%
+flextable(fp_past) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
   add_header_lines(values = paste(params$pastyear))%>%
@@ -621,35 +618,35 @@ flextable(fp_2019) %>%
 flex <- height_all(flex, height = .25, part = "all")
 ```
 
-```{r fp Total Crimes Flextable 2020, echo = FALSE}
-part1crimes[!(part1crimes %in% fp_2020$crimeCatName)] -> missing_category
+```{r fp Total Crimes Flextable current year, echo = FALSE}
+part1crimes[!(part1crimes %in% fp_pres$crimeCatName)] -> missing_category
 is_empty(missing_category) -> test
 
 if(test == FALSE) {
-   add_row(fp_2020, crimeCatName = missing_category) -> fp_2020
+   add_row(fp_pres, crimeCatName = missing_category) -> fp_pres
 }
 
-fp_2020 %>% 
+fp_pres %>% 
   arrange(., crimeCatName) %>%
   replace(., is.na(.), 0) %>%
   adorn_totals(., "col", name = "Total") %>%
   adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> fp_2020
+  rename(., "Part 1 Crimes" = crimeCatName) -> fp_pres
 
 #compare dataframes and get common columns
-common_cols <- intersect(colnames(fp_2020[, (params$num + 1)]), colnames(fp_2019[, (params$num + 1)]))
+common_cols <- intersect(colnames(fp_pres[, (params$num + 1)]), colnames(fp_past[, (params$num + 1)]))
 
 #assign to temporary dataframe
-temp19 <- fp_2019[,common_cols, drop=FALSE]
-temp20 <- fp_2020[,common_cols, drop=FALSE]
+temp_past <- fp_past[,common_cols, drop=FALSE]
+temp_pres <- fp_pres[,common_cols, drop=FALSE]
 
 #assign colors, green is a decrease in crime, red is an increase, transparent is no change
-colors <- unlist(temp20 - temp19)%>%
+colors <- unlist(temp_pres - temp_past)%>%
   cut(breaks = c(-Inf, -.1, 0.1, Inf),
       labels = c("lightgreen", "transparent", "lightcoral")) %>% 
   as.character()
 #make flextable, color all columns except the first
-flextable(fp_2020) %>% 
+flextable(fp_pres) %>% 
   bg(j = params$abbr, bg = colors) %>% 
   add_header_lines(values = paste(params$year))%>%
   autofit() -> flex01
@@ -667,14 +664,14 @@ report%>%
 ## Fountain Park: Summary Tables
 
 ```{r FP Tables Prep, include = FALSE}
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 53) %>%
   group_by(crimeCatName) %>%
   count() %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Number of Crimes" = n, "Part 1 Crimes" = crimeCatName) -> fp_crimeCat
 
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 53) %>%
   group_by(weekday, .drop = FALSE) %>%
   count() %>%
@@ -695,7 +692,7 @@ fp_weekDay %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Day of the Week" = weekday) -> fp_weekDay
 
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 53) %>%
   group_by(violent) %>%
   count() %>%
@@ -703,7 +700,7 @@ monthCrimes20 %>%
   rename(., "Number of Crimes" = n, "Crimes Against Persons" = violent) -> fp_violent
 
 
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 53) %>%
   group_by(dayNight) %>%
   count() %>%
@@ -739,7 +736,7 @@ report%>%
 ## Fountain Park: Total Crime Map
 
 ```{r FP color palette, include = FALSE}
-sub <- filter(monthCrimes20_sf, neighborhood == 53)
+sub <- filter(monthCrimes_pres_sf, neighborhood == 53)
 col <- character(0)
 if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
 if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
@@ -761,7 +758,7 @@ tm_shape(fp_tiles) +
     tm_borders(col = "black",
                lwd = 2,
                lty = "dashed") +
-  filter(monthCrimes20_sf,
+  filter(monthCrimes_pres_sf,
          neighborhood == 53) %>%
   tm_shape() +
     tm_bubbles(size = .25,
@@ -792,30 +789,30 @@ report%>%
 ## Summary Notes: Lewis Place
 
 ```{r LP Summary Notes Prep, include=FALSE}
-tc19 <- nrow(monthCrimes19[monthCrimes19$neighborhood == 54,])
-tc20 <- nrow(monthCrimes20[monthCrimes20$neighborhood == 54,])
-cap19 <- nrow(monthCrimes19[monthCrimes19$neighborhood == 54 & monthCrimes19$crimeCatNum == 4 | monthCrimes19$neighborhood == 54 & monthCrimes19$crimeCatNum == 3,])
-cap20 <- nrow(monthCrimes20[monthCrimes20$neighborhood == 54 & monthCrimes20$crimeCatNum == 4 | monthCrimes20$neighborhood == 54 & monthCrimes20$crimeCatNum == 3,])
+tc_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 54,])
+tc_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 54,])
+cap_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 54 & monthCrimes_past$crimeCatNum == 4 | monthCrimes_past$neighborhood == 54 & monthCrimes_past$crimeCatNum == 3,])
+cap_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 54 & monthCrimes_pres$crimeCatNum == 4 | monthCrimes_pres$neighborhood == 54 & monthCrimes_pres$crimeCatNum == 3,])
 
-tc_ytd19 <- nrow(ytdCrimes19[ytdCrimes19$neighborhood == 54,])
-tc_ytdCurrent <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 54,])
-cap19_ytd <- nrow(ytdCrimes19[ytdCrimes19$neighborhood == 54 & ytdCrimes19$crimeCatNum == 4 | ytdCrimes19$neighborhood == 54 & ytdCrimes19$crimeCatNum == 3,])
-cap20_ytd <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 54 & ytdCrimes20$crimeCatNum == 4 | ytdCrimes20$neighborhood == 54 & ytdCrimes20$crimeCatNum == 3,])
+tc_ytd_past <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 54,])
+tc_ytdCurrent <- nrow(ytdCrimes[ytdCrimes$neighborhood == 54,])
+cap_past_ytd <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 54 & ytdCrimes_past$crimeCatNum == 4 | ytdCrimes_past$neighborhood == 54 & ytdCrimes_past$crimeCatNum == 3,])
+cap_pres_ytd <- nrow(ytdCrimes[ytdCrimes$neighborhood == 54 & ytdCrimes$crimeCatNum == 4 | ytdCrimes$neighborhood == 54 & ytdCrimes$crimeCatNum == 3,])
 
-pct_chg_mth1 <- (tc20 - tc19)/tc19
+pct_chg_mth1 <- (tc_pres - tc_past)/tc_past
 pct_chg_mth <- percent(pct_chg_mth1)
 
-pct_chg_cap1 <- (cap20 - cap19)/cap19
+pct_chg_cap1 <- (cap_pres - cap_past)/cap_past
 pct_chg_cap <- percent(pct_chg_cap1)
 
-pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
+pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd_past)/tc_ytd_past
 pct_chg_ytd <- percent(pct_chg_ytd1)
 
-pct_chg_ytd_cap1 <- (cap20_ytd - cap19_ytd)/cap19_ytd
+pct_chg_ytd_cap1 <- (cap_pres_ytd - cap_past_ytd)/cap_past_ytd
 pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
-                    tc20, params$month, params$year)
+                    tc_pres, params$month, params$year)
 sprint_2 <- sprintf("%s total crimes in %s", 
                     tc_ytdCurrent, params$year)
 
@@ -830,21 +827,21 @@ summary <- block_list(
   fpar(ftext(sprint_1, boldline)),
   fpar(ftext(paste(" ", sep = ""), reg24),
        ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
-       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
-  fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
+       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc_past, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap_pres, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
   fpar(ftext(paste(" ", sep = ""), reg20),
        ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
-       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
+       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap_past, " crimes against persons)", sep = ""), reg20)),
   fpar(ftext(sprint_2, boldline)),
   fpar(ftext(paste(" ", sep = ""), reg24),
        ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
-       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
-  fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
+       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd_past, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap_pres_ytd, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$year, sep = " "), reg24)),
   fpar(ftext(paste(" ", sep = ""), reg20),
        ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
-       ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
+       ftext(paste(" compared to this time in ", params$pastyear, " (", cap_past_ytd, " crimes against persons)", sep = ""), reg20))
 )
 
 # write summary notes to powerpoint slide
@@ -857,39 +854,39 @@ report%>%
 ## Lewis Place: Year to Year Comparison
 
 ```{r lp Year Comps Prep, include=FALSE}
-totalCrimes19 %>%
+totalCrimes_past %>%
   filter(., neighborhood == 54) %>%
   group_by(monthVar, .drop = FALSE) %>%
   count(crimeCatName) %>%
   rename(., "Number of Crimes" = n) %>%
   pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0)  -> lp_2019
+  replace(., is.na(.), 0)  -> lp_past
 
-ytdCrimes20 %>%
+ytdCrimes %>%
   filter(., neighborhood == 54) %>%
   group_by(monthVar) %>%
   count(crimeCatName) %>%
   rename(., "Number of Crimes" = n) %>%
   pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0) -> lp_2020
+  replace(., is.na(.), 0) -> lp_pres
 ```
 
-```{r lp Total Crimes Flextable 2019, echo = FALSE}
-part1crimes[!(part1crimes %in% lp_2019$crimeCatName)] -> missing_category
+```{r lp Total Crimes Flextable past year, echo = FALSE}
+part1crimes[!(part1crimes %in% lp_past$crimeCatName)] -> missing_category
 is_empty(missing_category) -> test
 
 if(test == FALSE) {
-   add_row(lp_2019, crimeCatName = missing_category) -> lp_2019
+   add_row(lp_past, crimeCatName = missing_category) -> lp_past
 }
 
-lp_2019 %>% 
+lp_past %>% 
   arrange(., crimeCatName) %>%
   replace(., is.na(.), 0) %>%
   adorn_totals(., "col", name = "Total") %>%
   adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> lp_2019
+  rename(., "Part 1 Crimes" = crimeCatName) -> lp_past
 
-flextable(lp_2019) %>%
+flextable(lp_past) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
   add_header_lines(values = paste(params$pastyear))%>%
@@ -898,35 +895,35 @@ flextable(lp_2019) %>%
 flex <- height_all(flex, height = .25, part = "all")
 ```
 
-```{r lp Total Crimes Flextable 2020, echo = FALSE}
-part1crimes[!(part1crimes %in% lp_2020$crimeCatName)] -> missing_category
+```{r lp Total Crimes Flextable current year, echo = FALSE}
+part1crimes[!(part1crimes %in% lp_pres$crimeCatName)] -> missing_category
 is_empty(missing_category) -> test
 
 if(test == FALSE) {
-   add_row(lp_2020, crimeCatName = missing_category) -> lp_2020
+   add_row(lp_pres, crimeCatName = missing_category) -> lp_pres
 }
 
-lp_2020 %>% 
+lp_pres %>% 
   arrange(., crimeCatName) %>%
   replace(., is.na(.), 0) %>%
   adorn_totals(., "col", name = "Total") %>%
   adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> lp_2020
+  rename(., "Part 1 Crimes" = crimeCatName) -> lp_pres
 
 #compare dataframes and get common columns
-common_cols <- intersect(colnames(lp_2020[, (params$num + 1)]), colnames(lp_2019[, (params$num + 1)]))
+common_cols <- intersect(colnames(lp_pres[, (params$num + 1)]), colnames(lp_past[, (params$num + 1)]))
 
 #assign to temporary dataframe
-temp19 <- lp_2019[,common_cols, drop=FALSE]
-temp20 <- lp_2020[,common_cols, drop=FALSE]
+temp_past <- lp_past[,common_cols, drop=FALSE]
+temp_pres <- lp_pres[,common_cols, drop=FALSE]
 
 #assign colors, green is a decrease in crime, red is an increase, transparent is no change
-colors <- unlist(temp20 - temp19)%>%
+colors <- unlist(temp_pres - temp_past)%>%
   cut(breaks = c(-Inf, -.1, 0.1, Inf),
       labels = c("lightgreen", "transparent", "lightcoral")) %>% 
   as.character()
 #make flextable, color all columns except the first
-flextable(lp_2020) %>% 
+flextable(lp_pres) %>% 
   bg(j = params$abbr, bg = colors) %>% 
   add_header_lines(values = paste(params$year))%>%
   autofit() -> flex01
@@ -944,14 +941,14 @@ report%>%
 ## Lewis Place: Summary Tables
 
 ```{r LP Tables Prep, include = FALSE}
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 54) %>%
   group_by(crimeCatName) %>%
   count() %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Number of Crimes" = n, "Part 1 Crimes" = crimeCatName) -> lp_crimeCat
 
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 54) %>%
   group_by(weekday, .drop = FALSE) %>%
   count() %>%
@@ -972,14 +969,14 @@ lp_weekDay %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Day of the Week" = weekday) -> lp_weekDay
 
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 54) %>%
   group_by(violent) %>%
   count() %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Number of Crimes" = n, "Crimes Against Persons" = violent) -> lp_violent
 
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 54) %>%
   group_by(dayNight) %>%
   count() %>%
@@ -1016,7 +1013,7 @@ report%>%
 ## Lewis Place: Total Crime Map
 
 ```{r LP color palette, include = FALSE}
-sub <- filter(monthCrimes20_sf, neighborhood == 54)
+sub <- filter(monthCrimes_pres_sf, neighborhood == 54)
 col <- character(0)
 if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
 if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
@@ -1038,7 +1035,7 @@ tm_shape(lp_tiles) +
     tm_borders(col = "black",
                lwd = 2,
                lty = "dashed") +
-  filter(monthCrimes20_sf,
+  filter(monthCrimes_pres_sf,
          neighborhood == 54) %>%
   tm_shape() +
     tm_bubbles(size = .25,
@@ -1068,38 +1065,38 @@ report%>%
 ## Vandeventer: Summary Notes
 
 ```{r VD Summary Prep, include=FALSE}
-tc19 <- nrow(monthCrimes19[monthCrimes19$neighborhood == 58,])
-tc20 <- nrow(monthCrimes20[monthCrimes20$neighborhood == 58,])
-cap19 <- nrow(monthCrimes19[monthCrimes19$neighborhood == 58 & monthCrimes19$crimeCatNum == 4 | monthCrimes19$neighborhood == 58 & monthCrimes19$crimeCatNum == 3,])
-cap20 <- nrow(monthCrimes20[monthCrimes20$neighborhood == 58 & monthCrimes20$crimeCatNum == 4 | monthCrimes20$neighborhood == 58 & monthCrimes20$crimeCatNum == 3,])
+tc_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 58,])
+tc_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 58,])
+cap_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 58 & monthCrimes_past$crimeCatNum == 4 | monthCrimes_past$neighborhood == 58 & monthCrimes_past$crimeCatNum == 3,])
+cap_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 58 & monthCrimes_pres$crimeCatNum == 4 | monthCrimes_pres$neighborhood == 58 & monthCrimes_pres$crimeCatNum == 3,])
 
-tc_ytd19 <- nrow(ytdCrimes19[ytdCrimes19$neighborhood == 58,])
-tc_ytdCurrent <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 58,])
-cap19_ytd <- nrow(ytdCrimes19[ytdCrimes19$neighborhood == 58 & ytdCrimes19$crimeCatNum == 4 | ytdCrimes19$neighborhood == 58 & ytdCrimes19$crimeCatNum == 3,])
-cap20_ytd <- nrow(ytdCrimes20[ytdCrimes20$neighborhood == 58 & ytdCrimes20$crimeCatNum == 4 | ytdCrimes20$neighborhood == 58 & ytdCrimes20$crimeCatNum == 3,])
+tc_ytd_past <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 58,])
+tc_ytdCurrent <- nrow(ytdCrimes[ytdCrimes$neighborhood == 58,])
+cap_past_ytd <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 58 & ytdCrimes_past$crimeCatNum == 4 | ytdCrimes_past$neighborhood == 58 & ytdCrimes_past$crimeCatNum == 3,])
+cap_pres_ytd <- nrow(ytdCrimes[ytdCrimes$neighborhood == 58 & ytdCrimes$crimeCatNum == 4 | ytdCrimes$neighborhood == 58 & ytdCrimes$crimeCatNum == 3,])
 
-pct_chg_mth1 <- (tc20 - tc19)/tc19
+pct_chg_mth1 <- (tc_pres - tc_past)/tc_past
 pct_chg_mth <- percent(pct_chg_mth1)
 if(is.nan(pct_chg_mth1)){pct_chg_mth[is.nan(pct_chg_mth1)] <- 0}
 if(is.infinite(pct_chg_mth1)){pct_chg_mth[is.infinite(pct_chg_mth1)] <- "Infinite"}
 
-pct_chg_cap1 <- (cap20 - cap19)/cap19
+pct_chg_cap1 <- (cap_pres - cap_past)/cap_past
 pct_chg_cap <- percent(pct_chg_cap1)
 if(is.nan(pct_chg_cap1)){pct_chg_cap[is.nan(pct_chg_cap1)] <- 0}
 if(is.infinite(pct_chg_cap1)){pct_chg_cap[is.infinite(pct_chg_cap1)] <- "Infinite"}
 
-pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd19)/tc_ytd19
+pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd_past)/tc_ytd_past
 pct_chg_ytd <- percent(pct_chg_ytd1)
 if(is.nan(pct_chg_ytd1)){pct_chg_ytd[is.nan(pct_chg_ytd1)] <- 0}
 if(is.infinite(pct_chg_ytd1)){pct_chg_ytd[is.infinite(pct_chg_ytd1)] <- "Infinite"}
 
-pct_chg_ytd_cap1 <- (cap20_ytd - cap19_ytd)/cap19_ytd
+pct_chg_ytd_cap1 <- (cap_pres_ytd - cap_past_ytd)/cap_past_ytd
 pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
 if(is.nan(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.nan(pct_chg_ytd_cap1)] <- 0}
 if(is.infinite(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.infinite(pct_chg_ytd_cap1)] <- "Infinite"}
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
-                    tc20, params$month, params$year)
+                    tc_pres, params$month, params$year)
 sprint_2 <- sprintf("%s total crimes in %s", 
                     tc_ytdCurrent, params$year)
 
@@ -1114,21 +1111,21 @@ summary <- block_list(
   fpar(ftext(sprint_1, boldline)),
   fpar(ftext(paste(" ", sep = ""), reg24),
        ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
-       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc19, " total crimes)", sep = ""), reg24)),
-  fpar(ftext(paste(cap20, "crime(s) against persons", sep = " "), bold),
+       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc_past, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap_pres, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
   fpar(ftext(paste(" ", sep = ""), reg20),
        ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
-       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap19, " crimes against persons)", sep = ""), reg20)),
+       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap_past, " crimes against persons)", sep = ""), reg20)),
   fpar(ftext(sprint_2, boldline)),
   fpar(ftext(paste(" ", sep = ""), reg24),
        ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
-       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd19, " total crimes)", sep = ""), reg24)),
-  fpar(ftext(paste(cap20_ytd, "crime(s) against persons", sep = " "), bold),
+       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd_past, " total crimes)", sep = ""), reg24)),
+  fpar(ftext(paste(cap_pres_ytd, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$year, sep = " "), reg24)),
   fpar(ftext(paste(" ", sep = ""), reg20),
        ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
-       ftext(paste(" compared to this time in ", params$pastyear, " (", cap19_ytd, " crimes against persons)", sep = ""), reg20))
+       ftext(paste(" compared to this time in ", params$pastyear, " (", cap_past_ytd, " crimes against persons)", sep = ""), reg20))
 )
 
 # write summary notes to powerpoint slide
@@ -1141,39 +1138,39 @@ report%>%
 ## Vandeventer: Year to Year Comparison
 
 ```{r vd Year Comps Prep, include=FALSE}
-totalCrimes19 %>%
+totalCrimes_past %>%
   filter(., neighborhood == 58) %>%
   group_by(monthVar, .drop = FALSE) %>%
   count(crimeCatName) %>%
   rename(., "Number of Crimes" = n) %>%
   pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0)  -> vd_2019
+  replace(., is.na(.), 0)  -> vd_past
 
-ytdCrimes20 %>%
+ytdCrimes %>%
   filter(., neighborhood == 58) %>%
   group_by(monthVar) %>%
   count(crimeCatName) %>%
   rename(., "Number of Crimes" = n) %>%
   pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0) -> vd_2020
+  replace(., is.na(.), 0) -> vd_pres
 ```
 
-```{r vd Total Crimes Flextable 2019, echo = FALSE}
-part1crimes[!(part1crimes %in% vd_2019$crimeCatName)] -> missing_category
+```{r vd Total Crimes Flextable past year, echo = FALSE}
+part1crimes[!(part1crimes %in% vd_past$crimeCatName)] -> missing_category
 is_empty(missing_category) -> test
 
 if(test == FALSE) {
-   add_row(vd_2019, crimeCatName = missing_category) -> vd_2019
+   add_row(vd_past, crimeCatName = missing_category) -> vd_past
 }
 
-vd_2019 %>% 
+vd_past %>% 
   arrange(., crimeCatName) %>%
   replace(., is.na(.), 0) %>%
   adorn_totals(., "col", name = "Total") %>%
   adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> vd_2019
+  rename(., "Part 1 Crimes" = crimeCatName) -> vd_past
 
-flextable(vd_2019) %>%
+flextable(vd_past) %>%
   colformat_num(.,  digits = 0) %>%
   colformat_num(.,  digits = 0) %>%
   add_header_lines(values = paste(params$pastyear))%>%
@@ -1182,35 +1179,35 @@ flextable(vd_2019) %>%
 flex <- height_all(flex, height = .25, part = "all")
 ```
 
-```{r vd Total Crimes Flextable 2020, echo = FALSE}
-part1crimes[!(part1crimes %in% vd_2020$crimeCatName)] -> missing_category
+```{r vd Total Crimes Flextable current year, echo = FALSE}
+part1crimes[!(part1crimes %in% vd_pres$crimeCatName)] -> missing_category
 is_empty(missing_category) -> test
 
 if(test == FALSE) {
-   add_row(vd_2020, crimeCatName = missing_category) -> vd_2020
+   add_row(vd_pres, crimeCatName = missing_category) -> vd_pres
 }
 
-vd_2020 %>% 
+vd_pres %>% 
   arrange(., crimeCatName) %>%
   replace(., is.na(.), 0) %>%
   adorn_totals(., "col", name = "Total") %>%
   adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> vd_2020
+  rename(., "Part 1 Crimes" = crimeCatName) -> vd_pres
 
 #compare dataframes and get common columns
-common_cols <- intersect(colnames(vd_2020[, (params$num + 1)]), colnames(vd_2019[, (params$num + 1)]))
+common_cols <- intersect(colnames(vd_pres[, (params$num + 1)]), colnames(vd_past[, (params$num + 1)]))
 
 #assign to temporary dataframe
-temp19 <- vd_2019[,common_cols, drop=FALSE]
-temp20 <- vd_2020[,common_cols, drop=FALSE]
+temp_past <- vd_past[,common_cols, drop=FALSE]
+temp_pres <- vd_pres[,common_cols, drop=FALSE]
 
 #assign colors, green is a decrease in crime, red is an increase, transparent is no change
-colors <- unlist(temp20 - temp19)%>%
+colors <- unlist(temp_pres - temp_past)%>%
   cut(breaks = c(-Inf, -.1, 0.1, Inf),
       labels = c("lightgreen", "transparent", "lightcoral")) %>% 
   as.character()
 #make flextable, color all columns except the first
-flextable(vd_2020) %>% 
+flextable(vd_pres) %>% 
   bg(j = params$abbr, bg = colors) %>% 
   add_header_lines(values = paste(params$year))%>%
   autofit() -> flex01
@@ -1228,14 +1225,14 @@ report%>%
 ## Vandeventer: Summary Tables
 
 ```{r VD Tables Prep, include = FALSE}
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 58) %>%
   group_by(crimeCatName) %>%
   count() %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Number of Crimes" = n, "Part 1 Crimes" = crimeCatName) -> vd_crimeCat
 
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 58) %>%
   group_by(weekday, .drop = FALSE) %>%
   count() %>%
@@ -1256,14 +1253,14 @@ vd_weekDay %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Day of the Week" = weekday) -> vd_weekDay
 
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 58) %>%
   group_by(violent) %>%
   count() %>%
   adorn_totals(., "row", name = "Total") %>%
   rename(., "Number of Crimes" = n, "Crimes Against Persons" = violent) -> vd_violent
 
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 58) %>%
   group_by(dayNight) %>%
   count() %>%
@@ -1300,7 +1297,7 @@ report%>%
 ## Vandeventer: Total Crime Map
 
 ```{r VD color palette, include = FALSE}
-sub <- filter(monthCrimes20_sf, neighborhood == 58)
+sub <- filter(monthCrimes_pres_sf, neighborhood == 58)
 col <- character(0)
 if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
 if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
@@ -1322,7 +1319,7 @@ tm_shape(vd_tiles) +
     tm_borders(col = "black",
                lwd = 2,
                lty = "dashed") +
-  filter(monthCrimes20_sf,
+  filter(monthCrimes_pres_sf,
          neighborhood == 58) %>%
   tm_shape() +
     tm_bubbles(size = .25,
@@ -1465,7 +1462,7 @@ ac_dn_tm <- tm_shape(ac_tiles) +
     tm_borders(col = "black",
                lwd = 2,
                lty = "dashed") +
-  filter(monthCrimes20_sf,
+  filter(monthCrimes_pres_sf,
          neighborhood == 51) %>%
   tm_shape() +
     tm_bubbles(size = .25,
@@ -1504,7 +1501,7 @@ ac_vlnt_tm <- tm_shape(ac_tiles) +
     tm_borders(col = "black",
                lwd = 2,
                lty = "dashed") +
-  filter(monthCrimes20_sf,
+  filter(monthCrimes_pres_sf,
          neighborhood == 51) %>%
   tm_shape() +
     tm_bubbles(size = .25,
@@ -1533,7 +1530,7 @@ report%>%
 ## Academy: Crime Density Map
 
 ```{r AC Density Map Prep, eval = FALSE}
-monthCrimes20_sf %>%
+monthCrimes_pres_sf %>%
   filter(neighborhood == 51) %>%
   smooth_map(., bandwidth = 0.5, style = "pretty",
   cover = ac) -> ac_densities
@@ -1630,7 +1627,7 @@ report%>%
 ## Academy: Total Crimes by Days of the Week
 
 ```{r AC Crime by Weekday Graph Prep, include= FALSE}
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 51) %>%
   group_by(weekday, .drop = FALSE) %>%
   count() %>%
@@ -1666,7 +1663,7 @@ report%>%
 ## Academy: Crimes by Time of Day
 
 ```{r AC Crime by Time of Day Graph Prep, include = FALSE }
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 51) %>%
   group_by(dayNight) %>%
   count() %>%
@@ -1691,7 +1688,7 @@ report%>%
 ## Academy: Crimes by Day & Category
 
 ```{r AC Crime by Category Weekday Graph Prep, include= FALSE}
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 51) %>%
   group_by(crimeCatName) %>%
   ggplot(., aes(weekday)) +
@@ -1739,7 +1736,7 @@ fp_dn_tm <- tm_shape(fp_tiles) +
     tm_borders(col = "black",
                lwd = 2,
                lty = "dashed") +
-  filter(monthCrimes20_sf,
+  filter(monthCrimes_pres_sf,
          neighborhood == 53) %>%
   tm_shape() +
     tm_bubbles(size = .25,
@@ -1778,7 +1775,7 @@ fp_vlnt_tm <- tm_shape(fp_tiles) +
     tm_borders(col = "black",
                lwd = 2,
                lty = "dashed") +
-  filter(monthCrimes20_sf,
+  filter(monthCrimes_pres_sf,
          neighborhood == 53) %>%
   tm_shape() +
     tm_bubbles(size = .25,
@@ -1806,7 +1803,7 @@ report%>%
 ## Fountain Park: Crime Density Map
 
 ```{r FP Density Map Prep, eval = FALSE}
-monthCrimes20_sf %>%
+monthCrimes_pres_sf %>%
   filter(neighborhood == 53) -> TEST
 
 TEST %>% 
@@ -1816,7 +1813,7 @@ TEST %>%
   smooth_map(., bandwidth = 0.5, style = "pretty",
   cover = fp) -> fp_densities
 
-#monthCrimes20_sf %>%
+#monthCrimes_pres_sf %>%
 #  filter(neighborhood == 53) %>%
 #  smooth_map(., bandwidth = 0.5, style = "pretty",
 #  cover = fp) -> fp_densities
@@ -1912,7 +1909,7 @@ report%>%
 ## Fountain Park: Total Crimes by Days of the Week
 
 ```{r FP Crime by Weekday Graph Prep, include= FALSE}
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 53) %>%
   group_by(weekday, .drop = FALSE) %>%
   count() %>%
@@ -1948,7 +1945,7 @@ report%>%
 ## Fountain Park: Crimes by Time of Day
 
 ```{r FP Crime by Time of Day Graph Prep, include = FALSE }
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 53) %>%
   group_by(dayNight) %>%
   count() %>%
@@ -1973,7 +1970,7 @@ report%>%
 ## Fountain Park: Crimes by Day & Category
 
 ```{r FP Crime by Category Weekday Graph Prep, include= FALSE}
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 53) %>%
   group_by(crimeCatName) %>%
   ggplot(., aes(weekday)) +
@@ -2021,7 +2018,7 @@ lp_dn_tm <- tm_shape(lp_tiles) +
     tm_borders(col = "black",
                lwd = 2,
                lty = "dashed") +
-  filter(monthCrimes20_sf,
+  filter(monthCrimes_pres_sf,
          neighborhood == 54) %>%
   tm_shape() +
     tm_bubbles(size = .25,
@@ -2060,7 +2057,7 @@ lp_vlnt_tm <- tm_shape(lp_tiles) +
     tm_borders(col = "black",
                lwd = 2,
                lty = "dashed") +
-  filter(monthCrimes20_sf,
+  filter(monthCrimes_pres_sf,
          neighborhood == 54) %>%
   tm_shape() +
     tm_bubbles(size = .25,
@@ -2094,7 +2091,7 @@ map <- get_googlemap(center = c(lon = -90.2514, lat = 38.6540), zoom = 15)
 
 boundary <- filter(bound, NHD_NUM == 39)
 
-monthCrimes20%>%
+monthCrimes_pres%>%
   filter(nbhd_name == "Lewis Place") -> temp
 test <- st_as_sf(boundary)%>%st_transform(4269)
 
@@ -2128,7 +2125,7 @@ report%>%
 
 
 ```{r LP Density Map Prep, eval = FALSE}
-monthCrimes20_sf %>%
+monthCrimes_pres_sf %>%
   filter(neighborhood == 54) %>%
   smooth_map(., bandwidth = 0.5, style = "pretty",
   cover = lp) -> lp_densities
@@ -2225,7 +2222,7 @@ report%>%
 ## Lewis Place: Total Crimes by Days of the Week
 
 ```{r LP Crime by Weekday Graph Prep, include= FALSE}
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 54) %>%
   group_by(weekday, .drop = FALSE) %>%
   count() %>%
@@ -2261,7 +2258,7 @@ report%>%
 ## Lewis Place: Crimes by Time of Day
 
 ```{r LP Crime by Time of Day Graph Prep, include = FALSE }
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 54) %>%
   group_by(dayNight) %>%
   count() %>%
@@ -2286,7 +2283,7 @@ report%>%
 ## Lewis Place: Crimes by Day & Category
 
 ```{r LP Crime by Category Weekday Graph Prep, include= FALSE}
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 54) %>%
   group_by(crimeCatName) %>%
   ggplot(., aes(weekday)) +
@@ -2334,7 +2331,7 @@ vd_dn_tm <- tm_shape(vd_tiles) +
     tm_borders(col = "black",
                lwd = 2,
                lty = "dashed") +
-  filter(monthCrimes20_sf,
+  filter(monthCrimes_pres_sf,
          neighborhood == 58) %>%
   tm_shape() +
     tm_bubbles(size = .25,
@@ -2373,7 +2370,7 @@ vd_vlnt_tm <- tm_shape(vd_tiles) +
     tm_borders(col = "black",
                lwd = 2,
                lty = "dashed") +
-  filter(monthCrimes20_sf,
+  filter(monthCrimes_pres_sf,
          neighborhood == 58) %>%
   tm_shape() +
     tm_bubbles(size = .25,
@@ -2402,7 +2399,7 @@ report%>%
 ## Vandeventer: Crime Density Map
 
 ```{r VD Density Map Prep, eval = FALSE}
-monthCrimes20_sf %>%
+monthCrimes_pres_sf %>%
   filter(neighborhood == 58) %>%
   smooth_map(., bandwidth = 0.5, style = "pretty",
   cover = vd) -> vd_densities
@@ -2499,7 +2496,7 @@ report%>%
 ## Vandeventer: Total Crimes by Days of the Week
 
 ```{r VD Crime by Weekday Graph Prep, include= FALSE}
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 58) %>%
   group_by(weekday, .drop = FALSE) %>%
   count() %>%
@@ -2519,7 +2516,7 @@ if(test == FALSE) {
     geom_point() +
     xlab("Day of Week") + ylab("Total Crimes")
 
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 58) %>%
   group_by(weekday) %>%
   count() %>%
@@ -2544,7 +2541,7 @@ report%>%
 ## Vandeventer: Crimes by Time of Day
 
 ```{r VD Crime by Time of Day Graph Prep, include = FALSE }
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 58) %>%
   group_by(dayNight) %>%
   count() %>%
@@ -2569,7 +2566,7 @@ report%>%
 ## Vandeventer: Crimes by Day & Category
 
 ```{r VD Crime by Category Weekday Graph Prep, include= FALSE}
-monthCrimes20 %>%
+monthCrimes_pres %>%
   filter(., neighborhood == 58) %>%
   group_by(crimeCatName) %>%
   ggplot(., aes(weekday)) +
