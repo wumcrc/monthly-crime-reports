@@ -12,8 +12,6 @@ params:
   num: 12 #month number
   pastyear: 2019
   year: 2020
-  date: "2020-12-01"
-  pastdate: "2019-12-01"
 ---
 
 ```{r setup, include=FALSE}
@@ -45,15 +43,17 @@ library(here)         # file path management
 library(janitor)      # tools for examining data
 library(RColorBrewer) # cynthia brewer color palettes
 library(viridis)      # color palettes
-library(officer)      # powerpoint output
-#devtools::install_github("davidgohel/officer")   # use github version until updates are made to CRAN
 library(flextable)   # exporting pretty tables
 library(htmltools)
 library(knitr)
 library(tibble)
 library(rlang)
+library(officer)      # powerpoint output
+#devtools::install_github("davidgohel/officer")   # use github version until updates are made to CRAN
 library(customLayout) # custom powerpoint layout
 library(docxtractr)   #convert pptx to pdf
+library(qwraps2)
+
 
 # load data
 load(file = here("data", "basemap-files", "mapbox-tiles.rda"))
@@ -106,7 +106,6 @@ report <- read_pptx()
 `arrange` sorts a variable in ascending order
 
 `adorn_totals` adds a "totals" row or column to a data frame.
-
 
 `colformat_num` formats numeric variables in a flextable. Specifically aimed at controlling the number of digits displayed.
 
@@ -187,17 +186,19 @@ offlayout01 <- phl_layout(layout01,
     innerMargins = rep(0.15,4))
 ```
 
-
 ```{r Set column name keys for flextable, include = FALSE }
 part1crimes <- c("Aggravated Assault", "Arson", "Burgalry", "Homicide", "Larceny", "Motor Vehicle Theft", "Robbery", "Rape")
 wkdys <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 #tmap_options()
+#create column ID for coloring flextable
+colID <- c(params$abbr, "Total")
 ```
 
 ```{r plot and text color palette, inlude = FALSE}
 cols <- c("Aggravated Assault" = "#e41a1c", "Arson" = "#A65628", "Burgalry" = "#377eb8", 
           "Homicide" = "#FFFF33", "Larceny" = "#4DAF4A", "Motor Vehicle Theft" = "#984EA3", 
           "Robbery" = "#FF7F00") 
+
 tf_cols <- c("TRUE" = "#DE2D26", "FALSE" = "#FEE0D2")
 
 # summary note colors
@@ -211,22 +212,37 @@ bold <- fp_text(color = "black", font.size = 24, bold = TRUE)
 #title slide
 report%>%
   add_slide(layout = "Title Slide", master = "Office Theme")%>%
-  ph_with(value = "Academy, Fountain Park, Lewis Place, Vandeventer", location = ph_location_type(type = "ctrTitle"))%>%
+  ph_with(value = "Academy-Sherman Park, Fountain Park, Lewis Place, Vandeventer", location = ph_location_type(type = "ctrTitle"))%>%
   ph_with(c(paste("Monthly Crime Report:", params$month, params$year, sep = " "), "Washington University Medical Center"), location = ph_location_type(type = "subTitle")) -> report
 ```
 
-## Academy: Summary Notes
+## Individual Neighborhood Summaries
 
-```{r AC Summary Prep, include=FALSE}
-tc_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 51,])
-tc_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 51,])
-cap_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 51 & monthCrimes_past$crimeCatNum == 4 | monthCrimes_past$neighborhood == 51 & monthCrimes_past$crimeCatNum == 3,])
-cap_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 51 & monthCrimes_pres$crimeCatNum == 4 | monthCrimes_pres$neighborhood == 51 & monthCrimes_pres$crimeCatNum == 3,])
+```{r, include=FALSE}
+#create comments to use to filter and name outputs
+comment(ac_tiles) <- "ac_tiles"
+comment(fp_tiles) <- "fp_tiles"
+comment(lp_tiles) <- "lp_tiles"
+comment(vd_tiles) <- "vd_tiles"
 
-tc_ytd_past <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 51,])
-tc_ytdCurrent <- nrow(ytdCrimes[ytdCrimes$neighborhood == 51,])
-cap_past_ytd <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 51 & ytdCrimes_past$crimeCatNum == 4 | ytdCrimes_past$neighborhood == 51 & ytdCrimes_past$crimeCatNum == 3,])
-cap_pres_ytd <- nrow(ytdCrimes[ytdCrimes$neighborhood == 51 & ytdCrimes$crimeCatNum == 4 | ytdCrimes$neighborhood == 51 & ytdCrimes$crimeCatNum == 3,])
+for ( i in list(ac_tiles, fp_tiles, lp_tiles, vd_tiles) ) { 
+name <- comment(i)
+  if(name %in% monthCrimes_pres$tiles){
+  nbhd_pres <- filter(monthCrimes_pres, tiles == name)
+  neighborhood <- unique(nbhd_pres$nbhd_name)
+abbr <- unique(nbhd_pres$abbr)
+num <- unique(nbhd_pres$neighborhood)
+
+
+tc_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == num,])
+tc_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == num,])
+cap_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == num & monthCrimes_past$crimeCatNum == 4 | monthCrimes_past$neighborhood == num & monthCrimes_past$crimeCatNum == 3,])
+cap_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == num & monthCrimes_pres$crimeCatNum == 4 | monthCrimes_pres$neighborhood == num & monthCrimes_pres$crimeCatNum == 3,])
+
+tc_ytd_past <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == num,])
+tc_ytdCurrent <- nrow(ytdCrimes[ytdCrimes$neighborhood == num,])
+cap_past_ytd <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == num & ytdCrimes_past$crimeCatNum == 4 | ytdCrimes_past$neighborhood == num & ytdCrimes_past$crimeCatNum == 3,])
+cap_pres_ytd <- nrow(ytdCrimes[ytdCrimes$neighborhood == num & ytdCrimes$crimeCatNum == 4 | ytdCrimes$neighborhood == num & ytdCrimes$crimeCatNum == 3,])
 
 pct_chg_mth1 <- (tc_pres - tc_past)/tc_past
 pct_chg_mth <- percent(pct_chg_mth1)
@@ -258,7 +274,7 @@ color24a <- fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_
 color20a <- fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 20)
 color24b <- fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 24)
 color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 20)
-  
+
 # create summary notes
 summary <- block_list(
   fpar(ftext(sprint_1, boldline)),
@@ -284,175 +300,155 @@ summary <- block_list(
 # write summary notes to powerpoint slide
 report%>%
   add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
-  ph_with(value = "Academy: Summary Notes", location = ph_location_type(type = "title"))%>%
+  ph_with(value = paste(neighborhood, ": Summary Notes"), location = ph_location_type(type = "title"))%>%
   ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 3, 1, 2, 2, 3)) -> report
-```
 
-## Academy: Year to Year Comparison
-
-```{r ac Year Comps Prep, include=FALSE}
+#Year to Year Comparison
 totalCrimes_past %>%
-  filter(., neighborhood == 51) %>%
+  filter(., neighborhood == num) %>%
   group_by(monthVar, .drop = FALSE) %>%
   count(crimeCatName) %>%
   rename(., "Number of Crimes" = n) %>%
   pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0)  -> ac_past
+  replace(., is.na(.), 0)  -> yr_past
 
 ytdCrimes %>%
-  filter(., neighborhood == 51) %>%
+  filter(., neighborhood == num) %>%
   group_by(monthVar) %>%
   count(crimeCatName) %>%
   rename(., "Number of Crimes" = n) %>%
   pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0) -> ac_pres
-```
+  replace(., is.na(.), 0) -> yr_pres
 
-```{r AC Total Crimes Flextable past year, echo = FALSE}
-part1crimes[!(part1crimes %in% ac_past$crimeCatName)] -> missing_category
+#create past year flextable, test to determine missing values then add missing values
+part1crimes[!(part1crimes %in% yr_past$crimeCatName)] -> missing_category
 is_empty(missing_category) -> test
 
 if(test == FALSE) {
-   add_row(ac_past, crimeCatName = missing_category) -> ac_past
+   add_row(yr_past, crimeCatName = missing_category) -> yr_past
 }
 
-ac_past %>% 
+yr_past %>% 
   arrange(., crimeCatName) %>%
   replace(., is.na(.), 0) %>%
   adorn_totals(., "col", name = "Total") %>%
   adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> ac_past
+  rename(., "Part 1 Crimes" = crimeCatName) -> yr_past
 
-flextable(ac_past) %>%
+flextable(yr_past) %>%
   colformat_num(., digits = 0) %>%
+  add_header_lines(values = paste(params$pastyear))%>%
+  autofit() -> flex
+flex <- height_all(flex, height = .25, part = "all")
+
+#create current year flextable, test to determine missing values then add missing values
+part1crimes[!(part1crimes %in% yr_pres$crimeCatName)] -> missing_category
+is_empty(missing_category) -> test
+
+if(test == FALSE) {
+   add_row(yr_pres, crimeCatName = missing_category) -> yr_pres
+}
+
+yr_pres %>% 
+  arrange(., crimeCatName) %>%
+  replace(., is.na(.), 0) %>%
+  adorn_totals(., "col", name = "Total") %>%
+  adorn_totals(., "row", name = "Total") %>%
+  rename(., "Part 1 Crimes" = crimeCatName) -> yr_pres
+
+#compare dataframes and get common columns
+common_cols <- intersect(colnames(yr_pres[, (params$num + 1)]), colnames(yr_past[, (params$num + 1)]))
+
+#assign to temporary dataframe
+temp_past <- yr_past[,common_cols, drop=FALSE]
+temp_pres <- yr_pres[,common_cols, drop=FALSE]
+
+#assign colors, green is a decrease in crime, red is an increase, transparent is no change
+colors <- unlist(temp_pres - temp_past)%>%
+  cut(breaks = c(-Inf, -.1, 0.1, Inf),
+      labels = c("lightgreen", "transparent", "lightcoral")) %>% 
+  as.character()
+#make flextable, color all columns except the first
+flextable(yr_pres) %>% 
+  colformat_num(.,  digits = 0) %>%
+  bg(j = params$abbr, bg = colors) %>% 
+  add_header_lines(values = paste(params$year))%>%
+  autofit() -> flex01
+flex01 <- height_all(flex01, height = .25, part = "all")
+
+# add powerpoint slide
+report%>%
+  add_slide()%>%
+  phl_with_text(olay = offlayout01, 1, paste(neighborhood, ": Year to Year Comparison"))%>%
+  phl_with_flextable(olay = offlayout01, 2, flex)%>%
+  phl_with_flextable(olay = offlayout01, 3, flex01) -> report
+
+#Neighborhood Summary Tables
+nbhd_pres%>%
+  group_by(crimeCatName, .drop = FALSE) %>%
+  count() %>%
+  adorn_totals(., "row", name = "Total") %>%
+  rename(., "Number of Crimes" = n, "Part 1 Crimes" = crimeCatName) -> nbhd_crimeCat
+
+nbhd_pres%>%
+  group_by(weekday, .drop = FALSE) %>%
+  count() %>%
+  rename(., "Number of Crimes" = n) %>%
+  replace(., is.na(.), 0) -> nbhd_weekDay
+
+wkdys[!(wkdys %in% nbhd_weekDay$weekday)] -> missing_category_days
+is_empty(missing_category_days) -> test
+
+as.data.frame(nbhd_weekDay) -> nbhd_weekDay
+
+if(test == FALSE) {
+   add_row(nbhd_weekDay, weekday = missing_category_days) -> nbhd_weekDay
+}
+
+nbhd_weekDay %>% 
+  replace(., is.na(.), 0) %>%
+  adorn_totals(., "row", name = "Total") %>%
+  rename(., "Day of the Week" = weekday) -> nbhd_weekDay
+
+nbhd_pres%>%
+  group_by(violent, .drop = FALSE) %>%
+  count() %>%
+  adorn_totals(., "row", name = "Total") %>%
+  rename(., "Number of Crimes" = n, "Crimes Against Persons" = violent) -> nbhd_violent
+
+nbhd_pres%>%
+  group_by(dayNight, .drop = FALSE) %>%
+  count() %>%
+  adorn_totals(., "row", name = "Total") %>%
+  rename(., "Number of Crimes" = n, "Time of Day" = dayNight) -> nbhd_dayNight
+
+#Make flextables from summary data
+flextable(nbhd_crimeCat) %>%
+  autofit() -> flex01
+
+flextable(nbhd_weekDay) %>%
   colformat_num(., digits = 0) %>%
-  add_header_lines(values = paste(params$pastyear))%>%
-  autofit() -> flex
-#Adjust flextable height to fit powerpoint slide
-flex <- height_all(flex, height = .25, part = "all")
-```
-
-```{r ac Total Crimes Flextable current year, echo = FALSE}
-part1crimes[!(part1crimes %in% ac_pres$crimeCatName)] -> missing_category
-is_empty(missing_category) -> test
-
-if(test == FALSE) {
-   add_row(ac_pres, crimeCatName = missing_category) -> ac_pres
-}
-
-ac_pres %>% 
-  arrange(., crimeCatName) %>%
-  replace(., is.na(.), 0) %>%
-  adorn_totals(., "col", name = "Total") %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> ac_pres
-
-#compare dataframes and get common columns
-common_cols <- intersect(colnames(ac_pres[, (params$num + 1)]), colnames(ac_past[, (params$num + 1)]))
-
-#assign to temporary dataframe
-temp_past <- ac_past[,common_cols, drop=FALSE]
-temp_pres <- ac_pres[,common_cols, drop=FALSE]
-
-#assign colors, green is a decrease in crime, red is an increase, transparent is no change
-colors <- unlist(temp_pres - temp_past)%>%
-  cut(breaks = c(-Inf, -.1, 0.1, Inf),
-      labels = c("lightgreen", "transparent", "lightcoral")) %>% 
-  as.character()
-#make flextable, color all columns except the first
-flextable(ac_pres) %>% 
-  bg(j = params$abbr, bg = colors) %>% 
-  add_header_lines(values = paste(params$year))%>%
-  autofit() -> flex01
-#Adjust flextable height to fit powerpoint slide
-flex01 <- height_all(flex01, height = .25, part = "all")
-
-# add powerpoint slide
-report%>%
-  add_slide()%>%
-  ph_with("Academy: Year to Year Comparison", 
-               location = ph_location_type(
-                 type = "title"))%>%
-  phl_with_flextable(olay = offlayout01, 2, flex)%>%
-  phl_with_flextable(olay = offlayout01, 3, flex01) -> report
-```
-
-## Academy: Summary Tables
-
-```{r AC Tables Prep, include = FALSE}
-monthCrimes_pres %>%
-  filter(., neighborhood == 51) %>%
-  group_by(crimeCatName) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Part 1 Crimes" = crimeCatName) -> ac_crimeCat
-
-monthCrimes_pres %>%
-  filter(., neighborhood == 51) %>%
-  group_by(weekday, .drop = FALSE) %>%
-  count() %>%
-  rename(., "Number of Crimes" = n) %>%
-  replace(., is.na(.), 0) -> ac_weekDay
-
-wkdys[!(wkdys %in% ac_weekDay$weekday)] -> missing_category_days
-is_empty(missing_category_days) -> test
-
-as.data.frame(ac_weekDay) -> ac_weekDay
-
-if(test == FALSE) {
-   add_row(ac_weekDay, weekday = missing_category_days) -> ac_weekDay
-}
-
-ac_weekDay %>% 
-  replace(., is.na(.), 0) %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Day of the Week" = weekday) -> ac_weekDay
-
-monthCrimes_pres %>%
-  filter(., neighborhood == 51) %>%
-  group_by(violent) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Crimes Against Persons" = violent) -> ac_violent
-
-monthCrimes_pres %>%
-  filter(., neighborhood == 51) %>%
-  group_by(dayNight) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Time of Day" = dayNight) -> ac_dayNight
-
-```
-
-```{r AC Flextables Knit, echo = FALSE}
-flextable(ac_crimeCat) %>%
-  autofit() -> flex01
-
-flextable(ac_weekDay) %>%
   autofit() -> flex02
 
-flextable(ac_violent) %>%
+flextable(nbhd_violent) %>%
   autofit() -> flex03
 
-flextable(ac_dayNight) %>%
+flextable(nbhd_dayNight) %>%
   autofit() -> flex04
 
 # add to powerpoint
 report%>%
   add_slide()%>%
-  ph_with("Academy: Summary Tables", 
+  ph_with(paste(neighborhood, ": Summary Tables"), 
                location = ph_location_type(
                  type = "title"))%>%
   phl_with_flextable(olay = offlayout, 4, flex01)%>%
   phl_with_flextable(olay = offlayout, 2, flex02)%>%
   phl_with_flextable(olay = offlayout, 3, flex03)%>%
   phl_with_flextable(olay = offlayout, 5, flex04) -> report
-```
 
-## Academy: Total Crime Map
-
-```{r Academy color palette, include = FALSE}
-sub <- filter(monthCrimes_pres_sf, neighborhood == 51)
+#Total Crimes Map
+sub <- filter(monthCrimes_pres_sf, neighborhood == num)
 col <- character(0)
 if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
 if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
@@ -461,21 +457,18 @@ if("Homicide" %in% sub$crimeCatName){col <- c(col, "Homicide" = "#FFFF33")}
 if("Larceny" %in% sub$crimeCatName){col <- c(col, "Larceny" = "#4DAF4A")}
 if("Motor Vehicle Theft" %in% sub$crimeCatName){col <- c(col, "Motor Vehicle Theft" = "#984EA3")}
 if("Robbery" %in% sub$crimeCatName){col <- c(col, "Robbery" = "#FF7F00")}
-```
 
-```{r AC Total Crime Prep, include = FALSE}
-tm_shape(ac_tiles) +
+tm_shape(i) +
   tm_rgb() +
   nhoods_sf %>%
-  filter(., neighborhood == 51) %>%
+  filter(., neighborhood == num) %>%
   tm_shape() +
     tm_fill(col = "#9ecae1",
             alpha = .5) +
     tm_borders(col = "black",
                lwd = 2,
                lty = "dashed") +
-  filter(monthCrimes_pres_sf,
-         neighborhood == 51) %>%
+  sub%>%
   tm_shape() +
     tm_bubbles(size = .25,
                col = "crimeCatName",
@@ -487,882 +480,33 @@ tm_shape(ac_tiles) +
     legend.bg.color = "white",
     legend.frame=TRUE,
     legend.outside = TRUE,
-    legend.position = c("right", "bottom")) -> ac_total_tm
+    legend.position = c("right", "bottom")) -> total_tm
 
-tmap_save(ac_total_tm, file = here("results", params$year, params$month, "ac", "ac_total_tm.jpeg"), width = 9, height = 5, units = "in")
+tmap_save(total_tm, file = here("results", params$year, params$month, abbr, paste(abbr, "_total_tm.jpeg", sep = "")), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "ac", "ac_total_tm.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Academy: Total Crime Map", 
+  ph_with(external_img(here::here("results", params$year, params$month, abbr, paste(abbr, "_total_tm.jpeg", sep = "")), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with(paste(neighborhood, ": Total Crime Map"), 
                location = ph_location_type(
                  type = "title") )-> report
-```
-
-
-## Fountain Park: Summary Notes
-
-```{r FP Summary Prep, include=FALSE}
-tc_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 53,])
-tc_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 53,])
-cap_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 53 & monthCrimes_past$crimeCatNum == 4 | monthCrimes_past$neighborhood == 53 & monthCrimes_past$crimeCatNum == 3,])
-cap_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 53 & monthCrimes_pres$crimeCatNum == 4 | monthCrimes_pres$neighborhood == 53 & monthCrimes_pres$crimeCatNum == 3,])
-
-tc_ytd_past <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 53,])
-tc_ytdCurrent <- nrow(ytdCrimes[ytdCrimes$neighborhood == 53,])
-cap_past_ytd <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 53 & ytdCrimes_past$crimeCatNum == 4 | ytdCrimes_past$neighborhood == 53 & ytdCrimes_past$crimeCatNum == 3,])
-cap_pres_ytd <- nrow(ytdCrimes[ytdCrimes$neighborhood == 53 & ytdCrimes$crimeCatNum == 4 | ytdCrimes$neighborhood == 53 & ytdCrimes$crimeCatNum == 3,])
-
-pct_chg_mth1 <- (tc_pres - tc_past)/tc_past
-pct_chg_mth <- percent(pct_chg_mth1)
-if(is.nan(pct_chg_mth1)){pct_chg_mth[is.nan(pct_chg_mth1)] <- 0}
-if(is.infinite(pct_chg_mth1)){pct_chg_mth[is.infinite(pct_chg_mth1)] <- "Infinite"}
-
-pct_chg_cap1 <- (cap_pres - cap_past)/cap_past
-pct_chg_cap <- percent(pct_chg_cap1)
-if(is.nan(pct_chg_cap1)){pct_chg_cap[is.nan(pct_chg_cap1)] <- 0}
-if(is.infinite(pct_chg_cap1)){pct_chg_cap[is.infinite(pct_chg_cap1)] <- "Infinite"}
-
-pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd_past)/tc_ytd_past
-pct_chg_ytd <- percent(pct_chg_ytd1)
-if(is.nan(pct_chg_ytd1)){pct_chg_ytd[is.nan(pct_chg_ytd1)] <- 0}
-if(is.infinite(pct_chg_ytd1)){pct_chg_ytd[is.infinite(pct_chg_ytd1)] <- "Infinite"}
-
-pct_chg_ytd_cap1 <- (cap_pres_ytd - cap_past_ytd)/cap_past_ytd
-pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
-if(is.nan(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.nan(pct_chg_ytd_cap1)] <- 0}
-if(is.infinite(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.infinite(pct_chg_ytd_cap1)] <- "Infinite"}
-
-sprint_1 <- sprintf("%s total crimes in %s %s", 
-                    tc_pres, params$month, params$year)
-sprint_2 <- sprintf("%s total crimes in %s", 
-                    tc_ytdCurrent, params$year)
-
-# text formatting
-color24a <- fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 24)
-color20a <- fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 20)
-color24b <- fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 24)
-color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 20)
-  
-# create summary notes
-summary <- block_list(
-  fpar(ftext(sprint_1, boldline)),
-  fpar(ftext(paste(" ", sep = ""), reg24),
-       ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
-       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc_past, " total crimes)", sep = ""), reg24)),
-  fpar(ftext(paste(cap_pres, "crime(s) against persons", sep = " "), bold),
-       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
-  fpar(ftext(paste(" ", sep = ""), reg20),
-       ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
-       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap_past, " crimes against persons)", sep = ""), reg20)),
-  fpar(ftext(sprint_2, boldline)),
-  fpar(ftext(paste(" ", sep = ""), reg24),
-       ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
-       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd_past, " total crimes)", sep = ""), reg24)),
-  fpar(ftext(paste(cap_pres_ytd, "crime(s) against persons", sep = " "), bold),
-       ftext(paste(" in", params$year, sep = " "), reg24)),
-  fpar(ftext(paste(" ", sep = ""), reg20),
-       ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
-       ftext(paste(" compared to this time in ", params$pastyear, " (", cap_past_ytd, " crimes against persons)", sep = ""), reg20))
-)
-
-# write summary notes to powerpoint slide
-report%>%
-  add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
-  ph_with(value = "Fountain Park: Summary Notes", location = ph_location_type(type = "title"))%>%
-  ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 3, 1, 2, 2, 3)) -> report
-```
-
-## Fountain Park: Year to Year Comparison
-
-```{r fp Year Comps Prep, include=FALSE}
-totalCrimes_past %>%
-  filter(., neighborhood == 53) %>%
-  group_by(monthVar, .drop = FALSE) %>%
-  count(crimeCatName) %>%
-  rename(., "Number of Crimes" = n) %>%
-  pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0)  -> fp_past
-
-ytdCrimes %>%
-  filter(., neighborhood == 53) %>%
-  group_by(monthVar) %>%
-  count(crimeCatName) %>%
-  rename(., "Number of Crimes" = n) %>%
-  pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0) -> fp_pres
-```
-
-```{r FP Total Crimes Flextable past year, echo = FALSE}
-part1crimes[!(part1crimes %in% fp_past$crimeCatName)] -> missing_category
-is_empty(missing_category) -> test
-
-if(test == FALSE) {
-   add_row(fp_past, crimeCatName = missing_category) -> fp_past
+  }
 }
-
-fp_past %>% 
-  arrange(., crimeCatName) %>%
-  replace(., is.na(.), 0) %>%
-  adorn_totals(., "col", name = "Total") %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> fp_past
-
-flextable(fp_past) %>%
-  colformat_num(.,  digits = 0) %>%
-  colformat_num(.,  digits = 0) %>%
-  add_header_lines(values = paste(params$pastyear))%>%
-  autofit() -> flex
-#Adjust flextable height to fit powerpoint slide
-flex <- height_all(flex, height = .25, part = "all")
 ```
 
-```{r fp Total Crimes Flextable current year, echo = FALSE}
-part1crimes[!(part1crimes %in% fp_pres$crimeCatName)] -> missing_category
-is_empty(missing_category) -> test
-
-if(test == FALSE) {
-   add_row(fp_pres, crimeCatName = missing_category) -> fp_pres
-}
-
-fp_pres %>% 
-  arrange(., crimeCatName) %>%
-  replace(., is.na(.), 0) %>%
-  adorn_totals(., "col", name = "Total") %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> fp_pres
-
-#compare dataframes and get common columns
-common_cols <- intersect(colnames(fp_pres[, (params$num + 1)]), colnames(fp_past[, (params$num + 1)]))
-
-#assign to temporary dataframe
-temp_past <- fp_past[,common_cols, drop=FALSE]
-temp_pres <- fp_pres[,common_cols, drop=FALSE]
-
-#assign colors, green is a decrease in crime, red is an increase, transparent is no change
-colors <- unlist(temp_pres - temp_past)%>%
-  cut(breaks = c(-Inf, -.1, 0.1, Inf),
-      labels = c("lightgreen", "transparent", "lightcoral")) %>% 
-  as.character()
-#make flextable, color all columns except the first
-flextable(fp_pres) %>% 
-  bg(j = params$abbr, bg = colors) %>% 
-  add_header_lines(values = paste(params$year))%>%
-  autofit() -> flex01
-#Adjust flextable height to fit powerpoint slide
-flex01 <- height_all(flex01, height = .25, part = "all")
-
-# add powerpoint slide
+#District 5 Map & Explanation
+```{r District 5 Density Map Explanation Prep, include = FALSE}
+#add District 5 Crime Rates Map to powerpoint report
 report%>%
   add_slide()%>%
-  phl_with_text(olay = offlayout01, 1, "Fountain Park: Year to Year Comparison")%>%
-  phl_with_flextable(olay = offlayout01, 2, flex)%>%
-  phl_with_flextable(olay = offlayout01, 3, flex01) -> report
-```
-
-## Fountain Park: Summary Tables
-
-```{r FP Tables Prep, include = FALSE}
-monthCrimes_pres %>%
-  filter(., neighborhood == 53) %>%
-  group_by(crimeCatName) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Part 1 Crimes" = crimeCatName) -> fp_crimeCat
-
-monthCrimes_pres %>%
-  filter(., neighborhood == 53) %>%
-  group_by(weekday, .drop = FALSE) %>%
-  count() %>%
-  rename(., "Number of Crimes" = n) %>%
-  replace(., is.na(.), 0) -> fp_weekDay
-
-wkdys[!(wkdys %in% fp_weekDay$weekday)] -> missing_category_days
-is_empty(missing_category_days) -> test
-
-as.data.frame(fp_weekDay) -> fp_weekDay
-
-if(test == FALSE) {
-   add_row(fp_weekDay, weekday = missing_category_days) -> fp_weekDay
-}
-
-fp_weekDay %>% 
-  replace(., is.na(.), 0) %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Day of the Week" = weekday) -> fp_weekDay
-
-monthCrimes_pres %>%
-  filter(., neighborhood == 53) %>%
-  group_by(violent) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Crimes Against Persons" = violent) -> fp_violent
-
-
-monthCrimes_pres %>%
-  filter(., neighborhood == 53) %>%
-  group_by(dayNight) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Time of Day" = dayNight) -> fp_dayNight
-```
-
-```{r FP Flextables Knit, echo = FALSE}
-flextable(fp_crimeCat) %>%
-  autofit() -> flex01
-
-flextable(fp_weekDay) %>%
-  autofit() -> flex02
-
-flextable(fp_violent) %>%
-  autofit() -> flex03
-
-flextable(fp_dayNight) %>%
-  autofit() -> flex04
-
-# add to powerpoint
-report%>%
-  add_slide()%>%
-  ph_with("Fountain Park: Summary Tables", 
-               location = ph_location_type(
-                 type = "title"))%>%
-  phl_with_flextable(olay = offlayout, 4, flex01)%>%
-  phl_with_flextable(olay = offlayout, 2, flex02)%>%
-  phl_with_flextable(olay = offlayout, 3, flex03)%>%
-  phl_with_flextable(olay = offlayout, 5, flex04) -> report
-```
-
-## Fountain Park: Total Crime Map
-
-```{r FP color palette, include = FALSE}
-sub <- filter(monthCrimes_pres_sf, neighborhood == 53)
-col <- character(0)
-if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
-if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
-if("Burgalry" %in% sub$crimeCatName){col <- c(col, "Burgalry" = "#377eb8")}
-if("Homicide" %in% sub$crimeCatName){col <- c(col, "Homicide" = "#FFFF33")}
-if("Larceny" %in% sub$crimeCatName){col <- c(col, "Larceny" = "#4DAF4A")}
-if("Motor Vehicle Theft" %in% sub$crimeCatName){col <- c(col, "Motor Vehicle Theft" = "#984EA3")}
-if("Robbery" %in% sub$crimeCatName){col <- c(col, "Robbery" = "#FF7F00")}
-```
-
-```{r FP Total Crime Prep, include = FALSE}
-tm_shape(fp_tiles) +
-  tm_rgb() +
-  nhoods_sf %>%
-  filter(., neighborhood == 53) %>%
-  tm_shape() +
-    tm_fill(col = "#9ecae1",
-            alpha = .5) +
-    tm_borders(col = "black",
-               lwd = 2,
-               lty = "dashed") +
-  filter(monthCrimes_pres_sf,
-         neighborhood == 53) %>%
-  tm_shape() +
-    tm_bubbles(size = .25,
-               col = "crimeCatName",
-               palette = col,
-               title.col = "Part 1 Crimes") +
-  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
-  tm_layout(
-    frame = FALSE,
-    legend.bg.color = "white",
-    legend.frame=TRUE,
-    legend.outside = TRUE,
-    legend.position = c("right", "bottom")) -> fp_total_tm
-
-tmap_save(fp_total_tm, file = here("results", params$year, params$month, "fp", "fp_total_crimes.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fp", "fp_total_crimes.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Fountain Park: Total Crime Map", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-
-
-## Summary Notes: Lewis Place
-
-```{r LP Summary Notes Prep, include=FALSE}
-tc_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 54,])
-tc_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 54,])
-cap_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 54 & monthCrimes_past$crimeCatNum == 4 | monthCrimes_past$neighborhood == 54 & monthCrimes_past$crimeCatNum == 3,])
-cap_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 54 & monthCrimes_pres$crimeCatNum == 4 | monthCrimes_pres$neighborhood == 54 & monthCrimes_pres$crimeCatNum == 3,])
-
-tc_ytd_past <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 54,])
-tc_ytdCurrent <- nrow(ytdCrimes[ytdCrimes$neighborhood == 54,])
-cap_past_ytd <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 54 & ytdCrimes_past$crimeCatNum == 4 | ytdCrimes_past$neighborhood == 54 & ytdCrimes_past$crimeCatNum == 3,])
-cap_pres_ytd <- nrow(ytdCrimes[ytdCrimes$neighborhood == 54 & ytdCrimes$crimeCatNum == 4 | ytdCrimes$neighborhood == 54 & ytdCrimes$crimeCatNum == 3,])
-
-pct_chg_mth1 <- (tc_pres - tc_past)/tc_past
-pct_chg_mth <- percent(pct_chg_mth1)
-
-pct_chg_cap1 <- (cap_pres - cap_past)/cap_past
-pct_chg_cap <- percent(pct_chg_cap1)
-
-pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd_past)/tc_ytd_past
-pct_chg_ytd <- percent(pct_chg_ytd1)
-
-pct_chg_ytd_cap1 <- (cap_pres_ytd - cap_past_ytd)/cap_past_ytd
-pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
-
-sprint_1 <- sprintf("%s total crimes in %s %s", 
-                    tc_pres, params$month, params$year)
-sprint_2 <- sprintf("%s total crimes in %s", 
-                    tc_ytdCurrent, params$year)
-
-# text formatting
-color24a <- fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 24)
-color20a <- fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 20)
-color24b <- fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 24)
-color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 20)
-  
-# create summary notes
-summary <- block_list(
-  fpar(ftext(sprint_1, boldline)),
-  fpar(ftext(paste(" ", sep = ""), reg24),
-       ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
-       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc_past, " total crimes)", sep = ""), reg24)),
-  fpar(ftext(paste(cap_pres, "crime(s) against persons", sep = " "), bold),
-       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
-  fpar(ftext(paste(" ", sep = ""), reg20),
-       ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
-       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap_past, " crimes against persons)", sep = ""), reg20)),
-  fpar(ftext(sprint_2, boldline)),
-  fpar(ftext(paste(" ", sep = ""), reg24),
-       ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
-       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd_past, " total crimes)", sep = ""), reg24)),
-  fpar(ftext(paste(cap_pres_ytd, "crime(s) against persons", sep = " "), bold),
-       ftext(paste(" in", params$year, sep = " "), reg24)),
-  fpar(ftext(paste(" ", sep = ""), reg20),
-       ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
-       ftext(paste(" compared to this time in ", params$pastyear, " (", cap_past_ytd, " crimes against persons)", sep = ""), reg20))
-)
-
-# write summary notes to powerpoint slide
-report%>%
-  add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
-  ph_with(value = "Lewis Place: Summary Notes", location = ph_location_type(type = "title"))%>%
-  ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 3, 1, 2, 2, 3)) -> report
-```
-
-## Lewis Place: Year to Year Comparison
-
-```{r lp Year Comps Prep, include=FALSE}
-totalCrimes_past %>%
-  filter(., neighborhood == 54) %>%
-  group_by(monthVar, .drop = FALSE) %>%
-  count(crimeCatName) %>%
-  rename(., "Number of Crimes" = n) %>%
-  pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0)  -> lp_past
-
-ytdCrimes %>%
-  filter(., neighborhood == 54) %>%
-  group_by(monthVar) %>%
-  count(crimeCatName) %>%
-  rename(., "Number of Crimes" = n) %>%
-  pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0) -> lp_pres
-```
-
-```{r lp Total Crimes Flextable past year, echo = FALSE}
-part1crimes[!(part1crimes %in% lp_past$crimeCatName)] -> missing_category
-is_empty(missing_category) -> test
-
-if(test == FALSE) {
-   add_row(lp_past, crimeCatName = missing_category) -> lp_past
-}
-
-lp_past %>% 
-  arrange(., crimeCatName) %>%
-  replace(., is.na(.), 0) %>%
-  adorn_totals(., "col", name = "Total") %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> lp_past
-
-flextable(lp_past) %>%
-  colformat_num(.,  digits = 0) %>%
-  colformat_num(.,  digits = 0) %>%
-  add_header_lines(values = paste(params$pastyear))%>%
-  autofit() -> flex
-#Adjust flextable height to fit powerpoint slide
-flex <- height_all(flex, height = .25, part = "all")
-```
-
-```{r lp Total Crimes Flextable current year, echo = FALSE}
-part1crimes[!(part1crimes %in% lp_pres$crimeCatName)] -> missing_category
-is_empty(missing_category) -> test
-
-if(test == FALSE) {
-   add_row(lp_pres, crimeCatName = missing_category) -> lp_pres
-}
-
-lp_pres %>% 
-  arrange(., crimeCatName) %>%
-  replace(., is.na(.), 0) %>%
-  adorn_totals(., "col", name = "Total") %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> lp_pres
-
-#compare dataframes and get common columns
-common_cols <- intersect(colnames(lp_pres[, (params$num + 1)]), colnames(lp_past[, (params$num + 1)]))
-
-#assign to temporary dataframe
-temp_past <- lp_past[,common_cols, drop=FALSE]
-temp_pres <- lp_pres[,common_cols, drop=FALSE]
-
-#assign colors, green is a decrease in crime, red is an increase, transparent is no change
-colors <- unlist(temp_pres - temp_past)%>%
-  cut(breaks = c(-Inf, -.1, 0.1, Inf),
-      labels = c("lightgreen", "transparent", "lightcoral")) %>% 
-  as.character()
-#make flextable, color all columns except the first
-flextable(lp_pres) %>% 
-  bg(j = params$abbr, bg = colors) %>% 
-  add_header_lines(values = paste(params$year))%>%
-  autofit() -> flex01
-#Adjust flextable height to fit powerpoint slide
-flex01 <- height_all(flex01, height = .25, part = "all")
-
-# add powerpoint slide
-report%>%
-  add_slide()%>%
-  phl_with_text(olay = offlayout01, 1, "Lewis Place: Year to Year Comparison")%>%
-  phl_with_flextable(olay = offlayout01, 2, flex)%>%
-  phl_with_flextable(olay = offlayout01, 3, flex01) -> report
-```
-
-## Lewis Place: Summary Tables
-
-```{r LP Tables Prep, include = FALSE}
-monthCrimes_pres %>%
-  filter(., neighborhood == 54) %>%
-  group_by(crimeCatName) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Part 1 Crimes" = crimeCatName) -> lp_crimeCat
-
-monthCrimes_pres %>%
-  filter(., neighborhood == 54) %>%
-  group_by(weekday, .drop = FALSE) %>%
-  count() %>%
-  rename(., "Number of Crimes" = n) %>%
-  replace(., is.na(.), 0) -> lp_weekDay
-
-wkdys[!(wkdys %in% lp_weekDay$weekday)] -> missing_category_days
-is_empty(missing_category_days) -> test
-
-as.data.frame(lp_weekDay) -> lp_weekDay
-
-if(test == FALSE) {
-   add_row(lp_weekDay, weekday = missing_category_days) -> lp_weekDay
-}
-
-lp_weekDay %>% 
-  replace(., is.na(.), 0) %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Day of the Week" = weekday) -> lp_weekDay
-
-monthCrimes_pres %>%
-  filter(., neighborhood == 54) %>%
-  group_by(violent) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Crimes Against Persons" = violent) -> lp_violent
-
-monthCrimes_pres %>%
-  filter(., neighborhood == 54) %>%
-  group_by(dayNight) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Time of Day" = dayNight) -> lp_dayNight
-
-```
-
-```{r LP Flextables Knit, echo = FALSE}
-flextable(lp_crimeCat) %>%
-  autofit() -> flex01
-
-flextable(lp_weekDay) %>%
-  autofit() -> flex02
-
-flextable(lp_violent) %>%
-  autofit() -> flex03
-
-flextable(lp_dayNight) %>%
-  autofit() -> flex04
-
-# add to powerpoint
-report%>%
-  add_slide()%>%
-  ph_with("Lewis Place: Summary Tables", 
-               location = ph_location_type(
-                 type = "title"))%>%
-  phl_with_flextable(olay = offlayout, 4, flex01)%>%
-  phl_with_flextable(olay = offlayout, 2, flex02)%>%
-  phl_with_flextable(olay = offlayout, 3, flex03)%>%
-  phl_with_flextable(olay = offlayout, 5, flex04) -> report
-```
-
-## Lewis Place: Total Crime Map
-
-```{r LP color palette, include = FALSE}
-sub <- filter(monthCrimes_pres_sf, neighborhood == 54)
-col <- character(0)
-if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
-if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
-if("Burgalry" %in% sub$crimeCatName){col <- c(col, "Burgalry" = "#377eb8")}
-if("Homicide" %in% sub$crimeCatName){col <- c(col, "Homicide" = "#FFFF33")}
-if("Larceny" %in% sub$crimeCatName){col <- c(col, "Larceny" = "#4DAF4A")}
-if("Motor Vehicle Theft" %in% sub$crimeCatName){col <- c(col, "Motor Vehicle Theft" = "#984EA3")}
-if("Robbery" %in% sub$crimeCatName){col <- c(col, "Robbery" = "#FF7F00")}
-```
-
-```{r LP Total Crime Prep, include = FALSE}
-tm_shape(lp_tiles) +
-  tm_rgb() +
-  nhoods_sf %>%
-  filter(., neighborhood == 54) %>%
-  tm_shape() +
-    tm_fill(col = "#9ecae1",
-            alpha = .5) +
-    tm_borders(col = "black",
-               lwd = 2,
-               lty = "dashed") +
-  filter(monthCrimes_pres_sf,
-         neighborhood == 54) %>%
-  tm_shape() +
-    tm_bubbles(size = .25,
-               col = "crimeCatName",
-               palette = col,
-               title.col = "Part 1 Crimes") +
-  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
-  tm_layout(
-    frame = FALSE,
-    legend.bg.color = "white",
-    legend.frame=TRUE,
-    legend.outside = TRUE,
-    legend.position = c("right", "bottom")) -> lp_total_tm
-
-tmap_save(lp_total_tm, file = here("results", params$year, params$month, "lp", "lp_total_crimes.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "lp", "lp_total_crimes.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Lewis Place: Total Crime Map", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-
-## Vandeventer: Summary Notes
-
-```{r VD Summary Prep, include=FALSE}
-tc_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 58,])
-tc_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 58,])
-cap_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == 58 & monthCrimes_past$crimeCatNum == 4 | monthCrimes_past$neighborhood == 58 & monthCrimes_past$crimeCatNum == 3,])
-cap_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == 58 & monthCrimes_pres$crimeCatNum == 4 | monthCrimes_pres$neighborhood == 58 & monthCrimes_pres$crimeCatNum == 3,])
-
-tc_ytd_past <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 58,])
-tc_ytdCurrent <- nrow(ytdCrimes[ytdCrimes$neighborhood == 58,])
-cap_past_ytd <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == 58 & ytdCrimes_past$crimeCatNum == 4 | ytdCrimes_past$neighborhood == 58 & ytdCrimes_past$crimeCatNum == 3,])
-cap_pres_ytd <- nrow(ytdCrimes[ytdCrimes$neighborhood == 58 & ytdCrimes$crimeCatNum == 4 | ytdCrimes$neighborhood == 58 & ytdCrimes$crimeCatNum == 3,])
-
-pct_chg_mth1 <- (tc_pres - tc_past)/tc_past
-pct_chg_mth <- percent(pct_chg_mth1)
-if(is.nan(pct_chg_mth1)){pct_chg_mth[is.nan(pct_chg_mth1)] <- 0}
-if(is.infinite(pct_chg_mth1)){pct_chg_mth[is.infinite(pct_chg_mth1)] <- "Infinite"}
-
-pct_chg_cap1 <- (cap_pres - cap_past)/cap_past
-pct_chg_cap <- percent(pct_chg_cap1)
-if(is.nan(pct_chg_cap1)){pct_chg_cap[is.nan(pct_chg_cap1)] <- 0}
-if(is.infinite(pct_chg_cap1)){pct_chg_cap[is.infinite(pct_chg_cap1)] <- "Infinite"}
-
-pct_chg_ytd1 <- (tc_ytdCurrent - tc_ytd_past)/tc_ytd_past
-pct_chg_ytd <- percent(pct_chg_ytd1)
-if(is.nan(pct_chg_ytd1)){pct_chg_ytd[is.nan(pct_chg_ytd1)] <- 0}
-if(is.infinite(pct_chg_ytd1)){pct_chg_ytd[is.infinite(pct_chg_ytd1)] <- "Infinite"}
-
-pct_chg_ytd_cap1 <- (cap_pres_ytd - cap_past_ytd)/cap_past_ytd
-pct_chg_ytd_cap <- percent(pct_chg_ytd_cap1)
-if(is.nan(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.nan(pct_chg_ytd_cap1)] <- 0}
-if(is.infinite(pct_chg_ytd_cap1)){pct_chg_ytd_cap[is.infinite(pct_chg_ytd_cap1)] <- "Infinite"}
-
-sprint_1 <- sprintf("%s total crimes in %s %s", 
-                    tc_pres, params$month, params$year)
-sprint_2 <- sprintf("%s total crimes in %s", 
-                    tc_ytdCurrent, params$year)
-
-# text formatting
-color24a <- fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 24)
-color20a <- fp_text(color = ifelse(pct_chg_cap1 == 0, "#00B0F0", ifelse(pct_chg_cap < 0, "#00B050", "red")), font.size = 20)
-color24b <- fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 24)
-color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 20)
-  
-# create summary notes
-summary <- block_list(
-  fpar(ftext(sprint_1, boldline)),
-  fpar(ftext(paste(" ", sep = ""), reg24),
-       ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
-       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc_past, " total crimes)", sep = ""), reg24)),
-  fpar(ftext(paste(cap_pres, "crime(s) against persons", sep = " "), bold),
-       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
-  fpar(ftext(paste(" ", sep = ""), reg20),
-       ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
-       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap_past, " crimes against persons)", sep = ""), reg20)),
-  fpar(ftext(sprint_2, boldline)),
-  fpar(ftext(paste(" ", sep = ""), reg24),
-       ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
-       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd_past, " total crimes)", sep = ""), reg24)),
-  fpar(ftext(paste(cap_pres_ytd, "crime(s) against persons", sep = " "), bold),
-       ftext(paste(" in", params$year, sep = " "), reg24)),
-  fpar(ftext(paste(" ", sep = ""), reg20),
-       ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
-       ftext(paste(" compared to this time in ", params$pastyear, " (", cap_past_ytd, " crimes against persons)", sep = ""), reg20))
-)
-
-# write summary notes to powerpoint slide
-report%>%
-  add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
-  ph_with(value = "Vandeventer: Summary Notes", location = ph_location_type(type = "title"))%>%
-  ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 3, 1, 2, 2, 3)) -> report
-```
-
-## Vandeventer: Year to Year Comparison
-
-```{r vd Year Comps Prep, include=FALSE}
-totalCrimes_past %>%
-  filter(., neighborhood == 58) %>%
-  group_by(monthVar, .drop = FALSE) %>%
-  count(crimeCatName) %>%
-  rename(., "Number of Crimes" = n) %>%
-  pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0)  -> vd_past
-
-ytdCrimes %>%
-  filter(., neighborhood == 58) %>%
-  group_by(monthVar) %>%
-  count(crimeCatName) %>%
-  rename(., "Number of Crimes" = n) %>%
-  pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
-  replace(., is.na(.), 0) -> vd_pres
-```
-
-```{r vd Total Crimes Flextable past year, echo = FALSE}
-part1crimes[!(part1crimes %in% vd_past$crimeCatName)] -> missing_category
-is_empty(missing_category) -> test
-
-if(test == FALSE) {
-   add_row(vd_past, crimeCatName = missing_category) -> vd_past
-}
-
-vd_past %>% 
-  arrange(., crimeCatName) %>%
-  replace(., is.na(.), 0) %>%
-  adorn_totals(., "col", name = "Total") %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> vd_past
-
-flextable(vd_past) %>%
-  colformat_num(.,  digits = 0) %>%
-  colformat_num(.,  digits = 0) %>%
-  add_header_lines(values = paste(params$pastyear))%>%
-  autofit() -> flex
-#Adjust flextable height to fit powerpoint slide
-flex <- height_all(flex, height = .25, part = "all")
-```
-
-```{r vd Total Crimes Flextable current year, echo = FALSE}
-part1crimes[!(part1crimes %in% vd_pres$crimeCatName)] -> missing_category
-is_empty(missing_category) -> test
-
-if(test == FALSE) {
-   add_row(vd_pres, crimeCatName = missing_category) -> vd_pres
-}
-
-vd_pres %>% 
-  arrange(., crimeCatName) %>%
-  replace(., is.na(.), 0) %>%
-  adorn_totals(., "col", name = "Total") %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Part 1 Crimes" = crimeCatName) -> vd_pres
-
-#compare dataframes and get common columns
-common_cols <- intersect(colnames(vd_pres[, (params$num + 1)]), colnames(vd_past[, (params$num + 1)]))
-
-#assign to temporary dataframe
-temp_past <- vd_past[,common_cols, drop=FALSE]
-temp_pres <- vd_pres[,common_cols, drop=FALSE]
-
-#assign colors, green is a decrease in crime, red is an increase, transparent is no change
-colors <- unlist(temp_pres - temp_past)%>%
-  cut(breaks = c(-Inf, -.1, 0.1, Inf),
-      labels = c("lightgreen", "transparent", "lightcoral")) %>% 
-  as.character()
-#make flextable, color all columns except the first
-flextable(vd_pres) %>% 
-  bg(j = params$abbr, bg = colors) %>% 
-  add_header_lines(values = paste(params$year))%>%
-  autofit() -> flex01
-#Adjust flextable height to fit powerpoint slide
-flex01 <- height_all(flex01, height = .25, part = "all")
-
-# add powerpoint slide
-report%>%
-  add_slide()%>%
-  phl_with_text(olay = offlayout01, 1, "Vandeventer: Year to Year Comparison")%>%
-  phl_with_flextable(olay = offlayout01, 2, flex)%>%
-  phl_with_flextable(olay = offlayout01, 3, flex01) -> report
-```
-
-## Vandeventer: Summary Tables
-
-```{r VD Tables Prep, include = FALSE}
-monthCrimes_pres %>%
-  filter(., neighborhood == 58) %>%
-  group_by(crimeCatName) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Part 1 Crimes" = crimeCatName) -> vd_crimeCat
-
-monthCrimes_pres %>%
-  filter(., neighborhood == 58) %>%
-  group_by(weekday, .drop = FALSE) %>%
-  count() %>%
-  rename(., "Number of Crimes" = n) %>%
-  replace(., is.na(.), 0) -> vd_weekDay
-
-wkdys[!(wkdys %in% vd_weekDay$weekday)] -> missing_category_days
-is_empty(missing_category_days) -> test
-
-as.data.frame(vd_weekDay) -> vd_weekDay
-
-if(test == FALSE) {
-   add_row(vd_weekDay, weekday = missing_category_days) -> vd_weekDay
-}
-
-vd_weekDay %>% 
-  replace(., is.na(.), 0) %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Day of the Week" = weekday) -> vd_weekDay
-
-monthCrimes_pres %>%
-  filter(., neighborhood == 58) %>%
-  group_by(violent) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Crimes Against Persons" = violent) -> vd_violent
-
-monthCrimes_pres %>%
-  filter(., neighborhood == 58) %>%
-  group_by(dayNight) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Time of Day" = dayNight) -> vd_dayNight
-
-```
-
-```{r VD Flextables Knit, echo = FALSE}
-flextable(vd_crimeCat) %>%
-  autofit() -> flex01
-
-flextable(vd_weekDay) %>%
-  autofit() -> flex02
-
-flextable(vd_violent) %>%
-  autofit() -> flex03
-
-flextable(vd_dayNight) %>%
-  autofit() -> flex04
-
-# add to powerpoint
-report%>%
-  add_slide()%>%
-  ph_with("Vandeventer: Summary Tables", 
-               location = ph_location_type(
-                 type = "title"))%>%
-  phl_with_flextable(olay = offlayout, 4, flex01)%>%
-  phl_with_flextable(olay = offlayout, 2, flex02)%>%
-  phl_with_flextable(olay = offlayout, 3, flex03)%>%
-  phl_with_flextable(olay = offlayout, 5, flex04) -> report
-```
-
-## Vandeventer: Total Crime Map
-
-```{r VD color palette, include = FALSE}
-sub <- filter(monthCrimes_pres_sf, neighborhood == 58)
-col <- character(0)
-if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
-if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
-if("Burgalry" %in% sub$crimeCatName){col <- c(col, "Burgalry" = "#377eb8")}
-if("Homicide" %in% sub$crimeCatName){col <- c(col, "Homicide" = "#FFFF33")}
-if("Larceny" %in% sub$crimeCatName){col <- c(col, "Larceny" = "#4DAF4A")}
-if("Motor Vehicle Theft" %in% sub$crimeCatName){col <- c(col, "Motor Vehicle Theft" = "#984EA3")}
-if("Robbery" %in% sub$crimeCatName){col <- c(col, "Robbery" = "#FF7F00")}
-```
-
-```{r VD Total Crime Prep, include = FALSE}
-tm_shape(vd_tiles) +
-  tm_rgb() +
-  nhoods_sf %>%
-  filter(., neighborhood == 58) %>%
-  tm_shape() +
-    tm_fill(col = "#9ecae1",
-            alpha = .5) +
-    tm_borders(col = "black",
-               lwd = 2,
-               lty = "dashed") +
-  filter(monthCrimes_pres_sf,
-         neighborhood == 58) %>%
-  tm_shape() +
-    tm_bubbles(size = .25,
-               col = "crimeCatName",
-               palette = col,
-               title.col = "Part 1 Crimes") +
-  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
-  tm_layout(
-    frame = FALSE,
-    legend.bg.color = "white",
-    legend.frame=TRUE,
-    legend.outside = TRUE,
-    legend.position = c("right", "bottom")) -> vd_total_tm
-
-tmap_save(vd_total_tm, file = here("results", params$year, params$month, "vd", "vd_total_tm.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "vd", "vd_total_tm.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Vandeventer: Total Crime Map", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## District 5: Crime Rates Map
-
-```{r District 5 Density Map Knit, echo = FALSE}
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "district-5", "dst5_rates.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "district-5", "dst5_rates.jpeg"), width = 9, height = 5), location = ph_location_type(type="body"), use_loc_size = FALSE)%>%
   ph_with("District 5: Crime Rates Map", 
                location = ph_location_type(
                  type = "title") )-> report
-```
 
-## District 5: Density Map Explanation
-
-```{r District 5 Density Map Explanation Prep, include = FALSE}
-library(qwraps2)
 options(qwraps2_markup = "markdown")
-
+#Density map explanation
 dst_5_pop_sf <- as.data.frame(dst_5_pop_sf)
 summary_statistics <-
   list(
@@ -1439,900 +583,35 @@ report%>%
                 style = fp_text(color = "#00B0F0", font.size = 24)) -> report
 ```
 
-## Academy: Neighborhood Detail
-### Appendix 1
-
+#Appendix
 ```{r}
+#create Appendix number
+app = 1
+for (i in list(ac_tiles, fp_tiles, lp_tiles, vd_tiles)) {
+  name <- comment(i)
+  pres_sf <- filter(monthCrimes_pres_sf, tiles == name)
+  pres_df <- filter(monthCrimes_pres, tiles == name)
+  neighborhood <- unique(pres_sf$nbhd_name)
+abbr <- unique(pres_sf$abbr)
+num <- unique(pres_sf$neighborhood)
+
 report%>%
   add_slide(layout = "Title Slide", master = "Office Theme")%>%
-  ph_with(value = "Academy: Neighborhood Detail", location = ph_location_type(type = "ctrTitle"))%>%
-  ph_with("Appendix 1", location = ph_location_type(type = "subTitle")) -> report
-```
-
-## Academy: Time of Crimes Map
-
-```{r AC Day & Night Prep, include = FALSE}
-ac_dn_tm <- tm_shape(ac_tiles) +
-  tm_rgb() +
-  nhoods_sf %>%
-  filter(., neighborhood == 51) %>%
-  tm_shape() +
-    tm_fill(col = "#9ecae1",
-            alpha = .5) +
-    tm_borders(col = "black",
-               lwd = 2,
-               lty = "dashed") +
-  filter(monthCrimes_pres_sf,
-         neighborhood == 51) %>%
-  tm_shape() +
-    tm_bubbles(size = .25,
-               col = "dayNight",
-               palette = "-RdBu",
-               title.col = "Time of Crimes") +
-  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
-  tm_layout(
-    frame = FALSE,
-    legend.bg.color = "white",
-    legend.frame=TRUE,
-    legend.outside = TRUE,
-    legend.position = c("right", "bottom"))
-
-tmap_save(ac_dn_tm, file = here("results", params$year, params$month, "ac", "ac_day_night.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "ac", "ac_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Academy: Time of Crimes Map", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Academy: Violent Crime Map
-
-```{r AC Violent Crime Map Prep, include = FALSE}
-ac_vlnt_tm <- tm_shape(ac_tiles) +
-  tm_rgb() +
-  nhoods_sf %>%
-  filter(., neighborhood == 51) %>%
-  tm_shape() +
-    tm_fill(col = "#9ecae1",
-            alpha = .5) +
-    tm_borders(col = "black",
-               lwd = 2,
-               lty = "dashed") +
-  filter(monthCrimes_pres_sf,
-         neighborhood == 51) %>%
-  tm_shape() +
-    tm_bubbles(size = .25,
-               col = "violent",
-               palette = tf_cols,
-               title.col = "Violent") +
-  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
-  tm_layout(
-    frame = FALSE,
-    legend.bg.color = "white",
-    legend.frame=TRUE,
-    legend.outside = TRUE,
-    legend.position = c("right", "bottom"))
-
-tmap_save(ac_vlnt_tm, file = here("results", params$year, params$month, "ac", "ac_vlnt.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "ac", "ac_vlnt.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Academy: Violent Crime Map", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Academy: Crime Density Map
-
-```{r AC Density Map Prep, eval = FALSE}
-monthCrimes_pres_sf %>%
-  filter(neighborhood == 51) %>%
-  smooth_map(., bandwidth = 0.5, style = "pretty",
-  cover = ac) -> ac_densities
-
-ac_den_tm <- tm_shape(ac_tiles) +
-  tm_rgb() +
-  nhoods_sf %>%
-  filter(., neighborhood == 51) %>%
-  tm_shape() +
-    tm_fill(col = NA,
-            alpha = .5) +
-    tm_borders(col = "black",
-               lwd = 2,
-               lty = "dashed") +
-  tm_shape(ac_densities$polygons) +
-  tm_fill(col = "level", palette = "BuPu", alpha = .60,
-    title = expression("Crimes per " * km^2)) +
-  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
-  tm_layout(
-    frame = FALSE,
-    legend.bg.color = "white",
-    legend.frame=TRUE,
-    legend.outside = TRUE,
-    legend.position = c("right", "bottom"))
-
-tmap_save(ac_den_tm, file = here("results", params$year, params$month, "ac", "ac_density.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "ac", "ac_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Academy: Crime Density Map", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Academy: Larceny Breakdown
-
-```{r AC Larceny Breakdown Prep, include = FALSE}
-larceny %>%
-  filter(., neighborhood == 51) %>%
-  group_by(weekday) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Day of the Week" = weekday) -> ac_larcenies_weekDay
-
-larceny %>%
-  filter(., neighborhood == 51) %>%
-  group_by(dayNight) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Time of Day" = dayNight) -> ac_larcenies_dayNight
-
-larceny %>%
-  filter(., neighborhood == 51) %>%
-  group_by(type) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Type of Larceny" = type) -> ac_larcenies_type
-
-larceny %>%
-  filter(., neighborhood == 51) %>%
-  group_by(value) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Monetary" = value) -> ac_larcenies_value
-```
-
-```{r AC Larceny Tables Knit, echo = FALSE}
-flextable(ac_larcenies_weekDay) %>%
-  autofit() -> flex01
-
-flextable(ac_larcenies_dayNight) %>%
-  autofit() -> flex02
-
-flextable(ac_larcenies_type) %>%
-  autofit() -> flex03
-
-flextable(ac_larcenies_value) %>%
-  autofit() -> flex04
-
-# add to powerpoint
-report%>%
-  add_slide()%>%
-  ph_with("Academy: Larceny Breakdown", 
-               location = ph_location_type(
-                 type = "title"))%>%
-  phl_with_flextable(olay = offlayout, 2, flex01)%>%
-  phl_with_flextable(olay = offlayout, 3, flex02)%>%
-  phl_with_flextable(olay = offlayout, 4, flex03)%>%
-  phl_with_flextable(olay = offlayout, 5, flex04) -> report
-```
-
-## Academy: Total Crimes by Days of the Week
-
-```{r AC Crime by Weekday Graph Prep, include= FALSE}
-monthCrimes_pres %>%
-  filter(., neighborhood == 51) %>%
-  group_by(weekday, .drop = FALSE) %>%
-  count() %>%
-  replace(., is.na(.), 0) -> ac_weekDay
-
-wkdys[!(wkdys %in% ac_weekDay$weekday)] -> missing_category_days
-is_empty(missing_category_days) -> test
-
-as.data.frame(ac_weekDay) -> ac_weekDay
-
-if(test == FALSE) {
-   add_row(ac_weekDay, weekday = missing_category_days) -> ac_weekDay
-}
-
-  ggplot(ac_weekDay, aes(x=weekday, y=n, group = 1)) +
-    geom_line(color="blue") +
-    geom_point() +
-    xlab("Day of Week") + ylab("Total Crimes")
-
-ggsave(here("results", params$year, params$month, "ac", "ac_crime_weekday_graph.jpeg"), dpi = 500)
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "ac",
-                                  "ac_crime_weekday_graph.jpeg"), width = 9, height = 5.45),
-          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Academy: Total Crimes by Days of the Week", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Academy: Crimes by Time of Day
-
-```{r AC Crime by Time of Day Graph Prep, include = FALSE }
-monthCrimes_pres %>%
-  filter(., neighborhood == 51) %>%
-  group_by(dayNight) %>%
-  count() %>%
-  ggplot(., aes(x=dayNight, y=n, fill = dayNight)) +
-    geom_bar(stat="identity", position=position_dodge(), colour="black") +
-    xlab("Time of Day") + ylab("Total Crimes") +
-    labs(fill = "Time")
-
-ggsave(here("results", params$year, params$month, "ac", "ac_crime_timeDay_graph.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "ac",
-                                  "ac_crime_timeDay_graph.jpeg"), width = 9, height = 5),
-          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Academy: Crimes by Time of Day", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Academy: Crimes by Day & Category
-
-```{r AC Crime by Category Weekday Graph Prep, include= FALSE}
-monthCrimes_pres %>%
-  filter(., neighborhood == 51) %>%
-  group_by(crimeCatName) %>%
-  ggplot(., aes(weekday)) +
-    scale_colour_manual(
-    values = cols,
-    aesthetics = c("colour", "fill")
-    ) +
-    geom_bar(aes(fill = crimeCatName), position=position_dodge(), colour="black") +
-    xlab("Day of Week") + ylab("Total Crimes") +
-    labs(fill = "Part 1 Crimes")
-
-ggsave(here("results", params$year, params$month, "ac", "ac_crimeCat_weekday_graph.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "ac",
-                                  "ac_crimeCat_weekday_graph.jpeg"), width = 9, height = 5),
-          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Academy: Crimes by Day and Category", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Fountain Park: Neighborhood Detail
-### Appendix 2
-
-```{r}
-report%>%
-  add_slide(layout = "Title Slide", master = "Office Theme")%>%
-  ph_with(value = "Fountain Park: Neighborhood Detail", location = ph_location_type(type = "ctrTitle"))%>%
-  ph_with("Appendix 2", location = ph_location_type(type = "subTitle")) -> report
-```
-
-## Fountain Park: Time of Crimes Map
-
-```{r FP Day & Night Prep, include = FALSE}
-fp_dn_tm <- tm_shape(fp_tiles) +
-  tm_rgb() +
-  nhoods_sf %>%
-  filter(., neighborhood == 53) %>%
-  tm_shape() +
-    tm_fill(col = "#9ecae1",
-            alpha = .5) +
-    tm_borders(col = "black",
-               lwd = 2,
-               lty = "dashed") +
-  filter(monthCrimes_pres_sf,
-         neighborhood == 53) %>%
-  tm_shape() +
-    tm_bubbles(size = .25,
-               col = "dayNight",
-               palette = "-RdBu",
-               title.col = "Time of Crimes") +
-  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
-  tm_layout(
-    frame = FALSE,
-    legend.bg.color = "white",
-    legend.frame=TRUE,
-    legend.outside = TRUE,
-    legend.position = c("right", "bottom"))
-
-tmap_save(fp_dn_tm, file = here("results", params$year, params$month, "fp", "fp_day_night.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fp", "fp_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Fountain Park: Time of Crimes Map", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Fountain Park: Violent Crime Map
-
-```{r FP Violent Crime Map Prep, include = FALSE}
-fp_vlnt_tm <- tm_shape(fp_tiles) +
-  tm_rgb() +
-  nhoods_sf %>%
-  filter(., neighborhood == 53) %>%
-  tm_shape() +
-    tm_fill(col = "#9ecae1",
-            alpha = .5) +
-    tm_borders(col = "black",
-               lwd = 2,
-               lty = "dashed") +
-  filter(monthCrimes_pres_sf,
-         neighborhood == 53) %>%
-  tm_shape() +
-    tm_bubbles(size = .25,
-               col = "violent",
-               palette = tf_cols,
-               title.col = "Violent") +
-  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
-  tm_layout(
-    frame = FALSE,
-    legend.bg.color = "white",
-    legend.frame=TRUE,
-    legend.outside = TRUE,
-    legend.position = c("right", "bottom"))
-
-tmap_save(fp_vlnt_tm, file = here("results", params$year, params$month, "fp", "fp_vlnt.jpeg"), width = 9, height = 5, units = "in")
-
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fp", "fp_vlnt.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Fountain Park: Violent Crime Map", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Fountain Park: Crime Density Map
-
-```{r FP Density Map Prep, eval = FALSE}
-monthCrimes_pres_sf %>%
-  filter(neighborhood == 53) -> TEST
-
-TEST %>% 
-  filter(., complaint != "20-049181") -> TEST
-
-TEST %>% 
-  smooth_map(., bandwidth = 0.5, style = "pretty",
-  cover = fp) -> fp_densities
-
-#monthCrimes_pres_sf %>%
-#  filter(neighborhood == 53) %>%
-#  smooth_map(., bandwidth = 0.5, style = "pretty",
-#  cover = fp) -> fp_densities
-
-fp_den_tm <- tm_shape(fp_tiles) +
-  tm_rgb() +
-  nhoods_sf %>%
-  filter(., neighborhood == 53) %>%
-  tm_shape() +
-    tm_fill(col = NA,
-            alpha = .5) +
-    tm_borders(col = "black",
-               lwd = 2,
-               lty = "dashed") +
-  tm_shape(fp_densities$polygons) +
-  tm_fill(col = "level", palette = "BuPu", alpha = .60,
-    title = expression("Crimes per " * km^2)) +
-  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
-  tm_layout(
-    frame = FALSE,
-    legend.bg.color = "white",
-    legend.frame=TRUE,
-    legend.outside = TRUE,
-    legend.position = c("right", "bottom"))
-
-tmap_save(fp_den_tm, file = here("results", params$year, params$month, "fp", "fp_density.jpeg"), width = 9, height = 5, units = "in")
-
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fp", "fp_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Fountain Park: Crime Density Map", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Fountain Park: Larceny Breakdown
-
-```{r FP Larceny Breakdown Prep, include = FALSE}
-larceny %>%
-  filter(., neighborhood == 53) %>%
-  group_by(weekday) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Day of the Week" = weekday) -> fp_larcenies_weekDay
-
-larceny %>%
-  filter(., neighborhood == 53) %>%
-  group_by(dayNight) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Time of Day" = dayNight) -> fp_larcenies_dayNight
-
-larceny %>%
-  filter(., neighborhood == 53) %>%
-  group_by(type) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Type of Larceny" = type) -> fp_larcenies_type
-
-larceny %>%
-  filter(., neighborhood == 53) %>%
-  group_by(value) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Monetary" = value) -> fp_larcenies_value
-```
-
-```{r FP Larceny Tables Knit, echo = FALSE}
-flextable(fp_larcenies_weekDay) %>%
-  autofit() -> flex01
-
-flextable(fp_larcenies_dayNight) %>%
-  autofit() -> flex02
-
-flextable(fp_larcenies_type) %>%
-  autofit() -> flex03
-
-flextable(fp_larcenies_value) %>%
-  autofit() -> flex04
-
-# add to powerpoint
-report%>%
-  add_slide()%>%
-  ph_with("Fountain Park: Larceny Breakdown", 
-               location = ph_location_type(
-                 type = "title"))%>%
-  phl_with_flextable(olay = offlayout, 2, flex01)%>%
-  phl_with_flextable(olay = offlayout, 3, flex02)%>%
-  phl_with_flextable(olay = offlayout, 4, flex03)%>%
-  phl_with_flextable(olay = offlayout, 5, flex04) -> report
-```
-
-## Fountain Park: Total Crimes by Days of the Week
-
-```{r FP Crime by Weekday Graph Prep, include= FALSE}
-monthCrimes_pres %>%
-  filter(., neighborhood == 53) %>%
-  group_by(weekday, .drop = FALSE) %>%
-  count() %>%
-  replace(., is.na(.), 0) -> fp_weekDay
-
-wkdys[!(wkdys %in% fp_weekDay$weekday)] -> missing_category_days
-is_empty(missing_category_days) -> test
-
-as.data.frame(fp_weekDay) -> fp_weekDay
-
-if(test == FALSE) {
-   add_row(fp_weekDay, weekday = missing_category_days) -> fp_weekDay
-}
-
-  ggplot(fp_weekDay, aes(x=weekday, y=n, group = 1)) +
-    geom_line(color="blue") +
-    geom_point() +
-    xlab("Day of Week") + ylab("Total Crimes")
-
-ggsave(here("results", params$year, params$month, "fp", "fp_crime_weekday_graph.jpeg"), dpi = 500)
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fp",
-                                  "fp_crime_weekday_graph.jpeg"), width = 9, height = 5.45),
-          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Fountain Park: Total Crimes by Days of the Week", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Fountain Park: Crimes by Time of Day
-
-```{r FP Crime by Time of Day Graph Prep, include = FALSE }
-monthCrimes_pres %>%
-  filter(., neighborhood == 53) %>%
-  group_by(dayNight) %>%
-  count() %>%
-  ggplot(., aes(x=dayNight, y=n, fill = dayNight)) +
-    geom_bar(stat="identity", position=position_dodge(), colour="black") +
-    xlab("Time of Day") + ylab("Total Crimes") +
-    labs(fill = "Time")
-
-ggsave(here("results", params$year, params$month, "fp", "fp_crime_timeDay_graph.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fp",
-                                  "fp_crime_timeDay_graph.jpeg"), width = 9, height = 5),
-          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Fountain Park: Crimes by Time of Day", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Fountain Park: Crimes by Day & Category
-
-```{r FP Crime by Category Weekday Graph Prep, include= FALSE}
-monthCrimes_pres %>%
-  filter(., neighborhood == 53) %>%
-  group_by(crimeCatName) %>%
-  ggplot(., aes(weekday)) +
-    scale_colour_manual(
-    values = cols,
-    aesthetics = c("colour", "fill")
-    ) +
-    geom_bar(aes(fill = crimeCatName), position=position_dodge(), colour="black") +
-    xlab("Day of Week") + ylab("Total Crimes") +
-    labs(fill = "Part 1 Crimes")
-
-ggsave(here("results", params$year, params$month, "fp", "fp_crimeCat_weekday_graph.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "fp",
-                                  "fp_crimeCat_weekday_graph.jpeg"), width = 9, height = 5),
-          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Fountain Park: Crimes by Day and Category", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Lewis Place: Neighborhood Detail
-### Appendix 3
-
-```{r}
-report%>%
-  add_slide(layout = "Title Slide", master = "Office Theme")%>%
-  ph_with(value = "Lewis Place: Neighborhood Detail", location = ph_location_type(type = "ctrTitle"))%>%
-  ph_with("Appendix 3", location = ph_location_type(type = "subTitle")) -> report
-```
-
-## Lewis Place: Time of Crimes Map
-
-```{r LP Day & Night Prep, include = FALSE}
-lp_dn_tm <- tm_shape(lp_tiles) +
-  tm_rgb() +
-  nhoods_sf %>%
-  filter(., neighborhood == 54) %>%
-  tm_shape() +
-    tm_fill(col = "#9ecae1",
-            alpha = .5) +
-    tm_borders(col = "black",
-               lwd = 2,
-               lty = "dashed") +
-  filter(monthCrimes_pres_sf,
-         neighborhood == 54) %>%
-  tm_shape() +
-    tm_bubbles(size = .25,
-               col = "dayNight",
-               palette = "-RdBu",
-               title.col = "Time of Crimes") +
-  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
-  tm_layout(
-    frame = FALSE,
-    legend.bg.color = "white",
-    legend.frame=TRUE,
-    legend.outside = TRUE,
-    legend.position = c("right", "bottom"))
-
-tmap_save(lp_dn_tm, file = here("results", params$year, params$month, "lp", "lp_day_night.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "lp", "lp_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Lewis Place: Time of Crimes Map", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Lewis Place: Violent Crime Map
-
-```{r LP Violent Crime Map Prep, include = FALSE}
-lp_vlnt_tm <- tm_shape(lp_tiles) +
-  tm_rgb() +
-  nhoods_sf %>%
-  filter(., neighborhood == 54) %>%
-  tm_shape() +
-    tm_fill(col = "#9ecae1",
-            alpha = .5) +
-    tm_borders(col = "black",
-               lwd = 2,
-               lty = "dashed") +
-  filter(monthCrimes_pres_sf,
-         neighborhood == 54) %>%
-  tm_shape() +
-    tm_bubbles(size = .25,
-               col = "violent",
-               palette = tf_cols,
-               title.col = "Violent") +
-  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
-  tm_layout(
-    frame = FALSE,
-    legend.bg.color = "white",
-    legend.frame=TRUE,
-    legend.outside = TRUE,
-    legend.position = c("right", "bottom"))
-
-tmap_save(lp_vlnt_tm, file = here("results", params$year, params$month, "lp", "lp_vlnt.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "lp", "lp_vlnt.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Lewis Place: Violent Crime Map", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Lewis Place: Crime Density Map
-
-```{eval = FALSE}
-#lewis place lat lon coordinates
-map <- get_googlemap(center = c(lon = -90.2514, lat = 38.6540), zoom = 15)
-
-boundary <- filter(bound, NHD_NUM == 39)
-
-monthCrimes_pres%>%
-  filter(nbhd_name == "Lewis Place") -> temp
-test <- st_as_sf(boundary)%>%st_transform(4269)
-
-  ggmap(map)+
-  stat_density_2d(
-      aes(x = lon, y = lat, fill = as.factor(..level..), alpha = .6),
-      size = .1, bins = 4, data = temp,
-      geom = "polygon"
-    )+
-    geom_sf(data = test, fill = NA, color = "black", inherit.aes = FALSE)+
-    theme(axis.title.x=element_blank(),
-        axis.text.x=element_blank(),
-        axis.ticks.x=element_blank(),
-        axis.title.y=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank()
-        )+ 
-    scale_fill_discrete(name = "Number of Crimes", labels = c("0-1", "1-2", "2-3"))+
-    guides(alpha = FALSE)
+  ph_with(value = paste(neighborhood, ": Neighborhood Detail"), location = ph_location_type(type = "ctrTitle"))%>%
+  ph_with(paste("Appendix", app), location = ph_location_type(type = "subTitle")) -> report
   
-ggsave(here("results", params$year, params$month, "lp", "lp_density.jpeg"), dpi = 500)
   
-  #add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "lp", "lp_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Lewis Place: Crime Density Map",
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-
-```{r LP Density Map Prep, eval = FALSE}
-monthCrimes_pres_sf %>%
-  filter(neighborhood == 54) %>%
-  smooth_map(., bandwidth = 0.5, style = "pretty",
-  cover = lp) -> lp_densities
-
-lp_den_tm <- tm_shape(lp_tiles) +
+nbhd_dn_tm <- tm_shape(i) +
   tm_rgb() +
   nhoods_sf %>%
-  filter(., neighborhood == 54) %>%
-  tm_shape() +
-    tm_fill(col = NA,
-            alpha = .5) +
-    tm_borders(col = "black",
-               lwd = 2,
-               lty = "dashed") +
-  tm_shape(lp_densities$polygons) +
-  tm_fill(col = "level", palette = "BuPu", alpha = .60,
-    title = expression("Crimes per " * km^2)) +
-  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
-  tm_layout(
-    frame = FALSE,
-    legend.bg.color = "white",
-    legend.frame=TRUE,
-    legend.outside = TRUE,
-    legend.position = c("right", "bottom"))
-
-tmap_save(lp_den_tm, file = here("results", params$year, params$month, "lp", "lp_density.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "lp", "lp_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Lewis Place: Crime Density Map",
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Lewis Place: Larceny Breakdown
-
-```{r LP Larceny Breakdown Prep, include = FALSE}
-larceny %>%
-  filter(., neighborhood == 54) %>%
-  group_by(weekday) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Day of the Week" = weekday) -> lp_larcenies_weekDay
-
-larceny %>%
-  filter(., neighborhood == 54) %>%
-  group_by(dayNight) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Time of Day" = dayNight) -> lp_larcenies_dayNight
-
-larceny %>%
-  filter(., neighborhood == 54) %>%
-  group_by(type) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Type of Larceny" = type) -> lp_larcenies_type
-
-larceny %>%
-  filter(., neighborhood == 54) %>%
-  group_by(value) %>%
-  count() %>%
-  adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Monetary" = value) -> lp_larcenies_value
-```
-
-```{r LP Larceny Tables Knit, echo = FALSE}
-flextable(lp_larcenies_weekDay) %>%
-  autofit() -> flex01
-
-flextable(lp_larcenies_dayNight) %>%
-  autofit() -> flex02
-
-flextable(lp_larcenies_type) %>%
-  autofit() -> flex03
-
-flextable(lp_larcenies_value) %>%
-  autofit() -> flex04
-
-# add to powerpoint
-report%>%
-  add_slide()%>%
-  ph_with("Lewis Place: Larceny Breakdown", 
-               location = ph_location_type(
-                 type = "title"))%>%
-  phl_with_flextable(olay = offlayout, 2, flex01)%>%
-  phl_with_flextable(olay = offlayout, 3, flex02)%>%
-  phl_with_flextable(olay = offlayout, 4, flex03)%>%
-  phl_with_flextable(olay = offlayout, 5, flex04) -> report
-```
-
-## Lewis Place: Total Crimes by Days of the Week
-
-```{r LP Crime by Weekday Graph Prep, include= FALSE}
-monthCrimes_pres %>%
-  filter(., neighborhood == 54) %>%
-  group_by(weekday, .drop = FALSE) %>%
-  count() %>%
-  replace(., is.na(.), 0) -> lp_weekDay
-
-wkdys[!(wkdys %in% lp_weekDay$weekday)] -> missing_category_days
-is_empty(missing_category_days) -> test
-
-as.data.frame(lp_weekDay) -> lp_weekDay
-
-if(test == FALSE) {
-   add_row(lp_weekDay, weekday = missing_category_days) -> lp_weekDay
-}
-
-  ggplot(lp_weekDay, aes(x=weekday, y=n, group = 1)) +
-    geom_line(color="blue") +
-    geom_point() +
-    xlab("Day of Week") + ylab("Total Crimes")
-
-ggsave(here("results", params$year, params$month, "lp", "lp_crime_weekday_graph.jpeg"), dpi = 500)
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "lp",
-                                  "lp_crime_weekday_graph.jpeg"), width = 9, height = 5.45),
-          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Lewis Place: Total Crimes by Days of the Week", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Lewis Place: Crimes by Time of Day
-
-```{r LP Crime by Time of Day Graph Prep, include = FALSE }
-monthCrimes_pres %>%
-  filter(., neighborhood == 54) %>%
-  group_by(dayNight) %>%
-  count() %>%
-  ggplot(., aes(x=dayNight, y=n, fill = dayNight)) +
-    geom_bar(stat="identity", position=position_dodge(), colour="black") +
-    xlab("Time of Day") + ylab("Total Crimes") +
-    labs(fill = "Time")
-
-ggsave(here("results", params$year, params$month, "lp", "lp_crime_timeDay_graph.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "lp",
-                                  "lp_crime_timeDay_graph.jpeg"), width = 9, height = 5),
-          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Lewis Place: Crimes by Time of Day", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Lewis Place: Crimes by Day & Category
-
-```{r LP Crime by Category Weekday Graph Prep, include= FALSE}
-monthCrimes_pres %>%
-  filter(., neighborhood == 54) %>%
-  group_by(crimeCatName) %>%
-  ggplot(., aes(weekday)) +
-    scale_colour_manual(
-    values = cols,
-    aesthetics = c("colour", "fill")
-    ) +
-    geom_bar(aes(fill = crimeCatName), position=position_dodge(), colour="black") +
-    xlab("Day of Week") + ylab("Total Crimes") +
-    labs(fill = "Part 1 Crimes")
-
-ggsave(here("results", params$year, params$month, "lp", "lp_crimeCat_weekday_graph.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "lp",
-                                  "lp_crimeCat_weekday_graph.jpeg"), width = 9, height = 5),
-          location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Lewis Place: Crimes by Day and Category", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Vandeventer: Neighborhood Detail
-### Appendix 4
-
-```{r}
-report%>%
-  add_slide(layout = "Title Slide", master = "Office Theme")%>%
-  ph_with(value = "Vandeventer: Neighborhood Detail", location = ph_location_type(type = "ctrTitle"))%>%
-  ph_with("Appendix 4", location = ph_location_type(type = "subTitle")) -> report
-```
-
-## Vandeventer: Time of Crimes Map
-
-```{r VD Day & Night Prep, include = FALSE}
-vd_dn_tm <- tm_shape(vd_tiles) +
-  tm_rgb() +
-  nhoods_sf %>%
-  filter(., neighborhood == 58) %>%
+  filter(., neighborhood == num) %>%
   tm_shape() +
     tm_fill(col = "#9ecae1",
             alpha = .5) +
     tm_borders(col = "black",
                lwd = 2,
                lty = "dashed") +
-  filter(monthCrimes_pres_sf,
-         neighborhood == 58) %>%
+  pres_sf%>%
   tm_shape() +
     tm_bubbles(size = .25,
                col = "dayNight",
@@ -2346,256 +625,155 @@ vd_dn_tm <- tm_shape(vd_tiles) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom"))
 
-tmap_save(vd_dn_tm, file = here("results", params$year, params$month, "vd", "vd_day_night.jpeg"), width = 9, height = 5, units = "in")
+tmap_save(nbhd_dn_tm, file = here("results", params$year, params$month, abbr, paste(abbr, "_day_night.jpeg", sep = "")), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "vd", "vd_day_night.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Vandeventer: Time of Crimes Map", 
+  ph_with(external_img(here::here("results", params$year, params$month, abbr, paste(abbr, "_day_night.jpeg", sep = "")), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with(paste(neighborhood, ": Time of Crimes Map"), 
                location = ph_location_type(
                  type = "title") )-> report
-```
 
-## Vandeventer: Violent Crime Map
-
-```{r VD Violent Crime Map Prep, include = FALSE}
-vd_vlnt_tm <- tm_shape(vd_tiles) +
-  tm_rgb() +
-  nhoods_sf %>%
-  filter(., neighborhood == 58) %>%
-  tm_shape() +
-    tm_fill(col = "#9ecae1",
-            alpha = .5) +
-    tm_borders(col = "black",
-               lwd = 2,
-               lty = "dashed") +
-  filter(monthCrimes_pres_sf,
-         neighborhood == 58) %>%
-  tm_shape() +
-    tm_bubbles(size = .25,
-               col = "violent",
-               palette = tf_cols,
-               title.col = "Violent") +
-  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
-  tm_layout(
-    frame = FALSE,
-    legend.bg.color = "white",
-    legend.frame=TRUE,
-    legend.outside = TRUE,
-    legend.position = c("right", "bottom"))
-
-tmap_save(vd_vlnt_tm, file = here("results", params$year, params$month, "vd", "vd_vlnt.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "vd", "vd_vlnt.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Vandeventer: Violent Crime Map", 
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Vandeventer: Crime Density Map
-
-```{r VD Density Map Prep, eval = FALSE}
-monthCrimes_pres_sf %>%
-  filter(neighborhood == 58) %>%
-  smooth_map(., bandwidth = 0.5, style = "pretty",
-  cover = vd) -> vd_densities
-
-vd_den_tm <- tm_shape(vd_tiles) +
-  tm_rgb() +
-  nhoods_sf %>%
-  filter(., neighborhood == 58) %>%
-  tm_shape() +
-    tm_fill(col = NA,
-            alpha = .5) +
-    tm_borders(col = "black",
-               lwd = 2,
-               lty = "dashed") +
-  tm_shape(vd_densities$polygons) +
-  tm_fill(col = "level", palette = "BuPu", alpha = .60,
-    title = expression("Crimes per " * km^2)) +
-  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
-  tm_layout(
-    frame = FALSE,
-    legend.bg.color = "white",
-    legend.frame=TRUE,
-    legend.outside = TRUE,
-    legend.position = c("right", "bottom"))
-
-tmap_save(vd_den_tm, file = here("results", params$year, params$month, "vd", "vd_density.jpeg"), width = 9, height = 5, units = "in")
-
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "vd", "vd_density.jpeg"), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Vandeventer: Crime Density Map",
-               location = ph_location_type(
-                 type = "title") )-> report
-```
-
-## Vandeventer: Larceny Breakdown
-
-```{r VD Larceny Breakdown Prep, include = FALSE}
+#Create Larceny Summary Tables
 larceny %>%
-  filter(., neighborhood == 58) %>%
-  group_by(weekday) %>%
+  filter(., neighborhood == num) %>%
+  group_by(weekday, .drop = FALSE) %>%
   count() %>%
   adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Day of the Week" = weekday) -> vd_larcenies_weekDay
+  rename(., "Number of Crimes" = n, "Day of the Week" = weekday) -> larcenies_weekDay
 
 larceny %>%
-  filter(., neighborhood == 58) %>%
-  group_by(dayNight) %>%
+  filter(., neighborhood == num) %>%
+  group_by(dayNight, .drop = FALSE) %>%
   count() %>%
   adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Time of Day" = dayNight) -> vd_larcenies_dayNight
+  rename(., "Number of Crimes" = n, "Time of Day" = dayNight) -> larcenies_dayNight
 
 larceny %>%
-  filter(., neighborhood == 58) %>%
-  group_by(type) %>%
+  filter(., neighborhood == num) %>%
+  group_by(type, .drop = FALSE) %>%
   count() %>%
   adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Type of Larceny" = type) -> vd_larcenies_type
+  rename(., "Number of Crimes" = n, "Type of Larceny" = type) -> larcenies_type
 
 larceny %>%
-  filter(., neighborhood == 58) %>%
-  group_by(value) %>%
+  filter(., neighborhood == num) %>%
+  group_by(value, .drop = FALSE) %>%
   count() %>%
   adorn_totals(., "row", name = "Total") %>%
-  rename(., "Number of Crimes" = n, "Monetary" = value) -> vd_larcenies_value
-```
+  rename(., "Number of Crimes" = n, "Monetary" = value) -> larcenies_value
 
-```{r VD Larceny Tables Knit, echo = FALSE}
-flextable(vd_larcenies_weekDay) %>%
+flextable(larcenies_weekDay) %>%
   autofit() -> flex01
 
-flextable(vd_larcenies_dayNight) %>%
+flextable(larcenies_dayNight) %>%
   autofit() -> flex02
 
-flextable(vd_larcenies_type) %>%
+flextable(larcenies_type) %>%
   autofit() -> flex03
 
-flextable(vd_larcenies_value) %>%
+flextable(larcenies_value) %>%
   autofit() -> flex04
 
 # add to powerpoint
 report%>%
   add_slide()%>%
-  ph_with("Vandeventer: Larceny Breakdown", 
+  ph_with(paste(neighborhood, ": Larceny Breakdown"), 
                location = ph_location_type(
                  type = "title"))%>%
   phl_with_flextable(olay = offlayout, 2, flex01)%>%
   phl_with_flextable(olay = offlayout, 3, flex02)%>%
   phl_with_flextable(olay = offlayout, 4, flex03)%>%
   phl_with_flextable(olay = offlayout, 5, flex04) -> report
-```
 
-## Vandeventer: Total Crimes by Days of the Week
-
-```{r VD Crime by Weekday Graph Prep, include= FALSE}
-monthCrimes_pres %>%
-  filter(., neighborhood == 58) %>%
+#total crimes by days of the week
+pres_df%>%
   group_by(weekday, .drop = FALSE) %>%
   count() %>%
-  replace(., is.na(.), 0) -> vd_weekDay
+  replace(., is.na(.), 0) -> nbhd_weekDay
 
-wkdys[!(wkdys %in% vd_weekDay$weekday)] -> missing_category_days
+wkdys[!(wkdys %in% nbhd_weekDay$weekday)] -> missing_category_days
 is_empty(missing_category_days) -> test
 
-as.data.frame(vd_weekDay) -> vd_weekDay
+as.data.frame(nbhd_weekDay) -> nbhd_weekDay
 
 if(test == FALSE) {
-   add_row(vd_weekDay, weekday = missing_category_days) -> vd_weekDay
+   add_row(nbhd_weekDay, weekday = missing_category_days) -> nbhd_weekDay
 }
 
-  ggplot(vd_weekDay, aes(x=weekday, y=n, group = 1)) +
+  ggplot(nbhd_weekDay, aes(x=weekday, y=n, group = 1)) +
     geom_line(color="blue") +
     geom_point() +
     xlab("Day of Week") + ylab("Total Crimes")
 
-monthCrimes_pres %>%
-  filter(., neighborhood == 58) %>%
-  group_by(weekday) %>%
-  count() %>%
-  ggplot(., aes(x=weekday, y=n, group=1)) +
-    geom_line(color="blue") +
-    geom_point() +
-    xlab("Day of Week") + ylab("Total Crimes")
-
-ggsave(here("results", params$year, params$month, "vd", "vd_crime_weekday_graph.jpeg"), dpi = 500)
+ggsave(here("results", params$year, params$month, abbr, paste(abbr, "_crime_weekday_graph.jpeg", sep = "")), dpi = 500)
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "vd",
-                                  "vd_crime_weekday_graph.jpeg"), width = 9, height = 5.45),
+  ph_with(external_img(here::here("results", params$year, params$month, abbr, paste(abbr, "_crime_weekday_graph.jpeg", sep = "")), width = 9, height = 5.45),
           location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Vandeventer: Total Crimes by Days of the Week", 
+  ph_with(paste(neighborhood, ": Total Crimes by Days of the Week"), 
                location = ph_location_type(
                  type = "title") )-> report
-```
 
-## Vandeventer: Crimes by Time of Day
-
-```{r VD Crime by Time of Day Graph Prep, include = FALSE }
-monthCrimes_pres %>%
-  filter(., neighborhood == 58) %>%
-  group_by(dayNight) %>%
+#Crimes by time of day
+pres_df%>%
+  group_by(dayNight, .drop = FALSE) %>%
   count() %>%
   ggplot(., aes(x=dayNight, y=n, fill = dayNight)) +
     geom_bar(stat="identity", position=position_dodge(), colour="black") +
     xlab("Time of Day") + ylab("Total Crimes") +
     labs(fill = "Time")
 
-ggsave(here("results", params$year, params$month, "vd", "vd_crime_timeDay_graph.jpeg"), width = 9, height = 5, units = "in")
+ggsave(here("results", params$year, params$month, abbr, paste(abbr, "_crime_timeDay_graph.jpeg", sep = "")), width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "vd",
-                                  "vd_crime_timeDay_graph.jpeg"), width = 9, height = 5),
+  ph_with(external_img(here::here("results", params$year, params$month, abbr, paste(abbr, "_crime_timeDay_graph.jpeg", sep = "")), width = 9, height = 5),
           location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Vandeventer: Crimes by Time of Day", 
+  ph_with(paste(neighborhood, ": Crimes by Time of Day"), 
                location = ph_location_type(
                  type = "title") )-> report
-```
 
-## Vandeventer: Crimes by Day & Category
-
-```{r VD Crime by Category Weekday Graph Prep, include= FALSE}
-monthCrimes_pres %>%
-  filter(., neighborhood == 58) %>%
-  group_by(crimeCatName) %>%
+#Crimes by day and Category
+pres_df%>%
+  group_by(crimeCatName, .drop = FALSE) %>%
   ggplot(., aes(weekday)) +
+    geom_bar(aes(fill = crimeCatName), position=position_dodge(), colour="black") +
     scale_colour_manual(
     values = cols,
     aesthetics = c("colour", "fill")
     ) +
-    geom_bar(aes(fill = crimeCatName), position=position_dodge(), colour="black") +
     xlab("Day of Week") + ylab("Total Crimes") +
     labs(fill = "Part 1 Crimes")
 
-ggsave(here("results", params$year, params$month, "vd", "vd_crimeCat_weekday_graph.jpeg"), width = 9, height = 5, units = "in")
+ggsave(here("results", params$year, params$month, abbr, paste(abbr, "_crimeCat_weekday_graph.jpeg", sep = "")),
+       width = 9, height = 5, units = "in")
 
 #add to powerpoint report
 report%>%
   add_slide()%>%
-  ph_with(external_img(here::here("results", params$year, params$month, "vd",
-                                  "vd_crimeCat_weekday_graph.jpeg"), width = 9, height = 5),
+  ph_with(external_img(here::here("results", params$year, params$month, abbr, paste(abbr, "_crimeCat_weekday_graph.jpeg", sep = "")), width = 9, height = 5),
           location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with("Vandeventer: Crimes by Day and Category", 
+  ph_with(paste(neighborhood, ": Crimes by Day & Category"), 
                location = ph_location_type(
                  type = "title") )-> report
+
+app = app + 1
+}
+print(report, target = here::here("test.pptx"))
 ```
 
 ```{r}
 # save powerpoint report
 print(report, target = here::here("results", "presentations",  params$year, params$month, paste("ac-fp-lp-vd-", params$month, params$year, ".pptx", sep = "")))
 
-#delete any existing ac-fp-lp-vd file in the Shiny app
+file <- read_pptx(here::here("results", "presentations",  params$year, params$month, paste("ac-fp-lp-vd-", params$month, params$year, ".pptx", sep = "")))
+
+#delete any existing ac-fp-lp-vd- file in the Shiny app
 mydir <- "/Users/loganbogenut/Documents/GitHub/crime_interactive/crime_interactive/www/"
 file.remove(file.path(mydir, dir(path = mydir, pattern = "Vandeventer_crime")))
 
@@ -2608,6 +786,5 @@ convert_to_pdf(path = here::here("results", "presentations",  params$year, param
 # This code cleans our Global Environment.
 
 rm(list = ls())
-
 print("Great job! The code ran all the way through. You did AMAZING!")
 ```
