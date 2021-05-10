@@ -12,25 +12,7 @@ In it's original form, the St. Louis Metropolitan Police Department (SLMPD) crim
 2. You will also need [RStudio](https://rstudio.com/), it can be downloaded from it's [website](https://rstudio.com/products/rstudio/download/).
 3. Download this repository and save it to your preferred working directory. 
 4. Unzip the folder. 
-5. Open the `monthly-crime-reports.Rproj` file with [RStudio](https://rstudio.com/).
-6. Within [RStudio](https://rstudio.com/) open the following file - located in the [/source](https://github.com/wumcrc/monthly-crime-reports/tree/master/source) folder.
-   * `data-creation.Rmd`
-7. After opening the `data-creation.Rmd` review the `YAML`
-   * The first section of an `R Markdown` document is called the `YAML`. The document title, author, date of publication, and other options for the entire document can be set in the `YAML`. The user can also set specific parameters to be referenced throughout the document. You can learn/read more about the `YAML` in an `R Markdown` document [here](https://r4ds.had.co.nz/r-markdown.html#yaml-header).
-   * This section is important to note because there are parameters that you will need to change if you'd like to run this report for a different time frame. 
-8. Make any appropriate changes to the `YAML`, reviewing the comments on lines 7 through 14. 
-9. Run the `data-creation.Rmd` file first.
-10. After running the `data-creation.Rmd` file open the other following files listed below. These are also located in the [/source](https://github.com/wumcrc/monthly-crime-reports/tree/master/source) folder.
-   * `fpse-bot-cwe-mc-presentation.Rmd`
-   * `sdb-dbp-we-vp-presentation.Rmd`
-   * `ac-fp-lp-vd-presentation.Rmd`
-11. After opening the files review the `YAML` sections for each of the files and make the appropriate changes.  
-12. Once you've made your changes you'll want to `Knit` the following files. 
-   * `fpse-bot-cwe-mc-presentation.Rmd`
-   * `sdb-dbp-we-vp-presentation.Rmd`
-   * `ac-fp-lp-vd-presentation.Rmd`
-13. The automatic output (PowerPoint presentations) will be stored in the `source` folder. To avoid writing over this file in the following month, You will need to move the PowerPoint files to the appropriate sub folder under `results/presentations/`.
-14. Once the files are moved you will need to open the PowerPoint presentation documents to reformat the charts and images. It is helpful to open the previous month's final PowerPoint presentation as a reference for your formatting. 
+5. Open `How-To-Instructions.Rmd` for a detailed explanation of how to run the appropriate files.
 
 ## Repository Contents
 
