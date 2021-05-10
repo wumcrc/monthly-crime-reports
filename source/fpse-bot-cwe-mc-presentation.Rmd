@@ -227,22 +227,34 @@ comment(mc_tiles) <- "mc_tiles"
 
 for ( i in list(fpse_tiles, bot_tiles, cwe_tiles, mc_tiles) ) { 
 name <- comment(i)
-  if(name %in% monthCrimes_pres$tiles){
+  if(name == "mc_tiles"){
+    nbhd_pres <- mc_crimes_pres
+    nbhd_past <- mc_crimes_past
+    ytd_pres <- mc_crimes_ytdpres
+    ytd_past <- mc_crimes_ytdpast
+    pastyr <- mc_crimes_totpast
+    neighborhood <- "Medical Center"
+    abbr <- "mc"
+    num <- 100
+  }else{
   nbhd_pres <- filter(monthCrimes_pres, tiles == name)
+  nbhd_past <- filter(monthCrimes_past, tiles == name)
+  ytd_pres <- filter(ytdCrimes, tiles == name)
+  ytd_past <- filter(ytdCrimes_past, tiles == name)
+  pastyr <- filter(totalCrimes_past, tiles == name)
   neighborhood <- unique(nbhd_pres$nbhd_name)
 abbr <- unique(nbhd_pres$abbr)
 num <- unique(nbhd_pres$neighborhood)
+}
 
-
-tc_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == num,])
-tc_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == num,])
-cap_past <- nrow(monthCrimes_past[monthCrimes_past$neighborhood == num & monthCrimes_past$crimeCatNum == 4 | monthCrimes_past$neighborhood == num & monthCrimes_past$crimeCatNum == 3,])
-cap_pres <- nrow(monthCrimes_pres[monthCrimes_pres$neighborhood == num & monthCrimes_pres$crimeCatNum == 4 | monthCrimes_pres$neighborhood == num & monthCrimes_pres$crimeCatNum == 3,])
-
-tc_ytd_past <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == num,])
-tc_ytdCurrent <- nrow(ytdCrimes[ytdCrimes$neighborhood == num,])
-cap_past_ytd <- nrow(ytdCrimes_past[ytdCrimes_past$neighborhood == num & ytdCrimes_past$crimeCatNum == 4 | ytdCrimes_past$neighborhood == num & ytdCrimes_past$crimeCatNum == 3,])
-cap_pres_ytd <- nrow(ytdCrimes[ytdCrimes$neighborhood == num & ytdCrimes$crimeCatNum == 4 | ytdCrimes$neighborhood == num & ytdCrimes$crimeCatNum == 3,])
+tc_past <- nrow(nbhd_past)
+tc_pres <- nrow(nbhd_pres)
+cap_past <- nrow(nbhd_past[nbhd_past$crimeCatNum == 4 | nbhd_past$crimeCatNum == 3,])
+cap_pres <- nrow(nbhd_pres[nbhd_pres$crimeCatNum == 4 | nbhd_pres$crimeCatNum == 3,])
+tc_ytd_past <- nrow(ytd_past)
+tc_ytdCurrent <- nrow(ytd_pres)
+cap_past_ytd <- nrow(ytd_past[ytd_past$crimeCatNum == 4 | ytd_past$crimeCatNum == 3,])
+cap_pres_ytd <- nrow(ytd_pres[ytd_pres$crimeCatNum == 4 | ytd_past$crimeCatNum == 3,])
 
 pct_chg_mth1 <- (tc_pres - tc_past)/tc_past
 pct_chg_mth <- percent(pct_chg_mth1)
@@ -304,16 +316,14 @@ report%>%
   ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 3, 1, 2, 2, 3)) -> report
 
 #Year to Year Comparison
-totalCrimes_past %>%
-  filter(., neighborhood == num) %>%
+pastyr %>%
   group_by(monthVar, .drop = FALSE) %>%
   count(crimeCatName) %>%
   rename(., "Number of Crimes" = n) %>%
   pivot_wider(names_from = monthVar, values_from = "Number of Crimes") %>%
   replace(., is.na(.), 0)  -> yr_past
 
-ytdCrimes %>%
-  filter(., neighborhood == num) %>%
+ytd_pres %>%
   group_by(monthVar) %>%
   count(crimeCatName) %>%
   rename(., "Number of Crimes" = n) %>%
@@ -492,7 +502,6 @@ report%>%
                location = ph_location_type(
                  type = "title") )-> report
   }
-}
 ```
 
 ## District 2: Crime Rates Map
@@ -891,7 +900,7 @@ if(test == FALSE) {
     geom_point() +
     xlab("Day of Week") + ylab("Total Crimes")
 
-ggsave(here("results", params$year, params$month, abbr, paste(abbr, "_crime_weekday_graph.jpeg", sep = "")), dpi = 500)
+ggsave(here("results", params$year, params$month, abbr, paste(abbr, "_crime_weekday_graph.jpeg", sep = "")), width = 9, height = 5.45, units = "in")
 
 #add to powerpoint report
 report%>%

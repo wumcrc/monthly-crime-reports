@@ -151,10 +151,6 @@ Many of the analyses we conduct include comparisons between violent & non-violen
 
 `select` drops the unneeded variables. 
 
-`cs_missing_XY` determines what data does not have x & y coordinates, and therefore cannot be accurately mapped. 
-
-`cs_replace0` replaces missing x & y coordinates with `NA`, and drops the missing data. 
-
 `monthCrimes` is an object that holds crimes for the current month of this year. 
 
 ```{r Creates current year Tidy Crime File}
@@ -362,7 +358,7 @@ larceny_sf <- cs_projectXY(larceny, varX = x_coord, varY = y_coord, crs = 4296)
 # med campus
 mc_crimes_past_sf <- st_intersection(monthCrimes_past_sf, med_campus) 
 mc_crimes_past <- mc_crimes_past_sf  %>% 
-   as.data.frame() 
+   as.data.frame()
 
 mc_crimes_pres_sf <- st_intersection(monthCrimes_pres_sf, med_campus)
 mc_crimes_pres <- mc_crimes_pres_sf  %>% 
