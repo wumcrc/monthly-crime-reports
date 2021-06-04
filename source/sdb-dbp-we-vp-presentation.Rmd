@@ -774,12 +774,20 @@ print(report, target = here::here("results", "presentations",  params$year, para
 file <- read_pptx(here::here("results", "presentations",  params$year, params$month, paste("sdbp-dbp-we-vp-", params$month, params$year, ".pptx", sep = "")))
 
 #delete any existing sdbp-dbp-we-vp- file in the Shiny app
-mydir <- "/Users/loganbogenut/Documents/GitHub/crime_interactive/crime_interactive/www/"
-file.remove(file.path(mydir, dir(path = mydir, pattern = "Park_crime")))
+shinydr <- "/Users/loganbogenut/Documents/GitHub/crime_interactive/crime_interactive/www/"
+file.remove(file.path(shinydr, dir(path = shinydr, pattern = "Park_crime")))
 
 #convert & save powerpoint as PDF to Shiny app
 convert_to_pdf(path = here::here("results", "presentations",  params$year, params$month, paste("sdbp-dbp-we-vp-", params$month, params$year, ".pptx", sep = "")),
                pdf_file = sub("[.]pptx", ".pdf", paste("~/Documents/GitHub/crime_interactive/crime_interactive/www/", "Skinker DeBaliviere, DeBaliviere Place, West End, Visitation Park_crime", ".pptx", sep = "")))
+
+#Create PDF to be stored in current wd
+mydir <- paste("/Users/loganbogenut/Documents/GitHub/monthly-crime-reports/results/presentations", "/", params$year, "/", params$month, "/", sep = "")
+file.remove(file.path(mydir, dir(path = mydir, pattern = paste("sdbp-dbp-we-vp-", params$month, params$year, ".pdf", sep=""))))
+
+#convert & save powerpoint as PDF to presentations subfolder
+convert_to_pdf(path = here::here("results", "presentations",  params$year, params$month, paste("sdbp-dbp-we-vp-", params$month, params$year, ".pptx", sep = "")),
+               pdf_file = sub("[.]pptx", ".pdf", paste(mydir, "sdbp-dbp-we-vp-", params$month, params$year, ".pptx", sep="")))
 ```
 
 ```{r}

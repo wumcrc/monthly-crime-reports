@@ -220,14 +220,14 @@ report%>%
 
 ```{r FPSE Summary Prep, include=FALSE}
 #create comments to use to filter and name outputs
-comment(fpse_tiles) <- "fpse_tiles"
-comment(bot_tiles) <- "bot_tiles"
-comment(cwe_tiles) <- "cwe_tiles"
-comment(mc_tiles) <- "mc_tiles"
+comment(fpse_tiles) <- "39"
+comment(bot_tiles) <- "28"
+comment(cwe_tiles) <- "38"
+comment(mc_tiles) <- "100"
 
 for ( i in list(fpse_tiles, bot_tiles, cwe_tiles, mc_tiles) ) { 
-name <- comment(i)
-  if(name == "mc_tiles"){
+num <- as.numeric(comment(i))
+  if(num == 100){
     nbhd_pres <- mc_crimes_pres
     nbhd_past <- mc_crimes_past
     ytd_pres <- mc_crimes_ytdpres
@@ -235,16 +235,14 @@ name <- comment(i)
     pastyr <- mc_crimes_totpast
     neighborhood <- "Medical Center"
     abbr <- "mc"
-    num <- 100
   }else{
-  nbhd_pres <- filter(monthCrimes_pres, tiles == name)
-  nbhd_past <- filter(monthCrimes_past, tiles == name)
-  ytd_pres <- filter(ytdCrimes, tiles == name)
-  ytd_past <- filter(ytdCrimes_past, tiles == name)
-  pastyr <- filter(totalCrimes_past, tiles == name)
+  nbhd_pres <- filter(monthCrimes_pres, neighborhood == num)
+  nbhd_past <- filter(monthCrimes_past, neighborhood == num)
+  ytd_pres <- filter(ytdCrimes, neighborhood == num)
+  ytd_past <- filter(ytdCrimes_past, neighborhood == num)
+  pastyr <- filter(totalCrimes_past, neighborhood == num)
   neighborhood <- unique(nbhd_pres$nbhd_name)
 abbr <- unique(nbhd_pres$abbr)
-num <- unique(nbhd_pres$neighborhood)
 }
 
 tc_past <- nrow(nbhd_past)
@@ -254,7 +252,7 @@ cap_pres <- nrow(nbhd_pres[nbhd_pres$crimeCatNum == 4 | nbhd_pres$crimeCatNum ==
 tc_ytd_past <- nrow(ytd_past)
 tc_ytdCurrent <- nrow(ytd_pres)
 cap_past_ytd <- nrow(ytd_past[ytd_past$crimeCatNum == 4 | ytd_past$crimeCatNum == 3,])
-cap_pres_ytd <- nrow(ytd_pres[ytd_pres$crimeCatNum == 4 | ytd_past$crimeCatNum == 3,])
+cap_pres_ytd <- nrow(ytd_pres[ytd_pres$crimeCatNum == 4 | ytd_pres$crimeCatNum == 3,])
 
 pct_chg_mth1 <- (tc_pres - tc_past)/tc_past
 pct_chg_mth <- percent(pct_chg_mth1)
@@ -457,6 +455,47 @@ report%>%
   phl_with_flextable(olay = offlayout, 3, flex03)%>%
   phl_with_flextable(olay = offlayout, 5, flex04) -> report
 
+if(num == 100){
+  #Total Crimes Map
+sub <- mc_crimes_pres_sf
+col <- character(0)
+if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
+if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
+if("Burgalry" %in% sub$crimeCatName){col <- c(col, "Burgalry" = "#377eb8")}
+if("Homicide" %in% sub$crimeCatName){col <- c(col, "Homicide" = "#FFFF33")}
+if("Larceny" %in% sub$crimeCatName){col <- c(col, "Larceny" = "#4DAF4A")}
+if("Motor Vehicle Theft" %in% sub$crimeCatName){col <- c(col, "Motor Vehicle Theft" = "#984EA3")}
+if("Robbery" %in% sub$crimeCatName){col <- c(col, "Robbery" = "#FF7F00")}
+
+tm_shape(i) +
+  tm_rgb() +
+  nhoods_sf %>%
+  filter(., neighborhood == 38) %>%
+  tm_shape() +
+    tm_borders(col = "black",
+               lwd = 2,
+               lty = "dashed") +
+  tm_shape(med_campus) +
+    tm_fill(col = "#9ecae1",
+            alpha = .5) +
+    tm_borders(col = "black",
+               lwd = 1,
+               lty = "solid") +
+  tm_shape(sub) +
+    tm_bubbles(size = .25,
+               col = "crimeCatName",
+               palette = col,
+               title.col = "Part 1 Crimes") +
+  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
+  tm_layout(
+    frame = FALSE,
+    legend.bg.color = "white",
+    legend.frame=TRUE,
+    legend.outside = TRUE,
+    legend.position = c("right", "bottom")) -> total_tm
+
+tmap_save(total_tm, file = here::here("results", params$year, params$month, abbr, paste(abbr, "_total_tm.jpeg", sep = "")), width = 9, height = 5, units = "in")
+}else{
 #Total Crimes Map
 sub <- filter(monthCrimes_pres_sf, neighborhood == num)
 col <- character(0)
@@ -492,8 +531,8 @@ tm_shape(i) +
     legend.outside = TRUE,
     legend.position = c("right", "bottom")) -> total_tm
 
-tmap_save(total_tm, file = here("results", params$year, params$month, abbr, paste(abbr, "_total_tm.jpeg", sep = "")), width = 9, height = 5, units = "in")
-
+tmap_save(total_tm, file = here::here("results", params$year, params$month, abbr, paste(abbr, "_total_tm.jpeg", sep = "")), width = 9, height = 5, units = "in")
+}
 #add to powerpoint report
 report%>%
   add_slide()%>%
@@ -501,6 +540,57 @@ report%>%
   ph_with(paste(neighborhood, ": Total Crime Map"), 
                location = ph_location_type(
                  type = "title") )-> report
+
+if(num == 38){
+  #Total Crimes Map
+sub <- ctx_crimes_sf
+col <- character(0)
+if("Aggravated Assault" %in% sub$crimeCatName){col <- c("Aggravated Assault" = "#e41a1c")}
+if("Arson" %in% sub$crimeCatName){col <- c(col, "Arson" = "#A65628")}
+if("Burglary" %in% sub$crimeCatName){col <- c(col, "Burglary" = "#377eb8")}
+if("Homicide" %in% sub$crimeCatName){col <- c(col, "Homicide" = "#FFFF33")}
+if("Larceny" %in% sub$crimeCatName){col <- c(col, "Larceny" = "#4DAF4A")}
+if("Motor Vehicle Theft" %in% sub$crimeCatName){col <- c(col, "Motor Vehicle Theft" = "#984EA3")}
+if("Robbery" %in% sub$crimeCatName){col <- c(col, "Robbery" = "#FF7F00")}
+if("Rape" %in% sub$crimeCatName){col <- c(col, "Rape" = "#F781BF")}
+
+  cwe_ctx_tm <- tm_shape(ctx_tiles) +
+  tm_rgb() +
+  nhoods_sf %>%
+  filter(neighborhood == 38) %>%
+  tm_shape() +
+    tm_borders(col = "black",
+               lwd = 2,
+               lty = "dashed") +
+  tm_shape(cortex) +
+    tm_fill(col = "#9ecae1",
+            alpha = .5) +
+    tm_borders(col = "black",
+               lwd = 1,
+               lty = "solid") +
+  tm_shape(ctx_crimes_sf) +
+    tm_bubbles(size = .25,
+               col = "crimeCatName",
+               palette = cols,
+               title.col = "Part 1 Crimes") +
+  tm_credits("© Mapbox, © OpenStreetMap", position = c("left", "BOTTOM")) +
+  tm_layout(
+    frame = FALSE,
+    legend.bg.color = "white",
+    legend.frame=TRUE,
+    legend.outside = TRUE,
+    legend.position = c("right", "bottom"))
+
+tmap_save(cwe_ctx_tm, file = here::here("results", params$year, params$month, "cwe", "ctx_total_crimes.jpeg"), width = 9, height = 5, units = "in")
+
+#add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(external_img(here::here("results", params$year, params$month, "cwe", "ctx_total_crimes.jpeg"), width = 9, height = 5), location = ph_location_type(type="body"), use_loc_size = FALSE)%>%
+  ph_with("Cortex: Total Crime Map", 
+               location = ph_location_type(
+                 type = "title") )-> report
+}
   }
 ```
 
@@ -730,12 +820,11 @@ report%>%
 #create Appendix number
 app = 1
 for (i in list(fpse_tiles, cwe_tiles)) {
-  name <- comment(i)
-  pres_sf <- filter(monthCrimes_pres_sf, tiles == name)
-  pres_df <- filter(monthCrimes_pres, tiles == name)
+  num <- as.numeric(comment(i))
+  pres_sf <- filter(monthCrimes_pres_sf, neighborhood == num)
+  pres_df <- filter(monthCrimes_pres, neighborhood == num)
   neighborhood <- unique(pres_sf$nbhd_name)
 abbr <- unique(pres_sf$abbr)
-num <- unique(pres_sf$neighborhood)
 
 report%>%
   add_slide(layout = "Title Slide", master = "Office Theme")%>%
@@ -963,15 +1052,23 @@ app = app + 1
 # save powerpoint report
 print(report, target = here::here("results", "presentations",  params$year, params$month, paste("fpse-bot-cwe-mc-", params$month, params$year, ".pptx", sep = "")))
 
-file <- read_pptx(here::here("results", "presentations",  params$year, params$month, paste("fpse-bot-cwe-mc-", params$month, params$year, ".pptx", sep = "")))
+#file <- read_pptx(here::here("results", "presentations",  params$year, params$month, paste("fpse-bot-cwe-mc-", params$month, params$year, ".pptx", sep = "")))
 
 #delete any existing fpse-bot-cwe-mc file in the Shiny app
-mydir <- "/Users/loganbogenut/Documents/GitHub/crime_interactive/crime_interactive/www/"
-file.remove(file.path(mydir, dir(path = mydir, pattern = "Center_crime")))
+shinydr <- "/Users/loganbogenut/Documents/GitHub/crime_interactive/crime_interactive/www/"
+file.remove(file.path(shinydr, dir(path = shinydr, pattern = "Center_crime")))
 
 #convert & save powerpoint as PDF to Shiny app
 convert_to_pdf(path = here::here("results", "presentations",  params$year, params$month, paste("fpse-bot-cwe-mc-", params$month, params$year, ".pptx", sep = "")),
                pdf_file = sub("[.]pptx", ".pdf", paste("~/Documents/GitHub/crime_interactive/crime_interactive/www/", "Forest Park Southeast, Botanical Heights, Central West End, Medical Center_crime", ".pptx", sep = "")))
+
+#Create PDF to be stored in current wd
+mydir <- paste("/Users/loganbogenut/Documents/GitHub/monthly-crime-reports/results/presentations", "/", params$year, "/", params$month, "/", sep = "")
+file.remove(file.path(mydir, dir(path = mydir, pattern = paste("fpse-bot-cwe-mc-", params$month, params$year, ".pdf", sep=""))))
+
+#convert & save powerpoint as PDF to presentations subfolder
+convert_to_pdf(path = here::here("results", "presentations",  params$year, params$month, paste("fpse-bot-cwe-mc-", params$month, params$year, ".pptx", sep = "")),
+               pdf_file = sub("[.]pptx", ".pdf", paste(mydir, "fpse-bot-cwe-mc-", params$month, params$year, ".pptx", sep = "")))
 ```
 
 ```{r}
