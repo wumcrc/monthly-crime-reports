@@ -44,6 +44,7 @@ library(ceramic)      # download online imagery tiles
 library(compstatr)    # tools for STL crime data
 library(raster)       # geograpic data analysis & modeling
 library(ggmap)        # tools for geocoding
+register_google("AIzaSyDSxwc0MKtPCOcTSPVbwiQlkZqwZ78ANCQ") #load API key for geocoding
 
 # other packages
 library(here)         # file path management
@@ -84,6 +85,7 @@ dir.create(here(file.path("results", params$year, params$month, "sdb")))
 dir.create(here(file.path("results", params$year, params$month, "vd")))
 dir.create(here(file.path("results", params$year, params$month, "vp")))
 dir.create(here(file.path("results", params$year, params$month, "we")))
+dir.create(here(file.path("results", params$year, params$month, "mc")))
 dir.create(here(file.path("results", "presentations",  params$year)))
 dir.create(here(file.path("results", "presentations",  params$year, params$month)))
 ```
@@ -166,7 +168,8 @@ ytdCrimes <- ytdCrimes %>%
   mutate(weekday = wday(dateOcc, label = TRUE)) %>%                                       # Creates a variable of the weekday based on previously created date variable
   mutate(monthVar = dateOcc) %>%
   # Recode values to neighborood names
-  mutate(nbhd_name = ifelse(grepl("38", neighborhood), "Central West End",
+  mutate(nbhd_name = ifelse(grepl("28", neighborhood), "Botanical Heights",
+                            ifelse(grepl("38", neighborhood), "Central West End",
                                              ifelse(grepl("39", neighborhood), "Forest Park Southeast",
                                              ifelse(grepl("46", neighborhood), "Skinker DeBaliviere",  
                                              ifelse(grepl("47", neighborhood), "DeBaliviere Place",
@@ -175,19 +178,10 @@ ytdCrimes <- ytdCrimes %>%
                                              ifelse(grepl("51", neighborhood), "Academy",       
                                              ifelse(grepl("53", neighborhood), "Fountain Park",       
                                              ifelse(grepl("54", neighborhood), "Lewis Place",       
-                                             ifelse(grepl("58", neighborhood), "Vandeventer", NA)))))))))))%>%
+                                             ifelse(grepl("58", neighborhood), "Vandeventer", NA))))))))))))%>%
   mutate(tod = timeOcc)%>%
-  mutate(tiles = ifelse(grepl("38", neighborhood), "cwe_tiles",
-                                             ifelse(grepl("39", neighborhood), "fpse_tiles",
-                                             ifelse(grepl("46", neighborhood), "sdb_tiles",  
-                                             ifelse(grepl("47", neighborhood), "dbp_tiles",
-                                             ifelse(grepl("48", neighborhood), "we_tiles",
-                                             ifelse(grepl("49", neighborhood), "vp_tiles",       
-                                             ifelse(grepl("51", neighborhood), "ac_tiles",       
-                                             ifelse(grepl("53", neighborhood), "fp_tiles",       
-                                             ifelse(grepl("54", neighborhood), "lp_tiles",       
-                                             ifelse(grepl("58", neighborhood), "vd_tiles", NA)))))))))))%>%
-  mutate(abbr = ifelse(grepl("38", neighborhood), "cwe",
+  mutate(abbr = ifelse(grepl("28", neighborhood), "bot",
+                       ifelse(grepl("38", neighborhood), "cwe",
                                              ifelse(grepl("39", neighborhood), "fpse",
                                              ifelse(grepl("46", neighborhood), "sdb",  
                                              ifelse(grepl("47", neighborhood), "dbp",
@@ -196,7 +190,7 @@ ytdCrimes <- ytdCrimes %>%
                                              ifelse(grepl("51", neighborhood), "ac",       
                                              ifelse(grepl("53", neighborhood), "fp",       
                                              ifelse(grepl("54", neighborhood), "lp",       
-                                             ifelse(grepl("58", neighborhood), "vd", NA)))))))))))%>%
+                                             ifelse(grepl("58", neighborhood), "vd", NA))))))))))))%>%
   drop_na("ileads_street")
 
 ytdCrimes$monthVar <- month(as.Date(ytdCrimes$monthVar, 
@@ -274,17 +268,8 @@ totalCrimes_past <- totalCrimes_past %>%
   filter(district == 2 | district == 5) %>%
   mutate(weekday = wday(dateOcc, label = TRUE)) %>%
   mutate(monthVar = dateOcc) %>%
-  mutate(tiles = ifelse(grepl("38", neighborhood), "cwe_tiles",
-                                             ifelse(grepl("39", neighborhood), "fpse_tiles",
-                                             ifelse(grepl("46", neighborhood), "sdb_tiles",  
-                                             ifelse(grepl("47", neighborhood), "dbp_tiles",
-                                             ifelse(grepl("48", neighborhood), "we_tiles",
-                                             ifelse(grepl("49", neighborhood), "vp_tiles",       
-                                             ifelse(grepl("51", neighborhood), "ac_tiles",       
-                                             ifelse(grepl("53", neighborhood), "fp_tiles",       
-                                             ifelse(grepl("54", neighborhood), "lp_tiles",       
-                                             ifelse(grepl("58", neighborhood), "vd_tiles", NA)))))))))))%>%
-  mutate(abbr = ifelse(grepl("38", neighborhood), "cwe",
+  mutate(abbr = ifelse(grepl("28", neighborhood), "bot",
+                                             ifelse(grepl("38", neighborhood), "cwe",
                                              ifelse(grepl("39", neighborhood), "fpse",
                                              ifelse(grepl("46", neighborhood), "sdb",  
                                              ifelse(grepl("47", neighborhood), "dbp",
@@ -293,7 +278,7 @@ totalCrimes_past <- totalCrimes_past %>%
                                              ifelse(grepl("51", neighborhood), "ac",       
                                              ifelse(grepl("53", neighborhood), "fp",       
                                              ifelse(grepl("54", neighborhood), "lp",       
-                                             ifelse(grepl("58", neighborhood), "vd", NA)))))))))))%>%
+                                             ifelse(grepl("58", neighborhood), "vd", NA))))))))))))%>%
   mutate(tod = timeOcc)
 
 totalCrimes_past$monthVar <- month(as.Date(totalCrimes_past$monthVar, format="%d/%m/%Y"), label = TRUE)
