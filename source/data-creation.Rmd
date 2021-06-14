@@ -67,27 +67,18 @@ cs_last_update(output = "string")
 ```{r}
 # This code chunk creates the appropriate folder paths that are referred to in all of the .Rmd documents. 
 # This code is necessary to knit and compile the powerpoint presentations.
-
+abbr <- c("ac", "bot", "cwe", "dbp", "district-2", "district-5", "fp", "fpse", "lp", "sdb", "vd", "vp", "we", "mc")
 here()
 dir.create(getwd())
 dir.create(here(file.path("results", params$year)))
 dir.create(here(file.path("results", params$year, params$month)))
-dir.create(here(file.path("results", params$year, params$month, "ac")))
-dir.create(here(file.path("results", params$year, params$month, "bot")))
-dir.create(here(file.path("results", params$year, params$month, "cwe")))
-dir.create(here(file.path("results", params$year, params$month, "dbp")))
-dir.create(here(file.path("results", params$year, params$month, "district-2")))
-dir.create(here(file.path("results", params$year, params$month, "district-5")))
-dir.create(here(file.path("results", params$year, params$month, "fp")))
-dir.create(here(file.path("results", params$year, params$month, "fpse")))
-dir.create(here(file.path("results", params$year, params$month, "lp")))
-dir.create(here(file.path("results", params$year, params$month, "sdb")))
-dir.create(here(file.path("results", params$year, params$month, "vd")))
-dir.create(here(file.path("results", params$year, params$month, "vp")))
-dir.create(here(file.path("results", params$year, params$month, "we")))
-dir.create(here(file.path("results", params$year, params$month, "mc")))
+for (i in abbr) {
+  dir.create(here(file.path("results", params$year, params$month, i)))
+}
 dir.create(here(file.path("results", "presentations",  params$year)))
 dir.create(here(file.path("results", "presentations",  params$year, params$month)))
+dir.create(here(file.path("data", params$year)))
+dir.create(here(file.path("data", params$year, params$month)))
 ```
 
 
@@ -112,8 +103,7 @@ nov20 <- rename(nov20, y_coord = ycoord)
 yearlist_pres <- cs_replace_month(yearlist_pres, month = "November", monthData = nov20)
 
 # validate
-expect_equal(cs_validate(yearlist_pres, year = "2020"), TRUE)
-
+expect_equal(cs_validate(yearlist_pres, year = 2020), TRUE)
 # Identifies problems with SLMPD Data
 ```
 
@@ -191,10 +181,12 @@ ytdCrimes <- ytdCrimes %>%
                                              ifelse(grepl("53", neighborhood), "fp",       
                                              ifelse(grepl("54", neighborhood), "lp",       
                                              ifelse(grepl("58", neighborhood), "vd", NA))))))))))))%>%
-  drop_na("ileads_street")
+  drop_na("ileads_street")%>%
+  mutate(month = format(as.Date(data$dateOcc, format="%d/%m/%Y"), "%m"))%>%
+  mutate(yr = format(as.Date(data$dateOcc,  format="%d/%m/%Y"), "%Y"))
 
-ytdCrimes$monthVar <- month(as.Date(ytdCrimes$monthVar, 
-                                      format="%d/%m/%Y"), label = TRUE)                   # Pulls out the Month based on the Date | i.e 10/01/2018 = "October" 
+# ytdCrimes$monthVar <- month(as.Date(ytdCrimes$monthVar, 
+#                                       format="%d/%m/%Y"), label = TRUE)                   # Pulls out the Month based on the Date | i.e 10/01/2018 = "October" 
 
 #Replace NAs with 0 to prep for geocoding
 ytdCrimes$ileads_address[is.na(ytdCrimes$ileads_address)] <- 0
@@ -204,7 +196,7 @@ ytdCrimes$tod <- strptime(ytdCrimes$tod, tz = "America/Chicago", "%H:%M")       
 ytdCrimes$tod <- format(ytdCrimes$tod, format = "%H%M%S")
 
 ytdCrimes <- ytdCrimes %>%
-  filter(dateOcc >= as.Date(params$ytd)) %>%                                             # Filters data based on the date provided in the paramaters
+  filter(month >= 01 & month <= match(params$month, month.name) & yr == params$year) %>%                                             # Filters data based on the date provided in the paramaters
   mutate(., dayNight = ifelse(tod >= "180000" & tod < "600000", 
                               "Night", "Day")) %>% 
   dplyr::select(-dateTime, -tod, -flag_crime, 
@@ -222,7 +214,7 @@ ytdCrimes <- mutate(ytdCrimes, "address" = ifelse(ytdCrimes$ileads_address > 0, 
 ytdCrimes <- mutate_geocode(ytdCrimes, address)
 
 monthCrimes_pres <- ytdCrimes %>% 
-    filter(dateOcc >= as.Date(params$date))                                             # Filters dataset of crimes that happened in the month determined by the parameters
+    filter(month == match(params$month, month.name) & yr == params$year)                                         # Filters dataset of crimes that happened in the month determined by the parameters
 ```
 
 ##### Larcenies 
@@ -279,9 +271,11 @@ totalCrimes_past <- totalCrimes_past %>%
                                              ifelse(grepl("53", neighborhood), "fp",       
                                              ifelse(grepl("54", neighborhood), "lp",       
                                              ifelse(grepl("58", neighborhood), "vd", NA))))))))))))%>%
-  mutate(tod = timeOcc)
+  mutate(tod = timeOcc)%>%
+  mutate(month = format(as.Date(data$dateOcc, format="%d/%m/%Y"), "%m"))%>%
+  mutate(yr = format(as.Date(data$dateOcc,  format="%d/%m/%Y"), "%Y"))
 
-totalCrimes_past$monthVar <- month(as.Date(totalCrimes_past$monthVar, format="%d/%m/%Y"), label = TRUE)
+# totalCrimes_past$monthVar <- month(as.Date(totalCrimes_past$monthVar, format="%d/%m/%Y"), label = TRUE)
 
 totalCrimes_past$neighborhood <- as.numeric(totalCrimes_past$neighborhood)
 
@@ -295,13 +289,13 @@ totalCrimes_past <- totalCrimes_past %>%
   cs_replace0(., var = x_coord) %>%
   cs_replace0(., var = y_coord) %>% 
   filter(., missing == FALSE) %>% 
-  filter(dateOcc >= as.Date(params$pastdate))
+  filter(yr == (params$year-1))
 
-monthCrimes_past <- totalCrimes_past %>% 
-    filter(dateOcc >= as.Date(params$pstdtmonth) & dateOcc <= as.Date(params$pstdtmonth2))
+monthCrimes_past <- totalCrimes_past %>%
+  filter(as.numeric(month) == params$month & yr == (params$year - 1))
 
 ytdCrimes_past <- totalCrimes_past%>% 
-    filter(dateOcc <= as.Date(params$pstdtmonth2))
+    filter(as.numeric(month) >= 01 & as.numeric(month) <= match(params$month, month.name) & yr == (params$year-1))
 ```
 
 
@@ -323,7 +317,7 @@ st_read(here("data", "external", "stl_neighborhoods", "nbhds.shp")) %>%
   st_transform(crs = 4296) %>% 
   rename(., "neighborhood" = NHD_NUM)-> nhoods_sf
 
-save(med_campus, cortex, grove_cid, nhoods_sf, file = here("data", "basemap-files", "boundaries.rda"))
+save(med_campus, cortex, grove_cid, nhoods_sf, file = here("data", params$year, params$month, "basemap-files", "boundaries.rda"))
 ```
 
 ```{r Create SF objects for past year & current year Crimes}
@@ -397,9 +391,9 @@ dst_5_pop_sf <- left_join(nhoods_sf, dst_5, by = "neighborhood") %>%
   drop_na()
 
 # Save
-save(totalCrimes_past_sf, ytdCrimes_past_sf, ytdCrimes_sf, monthCrimes_past_sf, monthCrimes_pres_sf, mc_crimes_past_sf, mc_crimes_pres_sf, mc_crimes_ytdpast_sf, mc_crimes_totpast_sf, mc_crimes_ytdpres_sf, mc_larcenies_sf, ctx_crimes_sf, dst_2_pop_sf, dst_5_pop_sf, file = here("data", "spatial-crime-data.rda"))
+save(totalCrimes_past_sf, ytdCrimes_past_sf, ytdCrimes_sf, monthCrimes_past_sf, monthCrimes_pres_sf, mc_crimes_past_sf, mc_crimes_pres_sf, mc_crimes_ytdpast_sf, mc_crimes_totpast_sf, mc_crimes_ytdpres_sf, mc_larcenies_sf, ctx_crimes_sf, dst_2_pop_sf, dst_5_pop_sf, file = here("data", params$year, params$month, "spatial-crime-data.rda"))
 
-save(ytdCrimes_past, ytdCrimes, monthCrimes_past, monthCrimes_pres, totalCrimes_past, larceny, mc_crimes_past, mc_crimes_pres, mc_crimes_ytdpast, mc_crimes_totpast, mc_crimes_ytdpres, mc_larcenies, dst_2, dst_5, file = here("data", "crime-data.rda"))
+save(ytdCrimes_past, ytdCrimes, monthCrimes_past, monthCrimes_pres, totalCrimes_past, larceny, mc_crimes_past, mc_crimes_pres, mc_crimes_ytdpast, mc_crimes_totpast, mc_crimes_ytdpres, mc_larcenies, dst_2, dst_5, file = here("data", params$year, params$month, "crime-data.rda"))
 
 ```
 
