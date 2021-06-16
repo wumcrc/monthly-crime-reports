@@ -8,9 +8,6 @@ output:
 always_allow_html: yes
 params:
   month: December
-  abbr: Dec
-  num: 12
-  pastyear: 2019
   year: 2020
 ---
 
@@ -189,9 +186,6 @@ offlayout01 <- phl_layout(layout01,
 ```{r Set column name keys for flextable, include = FALSE }
 part1crimes <- c("Aggravated Assault", "Arson", "Burgalry", "Homicide", "Larceny", "Motor Vehicle Theft", "Robbery", "Rape")
 wkdys <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-#tmap_options()
-#create column ID for coloring flextable
-colID <- c(params$abbr, "Total")
 ```
 
 ```{r plot and text color palette, inlude = FALSE}
@@ -290,21 +284,21 @@ summary <- block_list(
   fpar(ftext(sprint_1, boldline)),
   fpar(ftext(paste(" ", sep = ""), reg24),
        ftext(paste(pct_chg_mth, "change ", sep = " "), color24a),
-       ftext(paste("compared to ", params$month, " ", params$pastyear, " (", tc_past, " total crimes)", sep = ""), reg24)),
+       ftext(paste("compared to ", params$month, " ", (params$year - 1), " (", tc_past, " total crimes)", sep = ""), reg24)),
   fpar(ftext(paste(cap_pres, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
   fpar(ftext(paste(" ", sep = ""), reg20),
        ftext(paste(pct_chg_cap, "change", sep = " "), color20a),
-       ftext(paste(" compared to ", params$month, " ", params$pastyear, " (", cap_past, " crimes against persons)", sep = ""), reg20)),
+       ftext(paste(" compared to ", params$month, " ", (params$year - 1), " (", cap_past, " crimes against persons)", sep = ""), reg20)),
   fpar(ftext(sprint_2, boldline)),
   fpar(ftext(paste(" ", sep = ""), reg24),
        ftext(paste(pct_chg_ytd, "change ", sep = " "), color24b),
-       ftext(paste("compared to this time in ", params$pastyear, " (", tc_ytd_past, " total crimes)", sep = ""), reg24)),
+       ftext(paste("compared to this time in ", (params$year - 1), " (", tc_ytd_past, " total crimes)", sep = ""), reg24)),
   fpar(ftext(paste(cap_pres_ytd, "crime(s) against persons", sep = " "), bold),
        ftext(paste(" in", params$year, sep = " "), reg24)),
   fpar(ftext(paste(" ", sep = ""), reg20),
        ftext(paste(pct_chg_ytd_cap, "change", sep = " "), color20b),
-       ftext(paste(" compared to this time in ", params$pastyear, " (", cap_past_ytd, " crimes against persons)", sep = ""), reg20))
+       ftext(paste(" compared to this time in ", (params$year - 1), " (", cap_past_ytd, " crimes against persons)", sep = ""), reg20))
 )
 
 # write summary notes to powerpoint slide
@@ -345,7 +339,7 @@ yr_past %>%
 
 flextable(yr_past) %>%
   colformat_num(., digits = 0) %>%
-  add_header_lines(values = paste(params$pastyear))%>%
+  add_header_lines(values = paste(params$year - 1))%>%
   autofit() -> flex
 flex <- height_all(flex, height = .25, part = "all")
 
@@ -365,7 +359,7 @@ yr_pres %>%
   rename(., "Part 1 Crimes" = crimeCatName) -> yr_pres
 
 #compare dataframes and get common columns
-common_cols <- intersect(colnames(yr_pres[, (params$num + 1)]), colnames(yr_past[, (params$num + 1)]))
+common_cols <- intersect(colnames(yr_pres[, (match(params$month, month.name) + 1)]), colnames(yr_past[, (match(params$month, month.name) + 1)]))
 
 #assign to temporary dataframe
 temp_past <- yr_past[,common_cols, drop=FALSE]
@@ -379,7 +373,7 @@ colors <- unlist(temp_pres - temp_past)%>%
 #make flextable, color all columns except the first
 flextable(yr_pres) %>% 
   colformat_num(.,  digits = 0) %>%
-  bg(j = params$abbr, bg = colors) %>% 
+  bg(j = substr(unique(monthCrimes_pres$monthVar), 1, 3), bg = colors) %>% 
   add_header_lines(values = paste(params$year))%>%
   autofit() -> flex01
 flex01 <- height_all(flex01, height = .25, part = "all")
