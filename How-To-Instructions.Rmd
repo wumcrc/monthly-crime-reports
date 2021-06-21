@@ -8,23 +8,16 @@ output: html_notebook
 #Step 1
 Run the `data-creation.Rmd` at the beginning of each month. You can use `cs_last_update()` from the `compstatr` package to see when the crime data was last updated. Once you have checked to see that the data is available for the current month, the next step is to change the `params` of the `data-creation.Rmd`. 
           `month` should be changed to the current month
-          `pastyear` should be kept at the previous year
+          `enddate` should be set to the first day of the next month
           `year` should be set to the current year
-          `ytd` should be set to January 1st of the current year
-          `date` should be set to the first day of the current month
-          `pastdate` should be set to January 1st of the previous year
-          `pstdtmonth` should be set to the 1st of the current month, but of the previous year
-          `pstdtmonth2` should be set to the last day of the current month of the previous year
-Once you have changed all 8 of the params you can run the `data-creation.Rmd`. 
+          `month6` should be set to the first day of the current month
+Once you have changed all 4 of the params you can run the `data-creation.Rmd`. 
 
 #Step 2
 Once you have run the `data-creation.Rmd` you need to run the `fpse-bot-cwe-mc-presentation.Rmd`. Before you run this notebook, you need to change the params.  
           `month` should be changed to the current month
-          `pastyear` should be kept at the previous year
           `year` should be set to the current year
-          `date` should be set to the first day of the current month of the current year
-          `pastdate` should be set to the first day of the current month of the previous year
-After you change all 5 params you can run this notebook. 
+After you change all 2 params you can run this notebook. 
 
 #Step 3
 Now that you have run the `fpse-bot-cwe-mc-presentation.Rmd` you can run the `sdb-dbp-we-vp-presentation.Rmd` and `ac-fp-lp-vd-presentation.Rmd`. It is not important which one you run first, just be sure to change the params! They are the exact same as the params for the `fpse-bot-cwe-mc-presenation.Rmd`. 
