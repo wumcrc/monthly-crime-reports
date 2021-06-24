@@ -44,7 +44,6 @@ library(ceramic)      # download online imagery tiles
 library(compstatr)    # tools for STL crime data
 library(raster)       # geograpic data analysis & modeling
 library(ggmap)        # tools for geocoding
-register_google("AIzaSyDSxwc0MKtPCOcTSPVbwiQlkZqwZ78ANCQ") #load API key for geocoding
 
 # other packages
 library(here)         # file path management
