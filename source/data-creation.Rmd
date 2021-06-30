@@ -4,14 +4,9 @@ author: "Jes Stevens, M.A."
 date: '(`r format(Sys.time(), "%B %d, %Y")`)'
 output:
 params:
-  month: December                      # Refers to the month throughout the .Rmd Document | Change this to reflect the month you are analyzing
-  pastyear: 2019                      # Refers to the previous year throughout the .Rmd Document | Change this when your year changes
-  year: 2020                          # Refers to the current year you are analyzing | Change this when your year changes
-  ytd: "2020-01-01"                   # Compiles Year to Date Dataset for this year | Leave at January 1st 2020
-  date: "2020-12-01"                  # Pulls in the data for the most recent month | Change this each month
-  pastdate: "2019-01-01"              # Compiles Year to Date Dataset for previous year | Leave at January 1st 2019
-  pstdtmonth: "2019-12-01"            # Compiles Data for the most recent month of the previous year | This is the first day of the month
-  pstdtmonth2: "2019-12-31"           # Compiles Data for the most recent month of the previous year | This is the last day of month | Must be the 30th or 31st
+  month: May                      # Refers to the month throughout the .Rmd Document | Change this to reflect the month you are analyzing
+  pastyear: 2020                      # Refers to the previous year throughout the .Rmd Document | Change this when your year changes
+  year: 2021                          # Refers to the current year you are analyzing | Change this when your year changes
 ---
 
 ```{r setup, include=FALSE}
@@ -88,8 +83,8 @@ dir.create(here(file.path("data", params$year, params$month)))
 i <- cs_create_index()
 yearlist_past <- cs_get_data(year = params$pastyear, index = i)
 yearlist_pres <- cs_get_data(year = params$year, index = i)        # Constructs a table for finding a table of crime data
-cs_validate(yearlist_past, year = 2019)                            # Identifies problems with SLMPD Data
-cs_validate(yearlist_pres, year = 2020)
+cs_validate(yearlist_past, year = params$pastyear)                            # Identifies problems with SLMPD Data
+cs_validate(yearlist_pres, year = params$year)
 #correct November 2020 issues
 # extract data and unit test column name
 nov20 <- cs_extract_month(yearlist_pres, month = "November")
