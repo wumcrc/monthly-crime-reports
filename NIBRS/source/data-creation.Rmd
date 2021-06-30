@@ -1,0 +1,98 @@
+---
+title: "PDF Data Extraction"
+output: html_document
+params:
+  month1: "Jan"
+  month2: "Feb"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Load Dependencies
+```{r}
+library(pdftools)   #pdf data extraction
+library(dplyr)      #tools for cleaning data
+library(here)       #file path management
+library(stringr)
+
+#Load Data
+df <- pdf_text(here("NIBRS/data/jan-feb-crime.pdf"))
+```
+
+# Neighborhood Index
+```{r}
+#Format: c(first page, second page, neighborhood number)
+bot <- c(11,12,28)
+cwe <- c(23,24,38)
+fpse <- c(55,56,39)
+sdbp <- c(131, 132,46)
+dbp <- c(39,40,47)
+we <- c(173,174,48)
+vp <- c(165,166,49)
+ac <- c(1,2,51)
+fp <- c(57,58,53)
+lp <- c(87,88,54)
+vd <- c(163,164,58)
+```
+
+#Create scrape_pdf Function
+
+`table` refers to the PDF that you want to extract from
+`neighborhood` should be set to the neighborhood object you want evaluated (created in the neighborhood index section above).
+`month1` is the first month
+`month2` is the second (the data is reported in month paires i.e. Jan-Feb, Mar-Apr, etc.)
+```{r}
+scrape_pdf <- function(table, neighborhood, month1, month2) {
+  data <- table[neighborhood[1]]
+  data <- strsplit(data, "\n")
+  data <- data[[1]]
+  data <- trimws(data)
+  data <- data[grep("Murder and Nonnegligent Manslaughter", data):grep("Identity Theft", data)]
+  data <- str_split_fixed(data, " {2,}", 7)
+  data <- data.frame(data, stringsAsFactors = FALSE)
+  data <- data[-c(17:22),]
+  names(data) <- c("Crime", "NIBRS",
+                           month1,
+                           month2, 
+                           "Diff",
+                           "Change",
+                           "YTD")
+  
+  data2 <- table[neighborhood[2]]
+  data2 <- strsplit(data2, "\n")
+  data2 <- data2[[1]]
+  data2 <- trimws(data2)
+  data2 <- data2[grep("Hacking/Computer Invasion", data2):grep("All Other Offenses", data2)]
+  data2 <- str_split_fixed(data2, " {2,}", 7)
+  data2 <- data.frame(data2, stringsAsFactors = FALSE)
+  data2 <- data2[-c(7:12, 33:38),]
+  names(data2) <- c("Crime", "NIBRS",
+                           month1,
+                           month2, 
+                           "Diff",
+                           "Change",
+                           "YTD")
+  data <- bind_rows(data, data2)
+  data <- mutate(data, nbhd_num = neighborhood[3])
+  
+  return(data)
+}
+```
+
+```{r}
+bot_df <- scrape_pdf(df, bot, params$month1, params$month2)
+cwe_df <- scrape_pdf(df, cwe, params$month1, params$month2)
+fpse_df <- scrape_pdf(df, fpse, params$month1, params$month2)
+sdbp_df <- scrape_pdf(df, sdbp, params$month1, params$month2)
+dbp_df <- scrape_pdf(df, dbp, params$month1, params$month2)
+we_df <- scrape_pdf(df, we, params$month1, params$month2)
+vp_df <- scrape_pdf(df, vp, params$month1, params$month2)
+ac_df <- scrape_pdf(df, ac, params$month1, params$month2)
+fp_df <- scrape_pdf(df, fp, params$month1, params$month2)
+lp_df <- scrape_pdf(df, lp, params$month1, params$month2)
+vd_df <- scrape_pdf(df, vd, params$month1, params$month2)
+tot <- bind_rows(bot_df, cwe_df, fpse_df, sdbp_df, dbp_df, we_df, vp_df, ac_df, fp_df, lp_df, vd_df)
+```
+
