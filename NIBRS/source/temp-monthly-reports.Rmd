@@ -1,0 +1,170 @@
+---
+title: "NIBRS-crime-report"
+output: html_document
+params:
+  year: 2021
+  month: January
+  month1: Jan
+  month2: Feb
+  #Num referes to the column of the current month. Because months come in pairs in this dataset, if the month is first (i.e. January in Jan-Feb, or March in Mar-Apr) then the num should be set to 2. If it comes second (i.e. Feb in Jan-Feb, or Apr in Mar-Apr) then num should be set to 3.
+  num: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Load Dependencies
+```{r}
+library(dplyr)        #tools for cleaning data
+library(flextable)    #flextable output
+library(officer)      #tools for powerpoint output
+library(data.table)   #transposing data
+library(here)         #file path management
+library(janitor)      #adorn totals
+library(customLayout) #powerpoint formatting
+#load crime data
+load(file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "clean-crime-data.rda"))
+# create powerpoint
+report <- read_pptx()
+```
+
+
+```{r}
+# summary note colors
+reg24 <- fp_text(color = 'black', font.size = 24)
+bold <- fp_text(color = "black", font.size = 24, bold = TRUE)
+boldline <- fp_text(color = "black", font.size = 28, bold = TRUE, underlined = TRUE)
+# for loop objects
+type <- c("Property", "Society", "Person", "Unspecified")
+#create comments to use to filter and name outputs
+comment(fpse_df) <- "Forest Park Southeast"
+comment(bot_df) <- "Botanical Heights"
+comment(cwe_df) <- "Central West End"
+neighborhood <- list(fpse_df, bot_df, cwe_df)
+```
+
+```{r officer layout}
+#create custom powerpoint layout
+ lay  <- lay_new(
+  matrix(1:4, nc = 2),
+  widths = c(3, 2),
+  heights = c(1, 2))
+title <- lay_new(1, widths = 2, heights = 2)
+layout <- lay_bind_row(title, lay, heights = c(1,6))
+offlayout <- phl_layout(layout,
+    margins = c(0.25, 0.25, 0.25, 0.25),
+    innerMargins = rep(0.15,4))
+```
+
+```{r powerpoint title}
+#title slide
+report%>%
+  add_slide(layout = "Title Slide", master = "Office Theme")%>%
+  ph_with(value = "Forest Park Southeast, Botanical Heights, Central West End", location = ph_location_type(type = "ctrTitle"))%>%
+  ph_with(c(paste("Monthly Crime Report:", params$month, params$year, sep = " "), "Washington University Medical Center"), location = ph_location_type(type = "subTitle")) -> report
+```
+
+```{r}
+for (i in neighborhood) {
+nbhd <- comment(i)
+tc <- sum(i[params$num])
+persons <- filter(i, type == "Person")
+persons <- sum(persons[params$num])
+society <- filter(i, type == "Society")
+society <- sum(society[params$num])
+property <- filter(i, type == "Property")
+property <- sum(property[params$num])
+unspec <- filter(i, type == "Unspecified")
+unspec <- sum(unspec[params$num])
+
+
+sprint_1 <- sprintf("%s total crimes in %s %s", 
+                    tc, params$month, params$year)
+
+# create summary notes
+summary <- block_list(
+  fpar(ftext(sprint_1, boldline)),
+  #fpar(ftext(paste(" ", sep = ""), reg24),
+  fpar(ftext(paste(persons, "crime(s) against persons", sep = " "), bold),
+       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
+  fpar(ftext(paste(property, "crime(s) against property", sep = " "), bold),
+       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
+  fpar(ftext(paste(society, "crime(s) against society", sep = " "), bold),
+       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
+  fpar(ftext(paste(unspec, "unspecified crimes", sep = " "), bold),
+       ftext(paste(" in", params$month, params$year, sep = " "), reg24))
+  )
+
+# write summary notes to powerpoint slide
+report%>%
+  add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
+  ph_with(value = paste(nbhd, ": Summary Notes"), location = ph_location_type(type = "title"))%>%
+  ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 2, 2)) -> report
+###
+###Must Change summarise every time you run code!
+###
+overview <- i%>%
+  dplyr::group_by(type)%>%
+  dplyr::summarise(Jan = sum(Jan))%>%
+  adorn_totals("row", name = "Total")%>%
+  dplyr::rename("Type of Crime" = type)
+###  
+###
+###
+#Make flextables from summary data
+flextable(overview) %>%
+  autofit()-> flex
+
+#create powerpoint slide
+report%>%
+add_slide()%>%
+  ph_with(external_img(here::here("NIBRS", "data", "neighborhoods", paste(nbhd, "_basemap.jpeg", sep = "")), height = 5, width = 9), location = ph_location_left(), use_loc_size = FALSE)%>%
+  phl_with_flextable(olay = offlayout, 4, flex)%>%
+  ph_with(nbhd, 
+               location = ph_location_type(
+                 type = "title") )-> report 
+
+for (x in type) {
+  sub <- i%>%
+    filter(type == x)%>%
+    select(1:2)
+
+sub_transpose <- transpose(sub)
+rownames(sub_transpose) <- colnames(sub)
+colnames(sub_transpose) <- sub$Crime
+sub_transpose <- slice(sub_transpose, -c(1))
+
+if(x == "Person" | x == "Soeciety"){
+}
+
+ft <- flextable(sub_transpose)
+
+# measure column widths but only for the body part
+w_body <- dim_pretty(ft, part = "body")$widths
+# measure column widths only for the header part and get the max
+# as height value for rotated text
+h_header <- max( dim_pretty(ft, part = "header")$widths )
+
+ft <- rotate(ft, j = 1:2, rotation="tbrl",part="header")
+
+ft <- valign(ft, valign = "center", part = "header")
+ft <- flextable::align(ft, align = "center", part = "all")
+
+# Manage header height
+ft <- height(ft, height = h_header * 1.1, part = "header")
+ft <- hrule(ft, i = 1, rule = "exact", part = "header")
+
+#add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(ft, location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with(paste(nbhd, ":", paste("January", x, "Crimes")), 
+               location = ph_location_type(
+                 type = "title") )-> report
+
+}
+}
+print(report, target = here::here("NIBRS", "results", "test.pptx"))
+```
+
