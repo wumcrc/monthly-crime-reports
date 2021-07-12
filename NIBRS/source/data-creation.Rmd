@@ -4,6 +4,7 @@ output: html_document
 params:
   month1: "Jan"
   month2: "Feb"
+  year: 2021
 ---
 
 ```{r setup, include=FALSE}
@@ -16,9 +17,18 @@ library(pdftools)   #pdf data extraction
 library(dplyr)      #tools for cleaning data
 library(here)       #file path management
 library(stringr)
+library(grid)         #inset map
+library(gateway)      #load stl spatial data
+library(tmap)         #tools for mapping
+library(sf)
 
 #Load Data
-df <- pdf_text(here("NIBRS/data/jan-feb-crime.pdf"))
+df <- pdf_text(here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "jan-feb-crime.pdf"))
+
+#Load spatial data
+st_read(here::here("NIBRS", "data", "boundaries", "nbhd_boundary.shp"),
+        stringsAsFactors = FALSE) %>%
+  st_transform(crs = 32615) -> bound_temp
 ```
 
 # Neighborhood Index
@@ -76,12 +86,21 @@ scrape_pdf <- function(table, neighborhood, month1, month2) {
                            "YTD")
   data <- bind_rows(data, data2)
   data <- mutate(data, nbhd_num = neighborhood[3])
+  data <- mutate(data, type = ifelse(row_number() %in% 1:16, "Person",
+                                     ifelse(row_number() %in% 17:42, "Property",
+                                     ifelse(row_number() %in% 43:62, "Society",
+                                     ifelse(row_number() %in% 63:64, "Unspecified", NA)))))
+  cols.num <- c(params$month1, params$month2)
+  data[cols.num] <- sapply(data[cols.num],as.numeric) #convert crime columns to numeric
+  
+  data <- data[-c(2, 5:7)]
   
   return(data)
 }
 ```
 
 ```{r}
+#scrape pdf for each neighborhood
 bot_df <- scrape_pdf(df, bot, params$month1, params$month2)
 cwe_df <- scrape_pdf(df, cwe, params$month1, params$month2)
 fpse_df <- scrape_pdf(df, fpse, params$month1, params$month2)
@@ -93,6 +112,36 @@ ac_df <- scrape_pdf(df, ac, params$month1, params$month2)
 fp_df <- scrape_pdf(df, fp, params$month1, params$month2)
 lp_df <- scrape_pdf(df, lp, params$month1, params$month2)
 vd_df <- scrape_pdf(df, vd, params$month1, params$month2)
+#get totals for all neighborhoods
 tot <- bind_rows(bot_df, cwe_df, fpse_df, sdbp_df, dbp_df, we_df, vp_df, ac_df, fp_df, lp_df, vd_df)
+#group totals
+tot <- tot%>%
+  group_by(Crime, type)%>%
+  summarise(Jan = sum(Jan), Feb = sum(Feb))
+#save output
+save(bot_df, cwe_df, fpse_df, sdbp_df, dbp_df, we_df, vp_df, ac_df, fp_df, lp_df, vd_df, tot, file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "clean-crime-data.rda"))
+```
+
+#Create Neighborhood Maps
+```{r, eval=FALSE}
+#Temporary code to create neighborhood basemaps
+bound <- gw_get_data("Neighborhoods", "sf")
+nbhds <- list(bot, cwe, fpse, sdbp, dbp, we, vp, ac, fp, lp, vd)
+
+for (i in nbhds) {
+  bound%>%
+tm_shape()+
+  tm_fill(col = "grey")+
+  tm_borders(col = "white")+
+  bound%>%
+  filter(., NHD_NUM == i[3])%>%
+  tm_shape()+
+  tm_fill(col = "forestgreen")+
+  tm_borders(col = "white")+
+  tm_layout(frame = FALSE)-> map
+  
+  tmap_save(map, file = here("NIBRS", "data", "neighborhoods", paste(i, "_basemap.jpeg", sep = "")), width = 9, height = 5, units = "in")
+}
+
 ```
 
