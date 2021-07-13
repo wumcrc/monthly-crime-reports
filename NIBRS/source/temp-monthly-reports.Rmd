@@ -140,35 +140,30 @@ for (x in type) {
     filter(type == x)%>%
     select(1:2)
   
-  head <- head(sub, 13)
+  head <- head(sub, 20)
   
-if(x != "Unspecified"){
-
-  flextable(head)%>%
-  autofit() ->ft
-  
-  tail <- tail(sub, -13)
-  flextable(tail)%>%
-    autofit() -> ft2
-  
-#add to powerpoint report
-report%>%
-  add_slide()%>%
-  phl_with_flextable(olay = offlayout01, 2, ft)%>%
-  phl_with_flextable(olay = offlayout01, 4, ft2)%>%
-  phl_with_text(olay = offlayout01, 1, paste(nbhd, ":", x, "Crimes"), type = "title")-> report
-}else{
  flextable(head)%>%
-  autofit() ->ft 
+  height_all(.25, part = "all")%>%
+  width(width = 3)->ft 
   
   report%>%
   add_slide()%>%
   #phl_with_flextable(olay = offlayout01, 2, ft)%>%
   ph_with(ft, location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   phl_with_text(olay = offlayout01, 1, paste(nbhd, ":", x, "Crimes"), type = "title") ->report
-  # ph_with(paste(nbhd, ":", paste("January", x, "Crimes")), 
-  #              location = ph_location_type(
-  #                type = "title") )-> report
+  
+if(x == "Property"){
+  
+  tail <- tail(sub, -20)
+  flextable(tail)%>%
+    height_all(.25, part = "all")%>%
+    width(width = 3) -> ft2
+
+#add to powerpoint report
+report%>%
+  add_slide()%>%
+  ph_with(ft2, location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  phl_with_text(olay = offlayout01, 1, paste(nbhd, ":", x, "Crimes"), type = "title")-> report
 }
 }
 }
