@@ -48,11 +48,21 @@ neighborhood <- list(fpse_df, bot_df, cwe_df)
 #create custom powerpoint layout
  lay  <- lay_new(
   matrix(1:4, nc = 2),
-  widths = c(3, 2),
+  widths = c(1, 4),
   heights = c(1, 2))
-title <- lay_new(1, widths = 2, heights = 2)
+title <- lay_new(1, widths = 2, heights = 3)
 layout <- lay_bind_row(title, lay, heights = c(1,6))
+lay_show(layout)
 offlayout <- phl_layout(layout,
+    margins = c(0.25, 0.25, 0.25, 0.25),
+    innerMargins = rep(0.15,4))
+
+lay1 <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(2,1)) 
+title1 <- lay_new(1, widths = 2, heights = 2)
+layout1 <- lay_bind_row(title1, lay1, heights = c(1,6))
+lay_show(layout1)
+
+offlayout01 <- phl_layout(layout1,
     margins = c(0.25, 0.25, 0.25, 0.25),
     innerMargins = rep(0.15,4))
 ```
@@ -85,15 +95,14 @@ sprint_1 <- sprintf("%s total crimes in %s %s",
 # create summary notes
 summary <- block_list(
   fpar(ftext(sprint_1, boldline)),
-  #fpar(ftext(paste(" ", sep = ""), reg24),
-  fpar(ftext(paste(persons, "crime(s) against persons", sep = " "), bold),
-       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
-  fpar(ftext(paste(property, "crime(s) against property", sep = " "), bold),
-       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
-  fpar(ftext(paste(society, "crime(s) against society", sep = " "), bold),
-       ftext(paste(" in", params$month, params$year, sep = " "), reg24)),
-  fpar(ftext(paste(unspec, "unspecified crimes", sep = " "), bold),
-       ftext(paste(" in", params$month, params$year, sep = " "), reg24))
+  fpar(ftext(persons, bold),
+       (ftext(" crime(s) against persons", reg24))),
+  fpar(ftext(property, bold),
+       ftext(" crime(s) against property", reg24)),
+  fpar(ftext(society, bold),
+       ftext(" crime(s) against society", reg24)),
+  fpar(ftext(unspec, bold),
+       ftext(" unspecified crimes", reg24))
   )
 
 # write summary notes to powerpoint slide
@@ -114,12 +123,13 @@ overview <- i%>%
 ###
 #Make flextables from summary data
 flextable(overview) %>%
-  autofit()-> flex
+  height_all(.25, part = "all")%>%
+  width(j = "Type of Crime", width = 1)-> flex
 
 #create powerpoint slide
 report%>%
 add_slide()%>%
-  ph_with(external_img(here::here("NIBRS", "data", "neighborhoods", paste(nbhd, "_basemap.jpeg", sep = "")), height = 5, width = 9), location = ph_location_left(), use_loc_size = FALSE)%>%
+  ph_with(external_img(here::here("NIBRS", "data", "neighborhoods", paste(nbhd, ".jpeg", sep = "")), height = 5, width = 9), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   phl_with_flextable(olay = offlayout, 4, flex)%>%
   ph_with(nbhd, 
                location = ph_location_type(
@@ -129,40 +139,37 @@ for (x in type) {
   sub <- i%>%
     filter(type == x)%>%
     select(1:2)
+  
+  head <- head(sub, 13)
+  
+if(x != "Unspecified"){
 
-sub_transpose <- transpose(sub)
-rownames(sub_transpose) <- colnames(sub)
-colnames(sub_transpose) <- sub$Crime
-sub_transpose <- slice(sub_transpose, -c(1))
-
-if(x == "Person" | x == "Soeciety"){
-}
-
-ft <- flextable(sub_transpose)
-
-# measure column widths but only for the body part
-w_body <- dim_pretty(ft, part = "body")$widths
-# measure column widths only for the header part and get the max
-# as height value for rotated text
-h_header <- max( dim_pretty(ft, part = "header")$widths )
-
-ft <- rotate(ft, j = 1:2, rotation="tbrl",part="header")
-
-ft <- valign(ft, valign = "center", part = "header")
-ft <- flextable::align(ft, align = "center", part = "all")
-
-# Manage header height
-ft <- height(ft, height = h_header * 1.1, part = "header")
-ft <- hrule(ft, i = 1, rule = "exact", part = "header")
-
+  flextable(head)%>%
+  autofit() ->ft
+  
+  tail <- tail(sub, -13)
+  flextable(tail)%>%
+    autofit() -> ft2
+  
 #add to powerpoint report
 report%>%
   add_slide()%>%
+  phl_with_flextable(olay = offlayout01, 2, ft)%>%
+  phl_with_flextable(olay = offlayout01, 4, ft2)%>%
+  phl_with_text(olay = offlayout01, 1, paste(nbhd, ":", x, "Crimes"), type = "title")-> report
+}else{
+ flextable(head)%>%
+  autofit() ->ft 
+  
+  report%>%
+  add_slide()%>%
+  #phl_with_flextable(olay = offlayout01, 2, ft)%>%
   ph_with(ft, location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with(paste(nbhd, ":", paste("January", x, "Crimes")), 
-               location = ph_location_type(
-                 type = "title") )-> report
-
+  phl_with_text(olay = offlayout01, 1, paste(nbhd, ":", x, "Crimes"), type = "title") ->report
+  # ph_with(paste(nbhd, ":", paste("January", x, "Crimes")), 
+  #              location = ph_location_type(
+  #                type = "title") )-> report
+}
 }
 }
 print(report, target = here::here("NIBRS", "results", "test.pptx"))
