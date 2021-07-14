@@ -2,14 +2,17 @@
 title: "PDF Data Extraction"
 output: html_document
 params:
-  month1: "Jan"
-  month2: "Feb"
+  month1: "Mar"
+  month2: "Apr"
   year: 2021
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+#IMPORTANT
+This notebook needs to be manually updated both in the paramaters and line 123. DO NOT run this code unless you have updated both of these things!
 
 #Load Dependencies
 ```{r}
@@ -22,7 +25,7 @@ library(gateway)      #load stl spatial data
 library(tmap)         #tools for mapping
 
 #Load Data
-df <- pdf_text(here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "jan-feb-crime.pdf"))
+df <- pdf_text(here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), paste(params$month1, "-", params$month2, "-crime.pdf", sep = "")))
 ```
 
 # Neighborhood Index
@@ -79,8 +82,9 @@ scrape_pdf <- function(table, neighborhood, month1, month2) {
                            "Change",
                            "YTD")
   data <- bind_rows(data, data2)
-  data <- mutate(data, nbhd_num = neighborhood[3])
-  data <- mutate(data, type = ifelse(row_number() %in% 1:16, "Person",
+  data <- data%>%
+    mutate(nbhd_num = neighborhood[3])%>%
+    mutate(type = ifelse(row_number() %in% 1:16, "Person",
                                      ifelse(row_number() %in% 17:42, "Property",
                                      ifelse(row_number() %in% 43:62, "Society",
                                      ifelse(row_number() %in% 63:64, "Unspecified", NA)))))
@@ -107,13 +111,34 @@ fp_df <- scrape_pdf(df, fp, params$month1, params$month2)
 lp_df <- scrape_pdf(df, lp, params$month1, params$month2)
 vd_df <- scrape_pdf(df, vd, params$month1, params$month2)
 #get totals for all neighborhoods
-tot <- bind_rows(bot_df, cwe_df, fpse_df, sdbp_df, dbp_df, we_df, vp_df, ac_df, fp_df, lp_df, vd_df)
+nbhd_bind <- bind_rows(bot_df, cwe_df, fpse_df, sdbp_df, dbp_df, we_df, vp_df, ac_df, fp_df, lp_df, vd_df)
+#Add neighborhood names column
+nbhd_bind <- mutate(nbhd_bind, nbhd_name = ifelse(grepl("28", nbhd_num), "Botanical Heights",
+                            ifelse(grepl("38", nbhd_num), "Central West End",
+                                             ifelse(grepl("39", nbhd_num), "Forest Park Southeast",
+                                             ifelse(grepl("46", nbhd_num), "Skinker DeBaliviere",  
+                                             ifelse(grepl("47", nbhd_num), "DeBaliviere Place",
+                                             ifelse(grepl("48", nbhd_num), "West End",
+                                             ifelse(grepl("49", nbhd_num), "Visitation Park",       
+                                             ifelse(grepl("51", nbhd_num), "Academy",       
+                                             ifelse(grepl("53", nbhd_num), "Fountain Park",       
+                                             ifelse(grepl("54", nbhd_num), "Lewis Place",       
+                                             ifelse(grepl("58", nbhd_num), "Vandeventer", NA))))))))))))
+
+if(params$month1 == "Jan"){
+  base <- nbhd_bind
+  save(base, file = here::here("NIBRS", "data", params$year, "base_data", "base_data.rda"))
+}else{
+  load(file = here::here("NIBRS", "data", params$year, "base_data", "base_data.rda"))
+  base <- inner_join(base, nbhd_bind)
+  save(base, file = here::here("NIBRS", "data", params$year, "base_data", "base_data.rda"))
+}
 #group totals
-tot <- tot%>%
+tot <- base%>%
   group_by(Crime, type)%>%
-  summarise(Jan = sum(Jan), Feb = sum(Feb))
+  summarise(Jan = sum(Jan), Feb = sum(Jan), Mar = sum(Mar), Apr = sum(Apr))
 #save output
-save(bot_df, cwe_df, fpse_df, sdbp_df, dbp_df, we_df, vp_df, ac_df, fp_df, lp_df, vd_df, tot, file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "clean-crime-data.rda"))
+save(base, tot, file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "clean-crime-data.rda"))
 ```
 
 #Create Neighborhood Maps
@@ -136,6 +161,5 @@ tm_shape()+
   
   tmap_save(map, file = here("NIBRS", "data", "neighborhoods", paste(i, "_basemap.jpeg", sep = "")), width = 9, height = 5, units = "in")
 }
-
 ```
 

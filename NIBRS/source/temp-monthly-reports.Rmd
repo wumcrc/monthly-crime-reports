@@ -3,9 +3,9 @@ title: "NIBRS-crime-report"
 output: html_document
 params:
   year: 2021
-  month: January
-  month1: Jan
-  month2: Feb
+  month: March
+  month1: Mar
+  month2: Apr
   #Num referes to the column of the current month. Because months come in pairs in this dataset, if the month is first (i.e. January in Jan-Feb, or March in Mar-Apr) then the num should be set to 2. If it comes second (i.e. Feb in Jan-Feb, or Apr in Mar-Apr) then num should be set to 3.
   num: 2
 ---
@@ -25,6 +25,11 @@ library(janitor)      #adorn totals
 library(customLayout) #powerpoint formatting
 #load crime data
 load(file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "clean-crime-data.rda"))
+#Check to only have current and previous months shown
+if(grepl(params$month1, params$month)){
+base <- select(base, -grep(params$month2, colnames(base)))
+tot <- select(tot, -grep(params$month2, colnames(tot)))
+}
 # create powerpoint
 report <- read_pptx()
 ```
@@ -37,11 +42,8 @@ bold <- fp_text(color = "black", font.size = 24, bold = TRUE)
 boldline <- fp_text(color = "black", font.size = 28, bold = TRUE, underlined = TRUE)
 # for loop objects
 type <- c("Property", "Society", "Person", "Unspecified")
-#create comments to use to filter and name outputs
-comment(fpse_df) <- "Forest Park Southeast"
-comment(bot_df) <- "Botanical Heights"
-comment(cwe_df) <- "Central West End"
-neighborhood <- list(fpse_df, bot_df, cwe_df)
+#create neighborhood object
+neighborhood <- c(28,38,39)
 ```
 
 ```{r officer layout}
@@ -77,16 +79,19 @@ report%>%
 
 ```{r}
 for (i in neighborhood) {
-nbhd <- comment(i)
-tc <- sum(i[params$num])
-persons <- filter(i, type == "Person")
-persons <- sum(persons[params$num])
-society <- filter(i, type == "Society")
-society <- sum(society[params$num])
-property <- filter(i, type == "Property")
-property <- sum(property[params$num])
-unspec <- filter(i, type == "Unspecified")
-unspec <- sum(unspec[params$num])
+  #create neighborhood data
+  temp_df <- filter(base, nbhd_num == i)
+  nbhd <- unique(temp_df$nbhd_name)
+  #reference column name using params$month1
+tc <- sum(temp_df[grep(params$month1, colnames(temp_df))])
+persons <- filter(temp_df, type == "Person")
+persons <- sum(persons[grep(params$month1, colnames(temp_df))])
+society <- filter(temp_df, type == "Society")
+society <- sum(society[grep(params$month1, colnames(temp_df))])
+property <- filter(temp_df, type == "Property")
+property <- sum(property[grep(params$month1, colnames(temp_df))])
+unspec <- filter(temp_df, type == "Unspecified")
+unspec <- sum(unspec[grep(params$month1, colnames(temp_df))])
 
 
 sprint_1 <- sprintf("%s total crimes in %s %s", 
@@ -113,9 +118,9 @@ report%>%
 ###
 ###Must Change summarise every time you run code!
 ###
-overview <- i%>%
+overview <- temp_df%>%
   dplyr::group_by(type)%>%
-  dplyr::summarise(Jan = sum(Jan))%>%
+  dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar))%>%
   adorn_totals("row", name = "Total")%>%
   dplyr::rename("Type of Crime" = type)
 ###  
@@ -130,34 +135,41 @@ flextable(overview) %>%
 report%>%
 add_slide()%>%
   ph_with(external_img(here::here("NIBRS", "data", "neighborhoods", paste(nbhd, ".jpeg", sep = "")), height = 5, width = 9), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  phl_with_flextable(olay = offlayout, 4, flex)%>%
+  phl_with_flextable(olay = offlayout, 2, flex)%>%
   ph_with(nbhd, 
                location = ph_location_type(
                  type = "title") )-> report 
 
 for (x in type) {
-  sub <- i%>%
+  sub <- temp_df%>%
     filter(type == x)%>%
-    select(1:2)
+    subset(select=-c(nbhd_num,nbhd_name,type))%>%
+    adorn_totals(., "col", name = "Total")
   
-  head <- head(sub, 20)
+  if(x != "Property"){
+    sub <- adorn_totals(sub, "row", name = "Total")
+    head <- head(sub, 21)
+  }else{
+    head <- head(sub, 20)
+  }
   
  flextable(head)%>%
   height_all(.25, part = "all")%>%
-  width(width = 3)->ft 
+  width(width = 3, j = "Crime")->ft 
   
   report%>%
   add_slide()%>%
-  #phl_with_flextable(olay = offlayout01, 2, ft)%>%
   ph_with(ft, location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   phl_with_text(olay = offlayout01, 1, paste(nbhd, ":", x, "Crimes"), type = "title") ->report
   
 if(x == "Property"){
-  
-  tail <- tail(sub, -20)
+  #add row totals from ft & ft2
+  tail <- adorn_totals(sub, "row", name = "Total")
+  #select observations after first 20
+  tail <- tail(tail, -20)
   flextable(tail)%>%
     height_all(.25, part = "all")%>%
-    width(width = 3) -> ft2
+    width(width = 3, j = "Crime") -> ft2
 
 #add to powerpoint report
 report%>%
@@ -168,5 +180,19 @@ report%>%
 }
 }
 print(report, target = here::here("NIBRS", "results", "test.pptx"))
+```
+
+###Inset Map
+```{r, eval = FALSE}
+library(sf)
+bhu_bb <- st_bbox(World %>% filter(name %in% c("Bhutan", "India", "China", "Nepal")))
+
+#new tmap with bbox
+tm_shape(Asia, bbox = bhu_bb) + 
+  tm_fill("isBhutan") + 
+  tm_polygons()
+
+adorn_totals(., "col", name = "Total") %>%
+  adorn_totals(., "row", name = "Total") %>%
 ```
 
