@@ -23,6 +23,8 @@ library(data.table)   #transposing data
 library(here)         #file path management
 library(janitor)      #adorn totals
 library(customLayout) #powerpoint formatting
+library(grid)       #inset map
+library(sf)
 #load crime data
 load(file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "clean-crime-data.rda"))
 #Check to only have current and previous months shown
@@ -30,6 +32,8 @@ if(grepl(params$month1, params$month)){
 base <- select(base, -grep(params$month2, colnames(base)))
 tot <- select(tot, -grep(params$month2, colnames(tot)))
 }
+#load spatial data
+bound <- gw_get_data("Neighborhoods", "sf")
 # create powerpoint
 report <- read_pptx()
 ```
@@ -50,7 +54,7 @@ neighborhood <- c(28,38,39)
 #create custom powerpoint layout
  lay  <- lay_new(
   matrix(1:4, nc = 2),
-  widths = c(1, 4),
+  widths = c(3, 2),
   heights = c(1, 2))
 title <- lay_new(1, widths = 2, heights = 3)
 layout <- lay_bind_row(title, lay, heights = c(1,6))
@@ -78,10 +82,45 @@ report%>%
 ```
 
 ```{r}
+bb <- st_bbox(bound %>% filter(NHD_NUM %in% neighborhood))
+
 for (i in neighborhood) {
   #create neighborhood data
   temp_df <- filter(base, nbhd_num == i)
   nbhd <- unique(temp_df$nbhd_name)
+  
+bound%>%
+tm_shape(bbox = bb) + 
+  tm_fill(col = "grey") + 
+  tm_polygons()+
+  bound%>%
+  filter(., NHD_NUM == i)%>%
+  tm_shape()+
+  tm_fill(col = "forestgreen")+
+  tm_credits("Source: City of St. Louis", position = c("left", "BOTTOM"), size = .5)+
+  tm_layout(frame = FALSE) -> map
+
+bound%>%
+tm_shape()+
+  tm_fill(col = "grey")+
+  tm_borders(col = "white")+
+  bound%>%
+  filter(., NHD_NUM == i)%>%
+  tm_shape()+
+  tm_fill(col = "forestgreen")+
+  tm_borders(col = "white")-> inset
+  
+tmap_save(map, insets_tm = inset, insets_vp = viewport(0.8, 0.75, width = 0.4, height = 0.4), file = here::here("NIBRS", "data", "neighborhoods", paste(nbhd, ".jpeg", sep = "")), width = 9, height = 5, units = "in")  
+
+#create powerpoint slide
+report%>%
+add_slide()%>%
+  ph_with(external_img(here::here("NIBRS", "data", "neighborhoods", paste(nbhd, ".jpeg", sep = "")), height = 5, width = 9), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with(nbhd, 
+               location = ph_location_type(
+                 type = "title") )-> report
+
+  
   #reference column name using params$month1
 tc <- sum(temp_df[grep(params$month1, colnames(temp_df))])
 persons <- filter(temp_df, type == "Person")
@@ -131,11 +170,23 @@ flextable(overview) %>%
   height_all(.25, part = "all")%>%
   width(j = "Type of Crime", width = 1)-> flex
 
-#create powerpoint slide
+#Month by Month total crime plot
+plot_df <- temp_df%>%
+  summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar))
+#reshape data
+plot_df <- melt(plot_df)
+
+ggplot(plot_df, aes(x=variable, y=value, group = 1)) +
+    geom_line(color="blue") +
+    geom_point() +
+    xlab("Month") + ylab("Total Crimes")
+
+ggsave(here::here("NIBRS", "results",  params$year, params$month, paste(nbhd, "_graph.jpeg", sep = "")), width = 5, height = 5.45, units = "in")
+
 report%>%
 add_slide()%>%
-  ph_with(external_img(here::here("NIBRS", "data", "neighborhoods", paste(nbhd, ".jpeg", sep = "")), height = 5, width = 9), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  phl_with_flextable(olay = offlayout, 2, flex)%>%
+  ph_with(external_img(here::here("NIBRS", "results", params$year, params$month, paste(nbhd, "_graph.jpeg", sep = "")), height = 5.45, width = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  phl_with_flextable(olay = offlayout, 4, flex)%>%
   ph_with(nbhd, 
                location = ph_location_type(
                  type = "title") )-> report 
@@ -185,14 +236,38 @@ print(report, target = here::here("NIBRS", "results", "test.pptx"))
 ###Inset Map
 ```{r, eval = FALSE}
 library(sf)
-bhu_bb <- st_bbox(World %>% filter(name %in% c("Bhutan", "India", "China", "Nepal")))
+library(gateway)
 
-#new tmap with bbox
-tm_shape(Asia, bbox = bhu_bb) + 
-  tm_fill("isBhutan") + 
-  tm_polygons()
 
-adorn_totals(., "col", name = "Total") %>%
-  adorn_totals(., "row", name = "Total") %>%
+nbhds <- sort(unique(data_sf$nbhd_name))
+for (i in neighborhood) {
+
+  #new tmap with bbox
+bound%>%
+tm_shape(bbox = bb) + 
+  tm_fill(col = "grey") + 
+  tm_polygons()+
+  bound%>%
+  filter(., NHD_NUM == i)%>%
+  tm_shape()+
+  tm_fill(col = "forestgreen")+
+  tm_credits("Source: City of St. Louis", position = c("left", "BOTTOM"), size = .5)+
+  tm_layout(frame = FALSE)-> map
+  
+
+
+bound%>%
+tm_shape()+
+  tm_fill(col = "grey")+
+  tm_borders(col = "white")+
+  bound%>%
+  filter(., NHD_NUM == i)%>%
+  tm_shape()+
+  tm_fill(col = "forestgreen")+
+  tm_borders(col = "white")-> inset
+  
+tmap_save(map, insets_tm = inset, insets_vp = viewport(0.8, 0.75, width = 0.4, height = 0.4), file = here::here("NIBRS", "data", params$year, "test.jpeg"), width = 9, height = 5, units = "in")
+  
+}
 ```
 
