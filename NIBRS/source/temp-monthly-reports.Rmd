@@ -23,17 +23,26 @@ library(data.table)   #transposing data
 library(here)         #file path management
 library(janitor)      #adorn totals
 library(customLayout) #powerpoint formatting
-library(grid)       #inset map
-library(sf)
+library(grid)         #inset map
+library(ggplot2)      #data visualization
+
+#spatial packages
+library(sf)           
+library(gateway)
+library(tmap)
+
 #load crime data
 load(file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "clean-crime-data.rda"))
 #Check to only have current and previous months shown
 if(grepl(params$month1, params$month)){
-base <- select(base, -grep(params$month2, colnames(base)))
-tot <- select(tot, -grep(params$month2, colnames(tot)))
+base <- dplyr::select(base, -grep(params$month2, colnames(base)))
+tot <- dplyr::select(tot, -grep(params$month2, colnames(tot)))
 }
 #load spatial data
 bound <- gw_get_data("Neighborhoods", "sf")
+st_read(here::here("NIBRS", "data", "stlstreets", "tgr_str_cl.shp"),
+        stringsAsFactors = FALSE) %>%
+  st_transform(crs = st_crs(bound)) -> streets
 # create powerpoint
 report <- read_pptx()
 ```
@@ -63,14 +72,15 @@ offlayout <- phl_layout(layout,
     margins = c(0.25, 0.25, 0.25, 0.25),
     innerMargins = rep(0.15,4))
 
-lay1 <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(2,1)) 
+lay1 <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(1,2)) 
 title1 <- lay_new(1, widths = 2, heights = 2)
 layout1 <- lay_bind_row(title1, lay1, heights = c(1,6))
 lay_show(layout1)
 
 offlayout01 <- phl_layout(layout1,
     margins = c(0.25, 0.25, 0.25, 0.25),
-    innerMargins = rep(0.15,4))
+    innerMargins = rep(0.15,4),
+    slideWidth = 16)
 ```
 
 ```{r powerpoint title}
@@ -83,7 +93,7 @@ report%>%
 
 ```{r}
 bb <- st_bbox(bound %>% filter(NHD_NUM %in% neighborhood))
-
+str_crop <- st_crop(streets, bb)
 for (i in neighborhood) {
   #create neighborhood data
   temp_df <- filter(base, nbhd_num == i)
@@ -97,6 +107,17 @@ tm_shape(bbox = bb) +
   filter(., NHD_NUM == i)%>%
   tm_shape()+
   tm_fill(col = "forestgreen")+
+  str_crop%>%
+  tm_shape()+
+  tm_lines(col = "white",
+           lwd = .5,
+           alpha = .5)+
+  bound%>%
+  tm_shape(bbox = bb) + 
+  tm_fill(col = "grey",
+          alpha = 0,
+          lwd = 1) + 
+  tm_polygons()+
   tm_credits("Source: City of St. Louis", position = c("left", "BOTTOM"), size = .5)+
   tm_layout(frame = FALSE) -> map
 
@@ -170,23 +191,29 @@ flextable(overview) %>%
   height_all(.25, part = "all")%>%
   width(j = "Type of Crime", width = 1)-> flex
 
+report%>%
+add_slide()%>%
+  ph_with(flex, location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  ph_with(nbhd, 
+               location = ph_location_type(
+                 type = "title") )-> report 
+
 #Month by Month total crime plot
 plot_df <- temp_df%>%
   summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar))
 #reshape data
-plot_df <- melt(plot_df)
+plot_df <- reshape2::melt(plot_df)
 
 ggplot(plot_df, aes(x=variable, y=value, group = 1)) +
     geom_line(color="blue") +
     geom_point() +
     xlab("Month") + ylab("Total Crimes")
 
-ggsave(here::here("NIBRS", "results",  params$year, params$month, paste(nbhd, "_graph.jpeg", sep = "")), width = 5, height = 5.45, units = "in")
+ggsave(here::here("NIBRS", "results",  params$year, params$month, paste(nbhd, "_graph.jpeg", sep = "")), width = 9, height = 5, units = "in")
 
 report%>%
 add_slide()%>%
-  ph_with(external_img(here::here("NIBRS", "results", params$year, params$month, paste(nbhd, "_graph.jpeg", sep = "")), height = 5.45, width = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  phl_with_flextable(olay = offlayout, 4, flex)%>%
+  ph_with(external_img(here::here("NIBRS", "results", params$year, params$month, paste(nbhd, "_graph.jpeg", sep = "")), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with(nbhd, 
                location = ph_location_type(
                  type = "title") )-> report 
@@ -211,7 +238,8 @@ for (x in type) {
   report%>%
   add_slide()%>%
   ph_with(ft, location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  phl_with_text(olay = offlayout01, 1, paste(nbhd, ":", x, "Crimes"), type = "title") ->report
+  phl_with_text(paste(nbhd, ": ", x, " Crimes", sep = ""), olay = offlayout01, type = "title") -> report
+  #ph_with(paste(nbhd, ": ", x, " Crimes", sep = ""), location = ph_location_type(type = "title")) -> report
   
 if(x == "Property"){
   #add row totals from ft & ft2
@@ -226,7 +254,7 @@ if(x == "Property"){
 report%>%
   add_slide()%>%
   ph_with(ft2, location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  phl_with_text(olay = offlayout01, 1, paste(nbhd, ":", x, "Crimes"), type = "title")-> report
+  phl_with_text(paste(nbhd, ": ", x, " Crimes", sep = ""), olay = offlayout01, type = "title") -> report
 }
 }
 }
