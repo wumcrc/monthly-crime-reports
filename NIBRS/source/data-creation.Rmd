@@ -141,25 +141,9 @@ tot <- base%>%
 save(base, tot, file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "clean-crime-data.rda"))
 ```
 
-#Create Neighborhood Maps
-```{r,eval=FALSE}
-#Temporary code to create neighborhood basemaps
-bound <- gw_get_data("Neighborhoods", "sf")
-nbhds <- list(bot, cwe, fpse, sdbp, dbp, we, vp, ac, fp, lp, vd)
+```{r, eval = FALSE}
+#Density Map Iteration Code
 
-for (i in nbhds) {
-  bound%>%
-tm_shape()+
-  tm_fill(col = "grey")+
-  tm_borders(col = "white")+
-  bound%>%
-  filter(., NHD_NUM == i[3])%>%
-  tm_shape()+
-  tm_fill(col = "forestgreen")+
-  tm_borders(col = "white")+
-  tm_layout(frame = FALSE)-> map
-  
-  tmap_save(map, file = here("NIBRS", "data", "neighborhoods", paste(i, "_basemap.jpeg", sep = "")), width = 9, height = 5, units = "in")
-}
 ```
+
 
