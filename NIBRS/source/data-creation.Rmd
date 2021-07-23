@@ -125,6 +125,12 @@ nbhd_bind <- mutate(nbhd_bind, nbhd_name = ifelse(grepl("28", nbhd_num), "Botani
                                              ifelse(grepl("54", nbhd_num), "Lewis Place",       
                                              ifelse(grepl("58", nbhd_num), "Vandeventer", NA))))))))))))
 
+nbhd_bind$Crime[nbhd_bind$Crime == "Credit Card/Automatic Teller Machine Fraud"] <- "Credit Card/ATM Fraud"
+nbhd_bind$Crime[nbhd_bind$Crime == "Theft From Motor Vehicle"] <- "Theft From MV"
+nbhd_bind$Crime[nbhd_bind$Crime == "Theft From Motor Vehicle Parts/Accessories"] <- "Theft From MV Parts/Accessories"
+nbhd_bind$Crime[nbhd_bind$Crime == "Motor Vehicle Theft"] <- "MV Theft"
+
+
 if(params$month1 == "Jan"){
   base <- nbhd_bind
   save(base, file = here::here("NIBRS", "data", params$year, "base_data", "base_data.rda"))
@@ -136,14 +142,8 @@ if(params$month1 == "Jan"){
 #group totals
 tot <- base%>%
   group_by(Crime, type)%>%
-  summarise(Jan = sum(Jan), Feb = sum(Jan), Mar = sum(Mar), Apr = sum(Apr))
+  summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr))
 #save output
 save(base, tot, file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "clean-crime-data.rda"))
 ```
-
-```{r, eval = FALSE}
-#Density Map Iteration Code
-
-```
-
 
