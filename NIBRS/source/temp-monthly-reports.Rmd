@@ -43,8 +43,8 @@ bound <- gw_get_data("Neighborhoods", "sf")
 st_read(here::here("NIBRS", "data", "stlstreets", "tgr_str_cl.shp"),
         stringsAsFactors = FALSE) %>%
   st_transform(crs = st_crs(bound)) -> streets
-# create powerpoint
-report <- read_pptx()
+#load pptx template
+report <- read_pptx(here::here("NIBRS", "data", "template.pptx"))
 ```
 
 
@@ -61,32 +61,26 @@ neighborhood <- c(28,38,39)
 
 ```{r officer layout}
 #create custom powerpoint layout
- lay  <- lay_new(
-  matrix(1:4, nc = 2),
-  widths = c(3, 2),
-  heights = c(1, 2))
-title <- lay_new(1, widths = 2, heights = 3)
+lay <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(.75,2.25)) 
+title <- lay_new(1, widths = 2, heights = 2)
 layout <- lay_bind_row(title, lay, heights = c(1,6))
 lay_show(layout)
 offlayout <- phl_layout(layout,
     margins = c(0.25, 0.25, 0.25, 0.25),
     innerMargins = rep(0.15,4))
 
-lay1 <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(1,2)) 
-title1 <- lay_new(1, widths = 2, heights = 2)
-layout1 <- lay_bind_row(title1, lay1, heights = c(1,6))
+lay1 <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(.5,2.5)) 
+layout1 <- lay_bind_row(title, lay1, heights = c(1,6))
 lay_show(layout1)
 
 offlayout01 <- phl_layout(layout1,
     margins = c(0.25, 0.25, 0.25, 0.25),
-    innerMargins = rep(0.15,4),
-    slideWidth = 16)
+    innerMargins = rep(0.15,4))
 ```
 
 ```{r powerpoint title}
 #title slide
-report%>%
-  add_slide(layout = "Title Slide", master = "Office Theme")%>%
+  add_slide(report, layout = "Title Slide", master = "Office Theme")%>%
   ph_with(value = "Forest Park Southeast, Botanical Heights, Central West End", location = ph_location_type(type = "ctrTitle"))%>%
   ph_with(c(paste("Monthly Crime Report:", params$month, params$year, sep = " "), "Washington University Medical Center"), location = ph_location_type(type = "subTitle")) -> report
 ```
@@ -106,7 +100,8 @@ tm_shape(bbox = bb) +
   bound%>%
   filter(., NHD_NUM == i)%>%
   tm_shape()+
-  tm_fill(col = "forestgreen")+
+  tm_fill(col = "mistyrose",
+          alpha = .5)+
   str_crop%>%
   tm_shape()+
   tm_lines(col = "white",
@@ -128,18 +123,17 @@ tm_shape()+
   bound%>%
   filter(., NHD_NUM == i)%>%
   tm_shape()+
-  tm_fill(col = "forestgreen")+
+  tm_fill(col = "mistyrose")+
   tm_borders(col = "white")-> inset
   
 tmap_save(map, insets_tm = inset, insets_vp = viewport(0.8, 0.75, width = 0.4, height = 0.4), file = here::here("NIBRS", "data", "neighborhoods", paste(nbhd, ".jpeg", sep = "")), width = 9, height = 5, units = "in")  
 
+#create formatted title
+nbhd_title <- block_list(fpar(ftext(nbhd), fp_p = fp_par(text.align = "center")))
 #create powerpoint slide
-report%>%
-add_slide()%>%
+add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
   ph_with(external_img(here::here("NIBRS", "data", "neighborhoods", paste(nbhd, ".jpeg", sep = "")), height = 5, width = 9), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with(nbhd, 
-               location = ph_location_type(
-                 type = "title") )-> report
+  ph_with(nbhd_title, location = ph_location_type(type = "title")) -> report
 
   
   #reference column name using params$month1
@@ -171,9 +165,11 @@ summary <- block_list(
   )
 
 # write summary notes to powerpoint slide
-report%>%
-  add_slide(layout = 'Title and Content', master = 'Office Theme')%>%
-  ph_with(value = paste(nbhd, ": Summary Notes"), location = ph_location_type(type = "title"))%>%
+#create formatted title
+title <- block_list(fpar(ftext(paste(nbhd, ": Summary Notes", sep = "")), fp_p = fp_par(text.align = "center")))
+
+  add_slide(report, layout = 'Title and Content', master = 'Office Theme')%>%
+  ph_with(title, location = ph_location_type(type = "title"))%>%
   ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 2, 2)) -> report
 ###
 ###Must Change summarise every time you run code!
@@ -191,10 +187,9 @@ flextable(overview) %>%
   height_all(.25, part = "all")%>%
   width(j = "Type of Crime", width = 1)-> flex
 
-report%>%
-add_slide()%>%
-  ph_with(flex, location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with(nbhd, 
+add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
+  phl_with_flextable(olay = offlayout, id = 3, flex)%>%
+  ph_with(nbhd_title, 
                location = ph_location_type(
                  type = "title") )-> report 
 
@@ -211,14 +206,16 @@ ggplot(plot_df, aes(x=variable, y=value, group = 1)) +
 
 ggsave(here::here("NIBRS", "results",  params$year, params$month, paste(nbhd, "_graph.jpeg", sep = "")), width = 9, height = 5, units = "in")
 
-report%>%
-add_slide()%>%
+add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
   ph_with(external_img(here::here("NIBRS", "results", params$year, params$month, paste(nbhd, "_graph.jpeg", sep = "")), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with(nbhd, 
+  ph_with(nbhd_title, 
                location = ph_location_type(
                  type = "title") )-> report 
 
 for (x in type) {
+  #create formatted title
+title <- block_list(fpar(ftext(paste(nbhd, ": ", x, " Crimes", sep = "")), fp_p = fp_par(text.align = "center")))
+
   sub <- temp_df%>%
     filter(type == x)%>%
     subset(select=-c(nbhd_num,nbhd_name,type))%>%
@@ -228,36 +225,49 @@ for (x in type) {
     sub <- adorn_totals(sub, "row", name = "Total")
     head <- head(sub, 21)
   }else{
-    head <- head(sub, 20)
+    head <- head(sub, 19)
   }
   
  flextable(head)%>%
   height_all(.25, part = "all")%>%
   width(width = 3, j = "Crime")->ft 
-  
-  report%>%
-  add_slide()%>%
+ 
+if(x == "Unspecified"){
+  #use offlayout for all unspecified flextables
+  add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
+  phl_with_flextable(olay = offlayout, id = 3, ft)%>%
+  ph_with(title, 
+               location = ph_location_type(
+                 type = "title") ) -> report
+}else{  
+  add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
   ph_with(ft, location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  phl_with_text(paste(nbhd, ": ", x, " Crimes", sep = ""), olay = offlayout01, type = "title") -> report
-  #ph_with(paste(nbhd, ": ", x, " Crimes", sep = ""), location = ph_location_type(type = "title")) -> report
+  ph_with(title, 
+               location = ph_location_type(
+                 type = "title") ) -> report
+}
   
 if(x == "Property"){
   #add row totals from ft & ft2
   tail <- adorn_totals(sub, "row", name = "Total")
   #select observations after first 20
-  tail <- tail(tail, -20)
+  tail <- tail(tail, -19)
   flextable(tail)%>%
     height_all(.25, part = "all")%>%
     width(width = 3, j = "Crime") -> ft2
 
 #add to powerpoint report
-report%>%
-  add_slide()%>%
-  ph_with(ft2, location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  phl_with_text(paste(nbhd, ": ", x, " Crimes", sep = ""), olay = offlayout01, type = "title") -> report
+  add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
+  phl_with_flextable(olay = offlayout01, 3, ft2)%>%
+  ph_with(title, 
+               location = ph_location_type(
+                 type = "title") ) -> report
 }
 }
 }
+#Remove blank template slide
+remove_slide(report, index = 1)
+#save output
 print(report, target = here::here("NIBRS", "results", "test.pptx"))
 ```
 
@@ -298,4 +308,3 @@ tmap_save(map, insets_tm = inset, insets_vp = viewport(0.8, 0.75, width = 0.4, h
   
 }
 ```
-
