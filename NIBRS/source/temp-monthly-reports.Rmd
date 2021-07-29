@@ -102,6 +102,8 @@ tm_shape(bbox = bb) +
   tm_shape()+
   tm_fill(col = "mistyrose",
           alpha = .5)+
+  tm_borders(col = "black",
+             lwd = 2)+
   str_crop%>%
   tm_shape()+
   tm_lines(col = "white",
@@ -124,7 +126,7 @@ tm_shape()+
   filter(., NHD_NUM == i)%>%
   tm_shape()+
   tm_fill(col = "mistyrose")+
-  tm_borders(col = "white")-> inset
+  tm_borders(col = "black")-> inset
   
 tmap_save(map, insets_tm = inset, insets_vp = viewport(0.8, 0.75, width = 0.4, height = 0.4), file = here::here("NIBRS", "data", "neighborhoods", paste(nbhd, ".jpeg", sep = "")), width = 9, height = 5, units = "in")  
 
