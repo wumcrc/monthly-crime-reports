@@ -83,6 +83,21 @@ offlayout01 <- phl_layout(layout1,
   add_slide(report, layout = "Title Slide", master = "Office Theme")%>%
   ph_with(value = "Forest Park Southeast, Botanical Heights, Central West End", location = ph_location_type(type = "ctrTitle"))%>%
   ph_with(c(paste("Monthly Crime Report:", params$month, params$year, sep = " "), "Washington University Medical Center"), location = ph_location_type(type = "subTitle")) -> report
+
+#history of crime reporting slide
+  add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
+  ph_with(value = c("Since the 1929 the Uniform Crime Report (UCR) has used a Summary Reporting System (SRS) to collect monthly counts of the number of crimes", "In 1982 the Bureau of Justice Statistics and the FBI sponsored a study with the objective of revising the existing form of reporting crime. Through this, the National Incident Based Reporting System (NIBRS) was created", "The FBI UCR Program transitioned to a NIBRS only data collection by January 1, 2021. Other states have followed suit and SLMPD has been working to make this same transition"), location = ph_location_type(type = "body"))%>%
+    ph_with("History of Crime Reporting", location = ph_location_type(type="title"))-> report
+  
+#NIBRS vs SRS
+  add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
+  ph_with(value = c("NIBRS captures details on each single crime incident—as well as on separate offenses within the same incident—including information on victims, known offenders, relationships between victims and offenders, arrestees, and property involved in crimes", "Standardizes crime reporting across all local, state, and tribal law enforcement agencies", "SRS only counted the most serious offense (i.e. if a murder and robbery occurred, only the murder is counted) while NIBRS counts up to 10 crimes per incident"), location = ph_location_type(type = "body"))%>%
+    ph_with("NIBRS vs SRS", location = ph_location_type(type="title"))-> report
+  
+#NIBRS and SLMPD
+  add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
+  ph_with(value = c("Unforeseen technology delays and the incompatibility in comparing crime (NIRBS V. UCR) has caused delays in making the crime information available", "The City of St Louis Information Technology Division (I.T.) has created a series of internal 2021 NIBRS reports", "Because of this transition information is limited to counts of each crime by neighborhood"), location = ph_location_type(type = "body"))%>%
+    ph_with("NIBRS and SLMPD", location = ph_location_type(type="title"))-> report
 ```
 
 ```{r}
