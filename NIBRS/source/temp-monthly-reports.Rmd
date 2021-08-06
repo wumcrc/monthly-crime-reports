@@ -76,26 +76,35 @@ lay_show(layout1)
 offlayout01 <- phl_layout(layout1,
     margins = c(0.25, 0.25, 0.25, 0.25),
     innerMargins = rep(0.15,4))
+
+#spatial reference layout
+lay2 <- lay_new(matrix(1:4, nc = 2), widths = c(1,3), heights = c(.5,2.5)) 
+layout2 <- lay_bind_row(title, lay2, heights = c(1,6))
+lay_show(layout2)
+
+offlayout02 <- phl_layout(layout2,
+    margins = c(0.25, 0.25, 0.25, 0.25),
+    innerMargins = rep(0.15,4))
 ```
 
 ```{r powerpoint title}
 #title slide
-  add_slide(report, layout = "Title Slide", master = "Office Theme")%>%
+  add_slide(report, layout = "Title Slide", master = "Facet")%>%
   ph_with(value = "Forest Park Southeast, Botanical Heights, Central West End", location = ph_location_type(type = "ctrTitle"))%>%
   ph_with(c(paste("Monthly Crime Report:", params$month, params$year, sep = " "), "Washington University Medical Center"), location = ph_location_type(type = "subTitle")) -> report
 
 #history of crime reporting slide
-  add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
+  add_slide(report, layout = "Title and Content", master = "Facet")%>%
   ph_with(value = c("Since the 1929 the Uniform Crime Report (UCR) has used a Summary Reporting System (SRS) to collect monthly counts of the number of crimes", "In 1982 the Bureau of Justice Statistics and the FBI sponsored a study with the objective of revising the existing form of reporting crime. Through this, the National Incident Based Reporting System (NIBRS) was created", "The FBI UCR Program transitioned to a NIBRS only data collection by January 1, 2021. Other states have followed suit and SLMPD has been working to make this same transition"), location = ph_location_type(type = "body"))%>%
     ph_with("History of Crime Reporting", location = ph_location_type(type="title"))-> report
   
 #NIBRS vs SRS
-  add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
-  ph_with(value = c("NIBRS captures details on each single crime incident—as well as on separate offenses within the same incident—including information on victims, known offenders, relationships between victims and offenders, arrestees, and property involved in crimes", "Standardizes crime reporting across all local, state, and tribal law enforcement agencies", "SRS only counted the most serious offense (i.e. if a murder and robbery occurred, only the murder is counted) while NIBRS counts up to 10 crimes per incident"), location = ph_location_type(type = "body"))%>%
+  add_slide(report, layout = "Title and Content", master = "Facet")%>%
+  ph_with(value = c("NIBRS captures details on each single crime incident—as well as on separate offenses within the same incident—including information on victims, known offenders, relationships between victims and offenders, arrestees, and property involved in crimes", "Standardizes crime reporting across all local, state, and tribal law enforcement agencies", "SRS only counted the most serious offense (i.e. if a murder and robbery occurred, only the murder is counted) while NIBRS counts up to 10 crimes per incident", "Current NIBRS reporting are not directly comparable to the previous UCR “hierarchy” numbers. With this change, you will likely see increases in crime statistics. This increase does not mean that crime is necessarily increasing, but rather that crime is being reported in a non-hierarchical format, with more detail and counting each individual crime"), location = ph_location_type(type = "body"))%>%
     ph_with("NIBRS vs SRS", location = ph_location_type(type="title"))-> report
   
 #NIBRS and SLMPD
-  add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
+  add_slide(report, layout = "Title and Content", master = "Facet")%>%
   ph_with(value = c("Unforeseen technology delays and the incompatibility in comparing crime (NIRBS V. UCR) has caused delays in making the crime information available", "The City of St Louis Information Technology Division (I.T.) has created a series of internal 2021 NIBRS reports", "Because of this transition information is limited to counts of each crime by neighborhood"), location = ph_location_type(type = "body"))%>%
     ph_with("NIBRS and SLMPD", location = ph_location_type(type="title"))-> report
 ```
@@ -148,7 +157,7 @@ tmap_save(map, insets_tm = inset, insets_vp = viewport(0.8, 0.75, width = 0.4, h
 #create formatted title
 nbhd_title <- block_list(fpar(ftext(nbhd), fp_p = fp_par(text.align = "center")))
 #create powerpoint slide
-add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
+add_slide(report, layout = "Title and Content", master = "Facet")%>%
   ph_with(external_img(here::here("NIBRS", "data", "neighborhoods", paste(nbhd, ".jpeg", sep = "")), height = 5, width = 9), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with(nbhd_title, location = ph_location_type(type = "title")) -> report
 
@@ -185,7 +194,7 @@ summary <- block_list(
 #create formatted title
 title <- block_list(fpar(ftext(paste(nbhd, ": Summary Notes", sep = "")), fp_p = fp_par(text.align = "center")))
 
-  add_slide(report, layout = 'Title and Content', master = 'Office Theme')%>%
+  add_slide(report, layout = 'Title and Content', master = 'Facet')%>%
   ph_with(title, location = ph_location_type(type = "title"))%>%
   ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 2, 2)) -> report
 ###
@@ -204,7 +213,7 @@ flextable(overview) %>%
   height_all(.25, part = "all")%>%
   width(j = "Type of Crime", width = 1)-> flex
 
-add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
+add_slide(report, layout = "Title and Content", master = "Facet")%>%
   phl_with_flextable(olay = offlayout, id = 3, flex)%>%
   ph_with(nbhd_title, 
                location = ph_location_type(
@@ -223,7 +232,7 @@ ggplot(plot_df, aes(x=variable, y=value, group = 1)) +
 
 ggsave(here::here("NIBRS", "results",  params$year, params$month, paste(nbhd, "_graph.jpeg", sep = "")), width = 9, height = 5, units = "in")
 
-add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
+add_slide(report, layout = "Title and Content", master = "Facet")%>%
   ph_with(external_img(here::here("NIBRS", "results", params$year, params$month, paste(nbhd, "_graph.jpeg", sep = "")), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with(nbhd_title, 
                location = ph_location_type(
@@ -251,14 +260,15 @@ title <- block_list(fpar(ftext(paste(nbhd, ": ", x, " Crimes", sep = "")), fp_p 
  
 if(x == "Unspecified"){
   #use offlayout for all unspecified flextables
-  add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
+  add_slide(report, layout = "Title and Content", master = "Facet")%>%
   phl_with_flextable(olay = offlayout, id = 3, ft)%>%
   ph_with(title, 
                location = ph_location_type(
                  type = "title") ) -> report
 }else{  
-  add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
-  ph_with(ft, location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
+  add_slide(report, layout = "Title and Content", master = "Facet")%>%
+  phl_with_flextable(olay = offlayout01, 2, ft)%>%
+  #ph_with(ft, location = ph_location_type(type = "body"), use_loc_size = TRUE)%>%
   ph_with(title, 
                location = ph_location_type(
                  type = "title") ) -> report
@@ -274,7 +284,7 @@ if(x == "Property"){
     width(width = 3, j = "Crime") -> ft2
 
 #add to powerpoint report
-  add_slide(report, layout = "Title and Content", master = "Office Theme")%>%
+  add_slide(report, layout = "Title and Content", master = "Facet")%>%
   phl_with_flextable(olay = offlayout01, 3, ft2)%>%
   ph_with(title, 
                location = ph_location_type(
