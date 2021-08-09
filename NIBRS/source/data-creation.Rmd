@@ -2,8 +2,8 @@
 title: "PDF Data Extraction"
 output: html_document
 params:
-  month1: "Mar"
-  month2: "Apr"
+  month1: "May"
+  month2: "Jun"
   year: 2021
 ---
 
@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 #IMPORTANT
-This notebook needs to be manually updated both in the paramaters and line 123. DO NOT run this code unless you have updated both of these things!
+This notebook needs to be manually updated both in the paramaters and line 145. DO NOT run this code unless you have updated both of these things!
 
 #Load Dependencies
 ```{r}
@@ -140,9 +140,9 @@ if(params$month1 == "Jan"){
   save(base, file = here::here("NIBRS", "data", params$year, "base_data", "base_data.rda"))
 }
 #group totals
-tot <- base%>%
-  group_by(Crime, type)%>%
-  summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr))
+# tot <- base%>%
+#   group_by(Crime, type)%>%
+#   summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun))
 #save output
 save(base, tot, file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "clean-crime-data.rda"))
 ```
