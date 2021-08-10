@@ -220,16 +220,27 @@ add_slide(report, layout = "Title and Content", master = "Facet")%>%
                location = ph_location_type(
                  type = "title") )-> report 
 
+# A function factory for getting integer y-axis values.
+integer_breaks <- function(n = 5, ...) {
+    fxn <- function(x) {
+        breaks <- floor(pretty(x, n, ...))
+        names(breaks) <- attr(breaks, "labels")
+        breaks
+    }
+    return(fxn)
+}
+
 #Month by Month total crime plot
 plot_df <- temp_df%>%
-  summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar))
+  summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun))
 #reshape data
 plot_df <- reshape2::melt(plot_df)
 
 ggplot(plot_df, aes(x=variable, y=value, group = 1)) +
     geom_line(color="blue") +
     geom_point() +
-    xlab("Month") + ylab("Total Crimes")
+    xlab("Month") + ylab("Total Crimes")+
+    scale_y_continuous(breaks = integer_breaks())
 
 ggsave(here::here("NIBRS", "results",  params$year, params$month, paste(nbhd, "_graph.jpeg", sep = "")), width = 9, height = 5, units = "in")
 
