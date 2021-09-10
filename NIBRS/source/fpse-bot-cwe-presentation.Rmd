@@ -3,11 +3,11 @@ title: "NIBRS-crime-report"
 output: html_document
 params:
   year: 2021
-  month: June
-  month1: May
-  month2: Jun
+  month: August
+  month1: Jul
+  month2: Aug
   #Num referes to the column of the current month. Because months come in pairs in this dataset, if the month is first (i.e. January in Jan-Feb, or March in Mar-Apr) then the num should be set to 2. If it comes second (i.e. Feb in Jan-Feb, or Apr in Mar-Apr) then num should be set to 3.
-  num: 2
+  num: 3
 ---
 
 ```{r setup, include=FALSE}
@@ -37,7 +37,6 @@ load(file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", p
 #Check to only have current and previous months shown
 if(grepl(params$month1, params$month)){
 base <- dplyr::select(base, -grep(params$month2, colnames(base)))
-tot <- dplyr::select(tot, -grep(params$month2, colnames(tot)))
 }
 #load spatial data
 bound <- gw_get_data("Neighborhoods", "sf")
@@ -203,7 +202,7 @@ title <- block_list(fpar(ftext(paste(nbhd, ": Summary Notes", sep = "")), fp_p =
 ###
 overview <- temp_df%>%
   dplyr::group_by(type)%>%
-  dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun))%>%
+  dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun), Jul = sum(Jul), Aug = sum(Aug))%>%
   adorn_totals("row", name = "Total")%>%
   dplyr::rename("Type of Crime" = type)
 ###  
@@ -232,7 +231,7 @@ integer_breaks <- function(n = 5, ...) {
 
 #Month by Month total crime plot
 plot_df <- temp_df%>%
-  summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun))
+  summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun), Jul = sum(Jul), Aug = sum(Aug))
 #reshape data
 plot_df <- reshape2::melt(plot_df)
 
