@@ -2,8 +2,8 @@
 title: "PDF Data Extraction"
 output: html_document
 params:
-  month1: "May"
-  month2: "Jun"
+  month1: "Jul"
+  month2: "Aug"
   year: 2021
 ---
 
@@ -56,7 +56,8 @@ scrape_pdf <- function(table, neighborhood, month1, month2) {
   data <- strsplit(data, "\n")
   data <- data[[1]]
   data <- trimws(data)
-  data <- data[grep("Murder and Nonnegligent Manslaughter", data):grep("Identity Theft", data)]
+  #gather first page of data
+  data <- data[grep("Murder and Nonnegligent Manslaughter", data):grep("Wire Fraud", data)]
   data <- str_split_fixed(data, " {2,}", 7)
   data <- data.frame(data, stringsAsFactors = FALSE)
   data <- data[-c(17:22),]
@@ -71,7 +72,8 @@ scrape_pdf <- function(table, neighborhood, month1, month2) {
   data2 <- strsplit(data2, "\n")
   data2 <- data2[[1]]
   data2 <- trimws(data2)
-  data2 <- data2[grep("Hacking/Computer Invasion", data2):grep("All Other Offenses", data2)]
+  #gather second page of data
+  data2 <- data2[grep("Identity Theft", data2):grep("All Other Offenses", data2)]
   data2 <- str_split_fixed(data2, " {2,}", 7)
   data2 <- data.frame(data2, stringsAsFactors = FALSE)
   data2 <- data2[-c(7:12, 33:38),]
@@ -144,6 +146,6 @@ if(params$month1 == "Jan"){
 #   group_by(Crime, type)%>%
 #   summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun))
 #save output
-save(base, tot, file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "clean-crime-data.rda"))
+save(base, file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "clean-crime-data.rda"))
 ```
 
