@@ -108,6 +108,11 @@ offlayout02 <- phl_layout(layout2,
   add_slide(report, layout = "Title and Content", master = "Facet")%>%
   ph_with(value = c("Unforeseen technology delays and the incompatibility in comparing crime (NIRBS V. UCR) has caused delays in making the crime information available", "The City of St Louis Information Technology Division (I.T.) has created a series of internal 2021 NIBRS reports", "Because of this transition information is limited to counts of each crime by neighborhood"), location = ph_location_type(type = "body"))%>%
     ph_with("NIBRS and SLMPD", location = ph_location_type(type="title"))-> report
+  
+ #add expanded service area slide
+report%>%
+  add_slide(layout = "Title Slide", master = "Office Theme")%>%
+  ph_with(value = "Expanded Service Area", location = ph_location_type(type = "ctrTitle"))  -> report
 ```
 
 ```{r}
