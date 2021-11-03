@@ -2,6 +2,7 @@
 title: "PDF Data Extraction"
 output: html_document
 params:
+  #Month1/month2 are the first 3 letters of the  month in a given 2 month period (see https://www.slmpd.org/crime_stats.shtml)
   month1: "Jul"
   month2: "Aug"
   year: 2021

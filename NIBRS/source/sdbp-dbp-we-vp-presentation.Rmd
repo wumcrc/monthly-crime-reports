@@ -4,6 +4,7 @@ output: html_document
 params:
   year: 2021
   month: August
+  #Month1/month2 are the first 3 letters of the  month in a given 2 month period (see https://www.slmpd.org/crime_stats.shtml)
   month1: Jul
   month2: Aug
   #Num referes to the column of the current month. Because months come in pairs in this dataset, if the month is first (i.e. January in Jan-Feb, or March in Mar-Apr) then the num should be set to 2. If it comes second (i.e. Feb in Jan-Feb, or Apr in Mar-Apr) then num should be set to 3.
@@ -28,9 +29,9 @@ library(ggplot2)      #data visualization
 library(docxtractr)   #convert pptx to pdf
 
 #spatial packages
-library(sf)           
-library(gateway)
-library(tmap)
+library(sf)           #tools for manipulating spatial data
+library(gateway)      #load stl spatial data
+library(tmap)         #mapping tools
 
 #load crime data
 load(file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "clean-crime-data.rda"))
