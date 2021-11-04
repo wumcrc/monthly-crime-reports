@@ -4,14 +4,15 @@ output: html_notebook
 ---
 
 ### Instructions for this R Project
+IMPORTANT: This project operates in the `NIBRS` folder.
 
 #Step 1
 If you have not already, download Libreoffice from https://www.libreoffice.org/download/download/ this allows you to utilize the `docxtractr` package which converts powerpoints to PDFs.
 
 #Step 2
-Run the `data-creation.Rmd` at the beginning of each month. Check https://www.slmpd.org/crime_stats.shtml to see the last time the crime data has been updated. Download the appropriate file from this link and save it in the `Data` folder (make sure to save it in the correct year and month folder as well). Once you have checked to see that the data is available for the current month, the next step is to change the `params` of the `data-creation.Rmd`. 
-          `month1` should be changed to the first three letters of the first month of the 2 month period    (crime data is currently reported in two month intervals i.e. Jan-Feb, Mar-Apr, etc.). 
-          `month2` should be the first three letters of the second month of the 2 month period
+Run the `data-creation.Rmd` at the beginning of each month. Check https://www.slmpd.org/crime_stats.shtml to see the last time the crime data has been updated. Download the appropriate file from this link and save it in the `Data` folder (make sure to save it in the correct year and month folder as well). The city releases data in two month periods (i.e. Jan-Feb, Mar-Apr, etc.) so you will be downloading data every two months. Once you have checked to see that the data is available for the current month, download the PDF into the data folder, making sure to save it to the correct year and month range as well. If the folder for the month range is not there you will have to manually create it in the format of "Jan-Feb" (The first three letters of the month pair seperated by a dash. You can refer to the 2021 folder if you are confused by the structure). Once you have the data saved in the appropriate location, the next step is to change the `params` of the `data-creation.Rmd`. 
+          `month1` should be changed to the first three letters of the first month of the 2 month period    (crime data is currently reported in two month intervals i.e. Jan-Feb, Mar-Apr, etc. So, if you are running a report for February, the first month of the two month period is January so you would set this param to "Jan"). 
+          `month2` should be the first three letters of the second month of the 2 month period (Even if you are running the report for January, this should be changed to "Feb" which is the second month of the two month period)
           `year` should be set to the current year
 Once you have changed all 3 of the params you can run the `data-creation.Rmd`. 
 
