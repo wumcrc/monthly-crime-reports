@@ -20,7 +20,7 @@ This notebook needs to be manually updated both in the paramaters and line 145. 
 library(pdftools)   #pdf data extraction
 library(dplyr)      #tools for cleaning data
 library(here)       #file path management
-library(stringr)
+library(stringr)      #string manipulation
 library(grid)         #inset map
 library(gateway)      #load stl spatial data
 library(tmap)         #tools for mapping
@@ -53,31 +53,36 @@ vd <- c(163,164,58)
 `month2` is the second (the data is reported in month paires i.e. Jan-Feb, Mar-Apr, etc.)
 ```{r}
 scrape_pdf <- function(table, neighborhood, month1, month2) {
+  #create table of neighborhood data based on PDF page number
   data <- table[neighborhood[1]]
+  #split elements of string based on line breaks
   data <- strsplit(data, "\n")
   data <- data[[1]]
+  #remove leading and trailing whitespaces
   data <- trimws(data)
-  #gather first page of data
+  #gather first page of data using text at the beginning and end of the page
   data <- data[grep("Murder and Nonnegligent Manslaughter", data):grep("Wire Fraud", data)]
   data <- str_split_fixed(data, " {2,}", 7)
+  #convert to dataframe
   data <- data.frame(data, stringsAsFactors = FALSE)
-  data <- data[-c(17:22),]
+  #remove empty data/titles
+  data <- data[-c(18:23),]
+  #rename columns
   names(data) <- c("Crime", "NIBRS",
                            month1,
                            month2, 
                            "Diff",
                            "Change",
                            "YTD")
-  
+  #repeat for page 2 of data
   data2 <- table[neighborhood[2]]
   data2 <- strsplit(data2, "\n")
   data2 <- data2[[1]]
   data2 <- trimws(data2)
-  #gather second page of data
   data2 <- data2[grep("Identity Theft", data2):grep("All Other Offenses", data2)]
   data2 <- str_split_fixed(data2, " {2,}", 7)
   data2 <- data.frame(data2, stringsAsFactors = FALSE)
-  data2 <- data2[-c(7:12, 33:38),]
+  data2 <- data2[-c(8:13, 34:39),]
   names(data2) <- c("Crime", "NIBRS",
                            month1,
                            month2, 
@@ -86,7 +91,9 @@ scrape_pdf <- function(table, neighborhood, month1, month2) {
                            "YTD")
   data <- bind_rows(data, data2)
   data <- data%>%
+    #assign neighborhood number
     mutate(nbhd_num = neighborhood[3])%>%
+    #assign category based on row number
     mutate(type = ifelse(row_number() %in% 1:16, "Person",
                                      ifelse(row_number() %in% 17:42, "Property",
                                      ifelse(row_number() %in% 43:62, "Society",
@@ -94,7 +101,7 @@ scrape_pdf <- function(table, neighborhood, month1, month2) {
   cols.num <- c(params$month1, params$month2)
   data[cols.num] <- sapply(data[cols.num],as.numeric) #convert crime columns to numeric
   
-  data <- data[-c(2, 5:7)]
+  #data <- data[-c(2, 5:7)]
   
   return(data)
 }
@@ -133,7 +140,7 @@ nbhd_bind$Crime[nbhd_bind$Crime == "Theft From Motor Vehicle"] <- "Theft From MV
 nbhd_bind$Crime[nbhd_bind$Crime == "Theft From Motor Vehicle Parts/Accessories"] <- "Theft From MV Parts/Accessories"
 nbhd_bind$Crime[nbhd_bind$Crime == "Motor Vehicle Theft"] <- "MV Theft"
 
-
+#Build master dataset to be added onto each month
 if(params$month1 == "Jan"){
   base <- nbhd_bind
   save(base, file = here::here("NIBRS", "data", params$year, "base_data", "base_data.rda"))
@@ -142,10 +149,7 @@ if(params$month1 == "Jan"){
   base <- inner_join(base, nbhd_bind)
   save(base, file = here::here("NIBRS", "data", params$year, "base_data", "base_data.rda"))
 }
-#group totals
-# tot <- base%>%
-#   group_by(Crime, type)%>%
-#   summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun))
+
 #save output
 save(base, file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "clean-crime-data.rda"))
 ```
