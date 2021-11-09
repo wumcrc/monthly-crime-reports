@@ -3,8 +3,8 @@ title: "PDF Data Extraction"
 output: html_document
 params:
   #Month1/month2 are the first 3 letters of the  month in a given 2 month period (see https://www.slmpd.org/crime_stats.shtml)
-  month1: "Jul"
-  month2: "Aug"
+  month1: "Sep"
+  month2: "Oct"
   year: 2021
 ---
 
@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 #IMPORTANT
-This notebook needs to be manually updated both in the paramaters and line 145. DO NOT run this code unless you have updated both of these things!
+This notebook needs to be manually updated both in the paramaters and, possibly, on lines 69 and 85. Refer to the `How-To-Instructions.Rmd` for more information.
 
 #Load Dependencies
 ```{r}
@@ -101,7 +101,8 @@ scrape_pdf <- function(table, neighborhood, month1, month2) {
   cols.num <- c(params$month1, params$month2)
   data[cols.num] <- sapply(data[cols.num],as.numeric) #convert crime columns to numeric
   
-  #data <- data[-c(2, 5:7)]
+  #remove unnecessary columns
+  data <- data[-c(2, 5:7)]
   
   return(data)
 }
