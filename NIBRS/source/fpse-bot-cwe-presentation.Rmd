@@ -3,13 +3,16 @@ title: "NIBRS-crime-report"
 output: html_document
 params:
   year: 2021
-  month: August
+  month: October
   #Month1/month2 are the first 3 letters of the  month in a given 2 month period (see https://www.slmpd.org/crime_stats.shtml)
-  month1: Jul
-  month2: Aug
+  month1: Sep
+  month2: Oct
   #Num referes to the column of the current month. Because months come in pairs in this dataset, if the month is first (i.e. January in Jan-Feb, or March in Mar-Apr) then the num should be set to 2. If it comes second (i.e. Feb in Jan-Feb, or Apr in Mar-Apr) then num should be set to 3.
   num: 3
 ---
+#IMPORTANT
+Make sure to update line 223 before running this .Rmd. Refer to the `How-To-Instructions.Rmd` for more information.
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -48,6 +51,15 @@ st_read(here::here("NIBRS", "data", "stlstreets", "tgr_str_cl.shp"),
 report <- read_pptx(here::here("NIBRS", "data", "template.pptx"))
 ```
 
+#Create Appropriate Folders
+```{r}
+here::here()
+dir.create(getwd())
+dir.create(here::here(file.path("NIBRS", "results", params$year)))
+dir.create(here::here(file.path("NIBRS", "results", params$year, params$month)))
+dir.create(here::here(file.path("NIBRS", "results", "presentations", params$year)))
+dir.create(here::here(file.path("NIBRS", "results", "presentations", params$year, params$month)))
+```
 
 ```{r}
 # summary note colors
@@ -111,7 +123,7 @@ offlayout02 <- phl_layout(layout2,
   
 #add core neighborhood slide
 report%>%
-  add_slide(layout = "Title Slide", master = "Office Theme")%>%
+  add_slide(layout = "Title Slide", master = "Facet")%>%
   ph_with(value = "Core Neighborhoods", location = ph_location_type(type = "ctrTitle"))  -> report
 ```
 
@@ -208,7 +220,7 @@ title <- block_list(fpar(ftext(paste(nbhd, ": Summary Notes", sep = "")), fp_p =
 ###
 overview <- temp_df%>%
   dplyr::group_by(type)%>%
-  dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun), Jul = sum(Jul), Aug = sum(Aug))%>%
+  dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun), Jul = sum(Jul), Aug = sum(Aug), Sep = sum(Sep), Oct = sum(Oct))%>%
   adorn_totals("row", name = "Total")%>%
   dplyr::rename("Type of Crime" = type)
 ###  
