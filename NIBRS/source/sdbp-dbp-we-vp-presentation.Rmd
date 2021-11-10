@@ -59,7 +59,7 @@ boldline <- fp_text(color = "black", font.size = 28, bold = TRUE, underlined = T
 # for loop objects
 type <- c("Property", "Society", "Person", "Unspecified")
 #create neighborhood object
-neighborhood <- c(46:49)
+neighborhood <- c(48, 49, 46, 47)
 ```
 
 ```{r officer layout}
@@ -93,7 +93,7 @@ offlayout02 <- phl_layout(layout2,
 ```{r powerpoint title}
 #title slide
   add_slide(report, layout = "Title Slide", master = "Facet")%>%
-  ph_with(value = "Skinker DeBaliviere, DeBaliviere Place, West End, Visitation Park", location = ph_location_type(type = "ctrTitle"))%>%
+  ph_with(value = "West End, Visitation Park, Skinker DeBaliviere, DeBaliviere Place", location = ph_location_type(type = "ctrTitle"))%>%
   ph_with(c(paste("Monthly Crime Report:", params$month, params$year, sep = " "), "Washington University Medical Center"), location = ph_location_type(type = "subTitle")) -> report
 
 #history of crime reporting slide
@@ -309,6 +309,12 @@ if(x == "Property"){
                location = ph_location_type(
                  type = "title") ) -> report
 }
+}
+if(i == 49){
+#add core neighborhood slide
+report%>%
+  add_slide(layout = "Title Slide", master = "Facet")%>%
+  ph_with(value = "Neighboring Geographies", location = ph_location_type(type = "ctrTitle"))  -> report
 }
 }
 #Remove blank template slide
