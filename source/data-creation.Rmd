@@ -4,7 +4,7 @@ author: "Jes Stevens, M.A."
 date: '(`r format(Sys.time(), "%B %d, %Y")`)'
 output:
 params:
-  month: May                      # Refers to the month throughout the .Rmd Document | Change this to reflect the month you are analyzing
+  month: December                      # Refers to the month throughout the .Rmd Document | Change this to reflect the month you are analyzing
   pastyear: 2020                      # Refers to the previous year throughout the .Rmd Document | Change this when your year changes
   year: 2021                          # Refers to the current year you are analyzing | Change this when your year changes
 ---
