@@ -3,7 +3,7 @@ title: "NIBRS-crime-report"
 output: html_document
 params:
   year: 2021
-  month: November
+  month: December
   #Month1/month2 are the first 3 letters of the  month in a given 2 month period (see https://www.slmpd.org/crime_stats.shtml)
   month1: Nov
   month2: Dec
@@ -221,7 +221,7 @@ title <- block_list(fpar(ftext(paste(nbhd, ": Summary Notes", sep = "")), fp_p =
 overview <- temp_df%>%
   dplyr::group_by(type)%>%
   dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun), 
-                   Jul = sum(Jul), Aug = sum(Aug), Sep = sum(Sep), Oct = sum(Oct), Nov = sum(Nov))%>%
+                   Jul = sum(Jul), Aug = sum(Aug), Sep = sum(Sep), Oct = sum(Oct), Nov = sum(Nov), Dec = sum(Dec))%>%
   adorn_totals("row", name = "Total")%>%
   dplyr::rename("Type of Crime" = type)
 ###  
@@ -250,7 +250,8 @@ integer_breaks <- function(n = 5, ...) {
 
 #Month by Month total crime plot
 plot_df <- temp_df%>%
-  summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun), Jul = sum(Jul), Aug = sum(Aug))
+  summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun),
+            Jul = sum(Jul), Aug = sum(Aug), Sep = sum(Sep), Oct = sum(Oct), Nov = sum(Nov), Dec = sum(Dec))
 #reshape data
 plot_df <- reshape2::melt(plot_df)
 
