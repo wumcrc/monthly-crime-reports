@@ -1,0 +1,84 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+### Instructions for this R Project
+IMPORTANT: This project operates in the `NIBRS` folder.
+
+#Step 1
+If you have not already, download Libreoffice from https://www.libreoffice.org/download/download/ this allows you to utilize the `docxtractr` package which converts powerpoints to PDFs.
+
+#Step 2
+Run the `data-creation.Rmd` at the beginning of each month. Check https://www.slmpd.org/crime_stats.shtml to see the last time the crime data has been updated. Download the appropriate file from this link and save it in the `Data` folder (make sure to save it in the correct year and month folder as well). The city releases data in two month periods (i.e. Jan-Feb, Mar-Apr, etc.) so you will be downloading data every two months. Once you have checked to see that the data is available for the current month, download the PDF into the data folder, making sure to save it to the correct year and month range as well. If the folder for the month range is not there you will have to manually create it in the format of "Jan-Feb" (The first three letters of the month pair seperated by a dash. You can refer to the 2021 folder if you are confused by the structure).
+
+#Step 3
+Change the name of the PDF to the following format: Month1-Month2-crime (i.e. Sep-Oct-crime.pdf or Jan-Feb-crime.pdf).
+
+#Step 4
+Once you have the data saved in the appropriate location, the next step is to change the `params` of the `data-creation.Rmd`. 
+          `month1` should be changed to the first three letters of the first month of the 2 month period    (crime data is currently reported in two month intervals i.e. Jan-Feb, Mar-Apr, etc. So, if you are running a report for February, the first month of the two month period is January so you would set this param to "Jan"). 
+          `month2` should be the first three letters of the second month of the 2 month period (Even if you are running the report for January, this should be changed to "Feb" which is the second month of the two month period)
+          `year` should be set to the current year.
+          
+#Step 5
+Running the data creation file will be a little tough. The city isn't very consistent with the way they report the data so running this file will require you to pay close attention to the structure of the data. Go to line 54 and run all code above this line. Next, run the following code:
+
+```{r}
+table <- df
+neighborhood <- bot
+year <- params$year
+year2 <- params$year2
+```
+
+What this does is assigning values that we will be using in our custom function that begins at line 54. We will use this data to test to make sure the function is extracting the right data.
+
+#Step 6
+Run lines 56-67. Check the `data` object before you run line 69. Line 69 is meant to remove empty rows as well as titles from the PDF that are rendered as rows. Familiarize yourself with the PDF so that you can recognize what lines don't belong to the data. It should be right around row 18:23 in the dataset but can change sometimes so make sure to check and adjust the code accordingly.
+
+#Step 7
+Once you have adjusted Line 69 you can run lines 70-84. Similar to Step 4 you need to check the `data2` object. The code is set to remove rows 8:13 and 34:39 but if the data looks differently then adjust these row numbers accordingly!
+
+#Step 8
+Once you have run the `data-creation.Rmd` you need to run the `fpse-bot-cwe-mc-presentation.Rmd`. Before you run this notebook, you need to change the params.  
+          `year` should be set to the current year
+          `month` should be changed to the current month
+          `month1` should be set to the first three letters of the first month of the 2 month period
+          `month2` should be the first three letters of the second month of the 2 month period
+          `num` Num referes to the column of the current month. Because months come in pairs in this dataset, if the month is first (i.e. January in Jan-Feb, or March in Mar-Apr) then the num should be set to 2. If it comes second (i.e. Feb in Jan-Feb, or Apr in Mar-Apr) then num should be set to 3.
+After you change all 5 params you can run this notebook. 
+
+#Step 9
+After you have updated the params, the next step is to update line 223 of the code. This line of code summarises total crimes per month but needs to be manually changed every time you run the code. All you need to do is append the current month of evaluation to the line of code. say, we are running the code for July (which is in the Jul-Aug period). Line 223 (before we change it) will look as follows:
+
+              dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun))%>%
+              
+All you have to do is add:
+            
+              Jul = sum(Jul)
+              
+After the last month that is there. The final code for line 223 for the month of July will look as follows:
+
+              dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun), Jul = sum(Jul))%>%
+
+When we want to run the next month, August, we want to make sure that all preceding months (including July) are also in line 223. So, once we run the code for July and want to run the code for August we just add August to the end of the line of code as follows:
+
+              dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun), Jul = sum(Jul), Aug = sum(Aug))%>%
+
+#Step 10
+Once you have updated line 223 of `fpse-bot-cwe-mc-presentation.Rmd` you can run the code!
+
+#Step 11
+Now that you have run the `fpse-bot-cwe-mc-presentation.Rmd` you can repeat steps 3-5 for the `sdb-dbp-we-vp-presentation.Rmd` and `ac-fp-lp-vd-presentation.Rmd`. The only difference is that the line of code to manually change will be 214 instead of 223! It is not important which one you run first, just be sure to change the params and line 214! They are the exact same as the params for the `fpse-bot-cwe-mc-presenation.Rmd`. 
+
+#Step 12
+CHECK THE FINAL RESULT! Make sure that the presentations look accurate. The most common mistake I have made is not changing the params, which results in an empty looking presentation because the data is wrong. So always make sure to check the final products!
+
+#Step 13
+Once you have double checked everything it is time to push everything to github! Because of how the code is written, everything (plots, tables, etc.) is saved separately in addition to the final presentation. The best way to push to github is to divide the commits as follows:
+          Make one commit with all of the presentations, ex: Add November Reports
+          Make a second commit with the updated .Rmd files, ex: Update Params for November
+          Make a third commit with all remaining files which should only be the plots, tables and other files created and saved from the .Rmd, ex: Add November Results
+          
+#Step 14
+After you have made those commits it is time to push them to Github! Congrats, you're all done!

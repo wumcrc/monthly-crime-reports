@@ -3,9 +3,9 @@ title: "PDF Data Extraction"
 output: html_document
 params:
   #Month1/month2 are the first 3 letters of the  month in a given 2 month period (see https://www.slmpd.org/crime_stats.shtml)
-  month1: "Nov"
-  month2: "Dec"
-  year: 2021
+  month: "Jan"
+  year: "2022"
+  year2: "2021"
 ---
 
 ```{r setup, include=FALSE}
@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 #IMPORTANT
-This notebook needs to be manually updated both in the paramaters and, possibly, on lines 69 and 85. Refer to the `How-To-Instructions.Rmd` for more information.
+This notebook needs to be manually updated both in the paramaters and, possibly, on lines 71 and 87. Refer to the `How-To-Instructions.Rmd` for more information.
 
 #Load Dependencies
 ```{r}
@@ -26,7 +26,7 @@ library(gateway)      #load stl spatial data
 library(tmap)         #tools for mapping
 
 #Load Data
-df <- pdf_text(here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), paste(params$month1, "-", params$month2, "-crime.pdf", sep = "")))
+df <- pdf_text(here::here("NIBRS", "data", params$year, params$month, paste(params$month, "-crime.pdf", sep = "")))
 ```
 
 # Neighborhood Index
@@ -46,13 +46,13 @@ vd <- c(163,164,58)
 ```
 
 #Create scrape_pdf Function
-
 `table` refers to the PDF that you want to extract from
 `neighborhood` should be set to the neighborhood object you want evaluated (created in the neighborhood index section above).
-`month1` is the first month
-`month2` is the second (the data is reported in month paires i.e. Jan-Feb, Mar-Apr, etc.)
+`month` is the current month
+`year` is the current year
+`year2` is the previous year`
 ```{r}
-scrape_pdf <- function(table, neighborhood, month1, month2) {
+scrape_pdf <- function(table, neighborhood, year, year2) {
   #create table of neighborhood data based on PDF page number
   data <- table[neighborhood[1]]
   #split elements of string based on line breaks
@@ -66,11 +66,11 @@ scrape_pdf <- function(table, neighborhood, month1, month2) {
   #convert to dataframe
   data <- data.frame(data, stringsAsFactors = FALSE)
   #remove empty data/titles
-  data <- data[-c(18:23),]
+  data <- data[-c(18:22),]
   #rename columns
   names(data) <- c("Crime", "NIBRS",
-                           month1,
-                           month2, 
+                           year,
+                           year2, 
                            "Diff",
                            "Change",
                            "YTD")
@@ -79,13 +79,13 @@ scrape_pdf <- function(table, neighborhood, month1, month2) {
   data2 <- strsplit(data2, "\n")
   data2 <- data2[[1]]
   data2 <- trimws(data2)
-  data2 <- data2[grep("Identity Theft", data2):grep("All Other Offenses", data2)]
+  data2 <- data2[grep("Embezzlement", data2):grep("All Other Offenses", data2)]
   data2 <- str_split_fixed(data2, " {2,}", 7)
   data2 <- data.frame(data2, stringsAsFactors = FALSE)
-  data2 <- data2[-c(8:13, 34:39),]
+  data2 <- data2[-c(6:10, 31:37),]
   names(data2) <- c("Crime", "NIBRS",
-                           month1,
-                           month2, 
+                           year,
+                           year2,
                            "Diff",
                            "Change",
                            "YTD")
@@ -98,7 +98,7 @@ scrape_pdf <- function(table, neighborhood, month1, month2) {
                                      ifelse(row_number() %in% 17:42, "Property",
                                      ifelse(row_number() %in% 43:62, "Society",
                                      ifelse(row_number() %in% 63:64, "Unspecified", NA)))))
-  cols.num <- c(params$month1, params$month2)
+  cols.num <- c(params$year, params$year2)
   data[cols.num] <- sapply(data[cols.num],as.numeric) #convert crime columns to numeric
   
   #remove unnecessary columns
@@ -110,17 +110,17 @@ scrape_pdf <- function(table, neighborhood, month1, month2) {
 
 ```{r}
 #scrape pdf for each neighborhood
-bot_df <- scrape_pdf(df, bot, params$month1, params$month2)
-cwe_df <- scrape_pdf(df, cwe, params$month1, params$month2)
-fpse_df <- scrape_pdf(df, fpse, params$month1, params$month2)
-sdbp_df <- scrape_pdf(df, sdbp, params$month1, params$month2)
-dbp_df <- scrape_pdf(df, dbp, params$month1, params$month2)
-we_df <- scrape_pdf(df, we, params$month1, params$month2)
-vp_df <- scrape_pdf(df, vp, params$month1, params$month2)
-ac_df <- scrape_pdf(df, ac, params$month1, params$month2)
-fp_df <- scrape_pdf(df, fp, params$month1, params$month2)
-lp_df <- scrape_pdf(df, lp, params$month1, params$month2)
-vd_df <- scrape_pdf(df, vd, params$month1, params$month2)
+bot_df <- scrape_pdf(df, bot, params$year, params$year2)
+cwe_df <- scrape_pdf(df, cwe, params$year, params$year2)
+fpse_df <- scrape_pdf(df, fpse, params$year, params$year2)
+sdbp_df <- scrape_pdf(df, sdbp, params$year, params$year2)
+dbp_df <- scrape_pdf(df, dbp, params$year, params$year2)
+we_df <- scrape_pdf(df, we, params$year, params$year2)
+vp_df <- scrape_pdf(df, vp, params$year, params$year2)
+ac_df <- scrape_pdf(df, ac, params$year, params$year2)
+fp_df <- scrape_pdf(df, fp, params$year, params$year2)
+lp_df <- scrape_pdf(df, lp, params$year, params$year2)
+vd_df <- scrape_pdf(df, vd, params$year, params$year2)
 #get totals for all neighborhoods
 nbhd_bind <- bind_rows(bot_df, cwe_df, fpse_df, sdbp_df, dbp_df, we_df, vp_df, ac_df, fp_df, lp_df, vd_df)
 #Add neighborhood names column
@@ -141,17 +141,34 @@ nbhd_bind$Crime[nbhd_bind$Crime == "Theft From Motor Vehicle"] <- "Theft From MV
 nbhd_bind$Crime[nbhd_bind$Crime == "Theft From Motor Vehicle Parts/Accessories"] <- "Theft From MV Parts/Accessories"
 nbhd_bind$Crime[nbhd_bind$Crime == "Motor Vehicle Theft"] <- "MV Theft"
 
+select(nbhd_bind, -params$year) -> nbhd_bind_PY
+select(nbhd_bind, -params$year2) -> nbhd_bind
+
+names(nbhd_bind_PY) <- c("Crime",
+                           params$month,
+                           "nbhd_num",
+                           "type",
+                           "nbhd_name")
+
+names(nbhd_bind) <- c("Crime",
+                           params$month,
+                           "nbhd_num",
+                           "type",
+                           "nbhd_name")
+
 #Build master dataset to be added onto each month
-if(params$month1 == "Jan"){
+if(params$month == "Jan"){
+  basePY <- nbhd_bind_PY
   base <- nbhd_bind
-  save(base, file = here::here("NIBRS", "data", params$year, "base_data", "base_data.rda"))
+  save(basePY, base, file = here::here("NIBRS", "data", params$year, "base_data", "base_data.rda"))
 }else{
   load(file = here::here("NIBRS", "data", params$year, "base_data", "base_data.rda"))
+  basePY <- inner_join(basePY, nbhd_bind_PY)
   base <- inner_join(base, nbhd_bind)
-  save(base, file = here::here("NIBRS", "data", params$year, "base_data", "base_data.rda"))
+  save(basePY, base, file = here::here("NIBRS", "data", params$year, "base_data", "base_data.rda"))
 }
 
 #save output
-save(base, file = here::here("NIBRS", "data", params$year, paste(params$month1, "-", params$month2, sep = ""), "clean-crime-data.rda"))
+save(base, basePY, file = here::here("NIBRS", "data", params$year, params$month, "clean-crime-data.rda"))
 ```
 
