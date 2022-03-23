@@ -42,6 +42,9 @@ load(file = here::here("NIBRS", "data", params$year, params$month1, "clean-crime
 if(grepl(params$month1, params$month)){
 base <- dplyr::select(base, -grep(params$month2, colnames(base)))
 }
+if(grepl(params$month1, params$month)){
+basePY <- dplyr::select(basePY, -grep(params$month2, colnames(basePY)))
+}
 #load spatial data
 bound <- gw_get_data("Neighborhoods", "sf")
 st_read(here::here("NIBRS", "data", "stlstreets", "tgr_str_cl.shp"),
@@ -226,7 +229,9 @@ title <- block_list(fpar(ftext(paste(nbhd, ": Summary Notes", sep = "")), fp_p =
   add_slide(report, layout = 'Title and Content', master = 'Facet')%>%
   ph_with(title, location = ph_location_type(type = "title"))%>%
   ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 2, 2)) -> report
-###
+
+
+###Current Year
 ###Must Change summarise every time you run code!
 ###
 overview <- temp_df%>%
@@ -242,8 +247,25 @@ flextable(overview) %>%
   height_all(.25, part = "all")%>%
   width(j = "Type of Crime", width = 1)-> flex
 
+###Previous Year
+###Must Change summarise every time you run code!
+###
+overviewPY <- temp_df_PY %>%
+  dplyr::group_by(type)%>%
+  dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb))%>%
+  adorn_totals("row", name = "Total")%>%
+  dplyr::rename("Type of Crime" = type)
+###  
+###
+###
+#Make flextables from summary data
+flextable(overviewPY) %>%
+  height_all(.25, part = "all")%>%
+  width(j = "Type of Crime", width = 1)-> flex01
+
 add_slide(report, layout = "Title and Content", master = "Facet")%>%
-  phl_with_flextable(olay = offlayout, id = 3, flex)%>%
+  phl_with_flextable(olay = offlayout03, id = 2, flex)%>%
+  phl_with_flextable(olay = offlayout03, id = 3, flex01)%>%
   ph_with(nbhd_title, 
                location = ph_location_type(
                  type = "title") )-> report 
