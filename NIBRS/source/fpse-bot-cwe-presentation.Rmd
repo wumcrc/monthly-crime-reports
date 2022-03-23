@@ -3,10 +3,10 @@ title: "NIBRS-crime-report"
 output: html_document
 params:
   year: 2022
-  month: January
+  month: February
   #Month1/month2 are the first 3 letters of the  month in a given 2 month period (see https://www.slmpd.org/crime_stats.shtml)
-  month1: Jan
-  month2: Feb
+  month1: Feb
+  month2: Mar
   #Num referes to the column of the current month. Because months come in pairs in this dataset, if the month is first (i.e. January in Jan-Feb, or March in Mar-Apr) then the num should be set to 2. If it comes second (i.e. Feb in Jan-Feb, or Apr in Mar-Apr) then num should be set to 3.
   #num: 3
 ---
@@ -220,7 +220,7 @@ title <- block_list(fpar(ftext(paste(nbhd, ": Summary Notes", sep = "")), fp_p =
 ###
 overview <- temp_df%>%
   dplyr::group_by(type)%>%
-  dplyr::summarise(Jan = sum(Jan))%>%
+  dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb))%>%
   adorn_totals("row", name = "Total")%>%
   dplyr::rename("Type of Crime" = type)
 ###  
@@ -249,7 +249,7 @@ integer_breaks <- function(n = 5, ...) {
 
 #Month by Month total crime plot
 plot_df <- temp_df%>%
-  summarise(Jan = sum(Jan))
+  summarise(Jan = sum(Jan), Feb = sum(Feb))
 #reshape data
 plot_df <- reshape2::melt(plot_df)
 
