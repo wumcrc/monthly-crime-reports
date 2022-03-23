@@ -31,7 +31,7 @@ Running the data creation file will be a little tough. The city isn't very consi
 
 ```{r}
 table <- df
-neighborhood <- bot
+neighborhood <- we
 year <- params$year
 year2 <- params$year2
 ```
