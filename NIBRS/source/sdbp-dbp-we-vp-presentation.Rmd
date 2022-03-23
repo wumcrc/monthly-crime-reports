@@ -41,6 +41,9 @@ load(file = here::here("NIBRS", "data", params$year, params$month1, "clean-crime
 if(grepl(params$month1, params$month)){
 base <- dplyr::select(base, -grep(params$month2, colnames(base)))
 }
+if(grepl(params$month1, params$month)){
+basePY <- dplyr::select(basePY, -grep(params$month2, colnames(basePY)))
+}
 #load spatial data
 bound <- gw_get_data("Neighborhoods", "sf")
 st_read(here::here("NIBRS", "data", "stlstreets", "tgr_str_cl.shp"),
@@ -64,15 +67,16 @@ neighborhood <- c(48, 49, 46, 47)
 
 ```{r officer layout}
 #create custom powerpoint layout
-lay <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(.75,2.25)) 
+lay <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(.75,2.25))
 title <- lay_new(1, widths = 2, heights = 2)
 layout <- lay_bind_row(title, lay, heights = c(1,6))
 lay_show(layout)
+
 offlayout <- phl_layout(layout,
     margins = c(0.25, 0.25, 0.25, 0.25),
     innerMargins = rep(0.15,4))
 
-lay1 <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(.5,2.5)) 
+lay1 <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(.5,2.5))
 layout1 <- lay_bind_row(title, lay1, heights = c(1,6))
 lay_show(layout1)
 
@@ -81,11 +85,20 @@ offlayout01 <- phl_layout(layout1,
     innerMargins = rep(0.15,4))
 
 #spatial reference layout
-lay2 <- lay_new(matrix(1:4, nc = 2), widths = c(1,3), heights = c(.5,2.5)) 
+lay2 <- lay_new(matrix(1:4, nc = 2), widths = c(1,3), heights = c(.5,2.5))
 layout2 <- lay_bind_row(title, lay2, heights = c(1,6))
 lay_show(layout2)
 
 offlayout02 <- phl_layout(layout2,
+    margins = c(0.25, 0.25, 0.25, 0.25),
+    innerMargins = rep(0.15,4))
+
+#previous year comparison layout
+lay3 <- lay_new(matrix(1:2))
+layout3 <- lay_bind_row(title, lay3, heights = c(1,6))
+lay_show(layout3)
+
+offlayout03 <- phl_layout(layout3,
     margins = c(0.25, 0.25, 0.25, 0.25),
     innerMargins = rep(0.15,4))
 ```
@@ -100,17 +113,17 @@ offlayout02 <- phl_layout(layout2,
   add_slide(report, layout = "Title and Content", master = "Facet")%>%
   ph_with(value = c("Since the 1929 the Uniform Crime Report (UCR) has used a Summary Reporting System (SRS) to collect monthly counts of the number of crimes", "In 1982 the Bureau of Justice Statistics and the FBI sponsored a study with the objective of revising the existing form of reporting crime. Through this, the National Incident Based Reporting System (NIBRS) was created", "The FBI UCR Program transitioned to a NIBRS only data collection by January 1, 2021. Other states have followed suit and SLMPD has been working to make this same transition"), location = ph_location_type(type = "body"))%>%
     ph_with("History of Crime Reporting", location = ph_location_type(type="title"))-> report
-  
+
 #NIBRS vs SRS
   add_slide(report, layout = "Title and Content", master = "Facet")%>%
   ph_with(value = c("NIBRS captures details on each single crime incident—as well as on separate offenses within the same incident—including information on victims, known offenders, relationships between victims and offenders, arrestees, and property involved in crimes", "Standardizes crime reporting across all local, state, and tribal law enforcement agencies", "SRS only counted the most serious offense (i.e. if a murder and robbery occurred, only the murder is counted) while NIBRS counts up to 10 crimes per incident", "Current NIBRS reporting are not directly comparable to the previous UCR “hierarchy” numbers. With this change, you will likely see increases in crime statistics. This increase does not mean that crime is necessarily increasing, but rather that crime is being reported in a non-hierarchical format, with more detail and counting each individual crime"), location = ph_location_type(type = "body"))%>%
     ph_with("NIBRS vs SRS", location = ph_location_type(type="title"))-> report
-  
+
 #NIBRS and SLMPD
   add_slide(report, layout = "Title and Content", master = "Facet")%>%
   ph_with(value = c("Unforeseen technology delays and the incompatibility in comparing crime (NIRBS V. UCR) has caused delays in making the crime information available", "The City of St Louis Information Technology Division (I.T.) has created a series of internal 2021 NIBRS reports", "Because of this transition information is limited to counts of each crime by neighborhood"), location = ph_location_type(type = "body"))%>%
     ph_with("NIBRS and SLMPD", location = ph_location_type(type="title"))-> report
-  
+
  #add expanded service area slide
 report%>%
   add_slide(layout = "Title Slide", master = "Facet")%>%
@@ -124,10 +137,10 @@ for (i in neighborhood) {
   #create neighborhood data
   temp_df <- filter(base, nbhd_num == i)
   nbhd <- unique(temp_df$nbhd_name)
-  
+
 bound%>%
-tm_shape(bbox = bb) + 
-  tm_fill(col = "grey") + 
+tm_shape(bbox = bb) +
+  tm_fill(col = "grey") +
   tm_polygons()+
   bound%>%
   filter(., NHD_NUM == i)%>%
@@ -142,10 +155,10 @@ tm_shape(bbox = bb) +
            lwd = .5,
            alpha = .5)+
   bound%>%
-  tm_shape(bbox = bb) + 
+  tm_shape(bbox = bb) +
   tm_fill(col = "grey",
           alpha = 0,
-          lwd = 1) + 
+          lwd = 1) +
   tm_polygons()+
   tm_credits("Source: City of St. Louis", position = c("left", "BOTTOM"), size = .5)+
   tm_layout(frame = FALSE) -> map
@@ -159,8 +172,8 @@ tm_shape()+
   tm_shape()+
   tm_fill(col = "mistyrose")+
   tm_borders(col = "black")-> inset
-  
-tmap_save(map, insets_tm = inset, insets_vp = viewport(0.8, 0.75, width = 0.4, height = 0.4), file = here::here("NIBRS", "data", "neighborhoods", paste(nbhd, ".jpeg", sep = "")), width = 9, height = 5, units = "in")  
+
+tmap_save(map, insets_tm = inset, insets_vp = viewport(0.8, 0.75, width = 0.4, height = 0.4), file = here::here("NIBRS", "data", "neighborhoods", paste(nbhd, ".jpeg", sep = "")), width = 9, height = 5, units = "in")
 
 #create formatted title
 nbhd_title <- block_list(fpar(ftext(nbhd), fp_p = fp_par(text.align = "center")))
@@ -169,7 +182,7 @@ add_slide(report, layout = "Title and Content", master = "Facet")%>%
   ph_with(external_img(here::here("NIBRS", "data", "neighborhoods", paste(nbhd, ".jpeg", sep = "")), height = 5, width = 9), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with(nbhd_title, location = ph_location_type(type = "title")) -> report
 
-  
+
   #reference column name using params$month1
 tc <- sum(temp_df[grep(params$month1, colnames(temp_df))])
 persons <- filter(temp_df, type == "Person")
@@ -182,7 +195,7 @@ unspec <- filter(temp_df, type == "Unspecified")
 unspec <- sum(unspec[grep(params$month1, colnames(temp_df))])
 
 
-sprint_1 <- sprintf("%s total crimes in %s %s", 
+sprint_1 <- sprintf("%s total crimes in %s %s",
                     tc, params$month, params$year)
 
 # create summary notes
@@ -205,27 +218,49 @@ title <- block_list(fpar(ftext(paste(nbhd, ": Summary Notes", sep = "")), fp_p =
   add_slide(report, layout = 'Title and Content', master = 'Facet')%>%
   ph_with(title, location = ph_location_type(type = "title"))%>%
   ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 2, 2)) -> report
-###
-###Must Change summarise every time you run code!
-###
-overview <- temp_df%>%
-  dplyr::group_by(type)%>%
-  dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb))%>%
-  adorn_totals("row", name = "Total")%>%
-  dplyr::rename("Type of Crime" = type)
-###  
-###
-###
-#Make flextables from summary data
-flextable(overview) %>%
-  height_all(.25, part = "all")%>%
-  width(j = "Type of Crime", width = 1)-> flex
 
-add_slide(report, layout = "Title and Content", master = "Facet")%>%
-  phl_with_flextable(olay = offlayout, id = 3, flex)%>%
-  ph_with(nbhd_title, 
-               location = ph_location_type(
-                 type = "title") )-> report 
+  ###Current Year
+  ###Must Change summarise every time you run code!
+  ###
+  overview <- temp_df%>%
+    dplyr::group_by(type)%>%
+    dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb))%>%
+    adorn_totals("row", name = "Total")%>%
+    adorn_totals(., "col", name = "Total") %>%
+    dplyr::rename("Type of Crime" = type)
+  ###
+  ###
+  ###
+  #Make flextables from summary data
+  flextable(overview) %>%
+    height_all(.25, part = "all")%>%
+    add_header_lines(values = paste(params$year))%>%
+    width(j = "Type of Crime", width = 1.5)-> flex
+
+  ###Previous Year
+  ###Must Change summarise every time you run code!
+  ###
+  overviewPY <- temp_df_PY %>%
+    dplyr::group_by(type)%>%
+    dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb))%>%
+    adorn_totals("row", name = "Total")%>%
+    adorn_totals(., "col", name = "Total") %>%
+    dplyr::rename("Type of Crime" = type)
+  ###
+  ###
+  ###
+  #Make flextables from summary data
+  flextable(overviewPY) %>%
+    height_all(.25, part = "all")%>%
+    add_header_lines(values = paste(params$yearPY))%>%
+    width(j = "Type of Crime", width = 1.5)-> flex01
+
+  add_slide(report, layout = "Title and Content", master = "Facet")%>%
+    phl_with_flextable(olay = offlayout03, id = 2, flex)%>%
+    phl_with_flextable(olay = offlayout03, id = 3, flex01)%>%
+    ph_with(nbhd_title,
+                 location = ph_location_type(
+                   type = "title") )-> report
 
 # A function factory for getting integer y-axis values.
 integer_breaks <- function(n = 5, ...) {
@@ -253,9 +288,9 @@ ggsave(here::here("NIBRS", "results",  params$year, params$month, paste(nbhd, "_
 
 add_slide(report, layout = "Title and Content", master = "Facet")%>%
   ph_with(external_img(here::here("NIBRS", "results", params$year, params$month, paste(nbhd, "_graph.jpeg", sep = "")), width = 9, height = 5), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
-  ph_with(nbhd_title, 
+  ph_with(nbhd_title,
                location = ph_location_type(
-                 type = "title") )-> report 
+                 type = "title") )-> report
 
 for (x in type) {
   #create formatted title
@@ -265,34 +300,34 @@ title <- block_list(fpar(ftext(paste(nbhd, ": ", x, " Crimes", sep = "")), fp_p 
     filter(type == x)%>%
     subset(select=-c(nbhd_num,nbhd_name,type))%>%
     adorn_totals(., "col", name = "Total")
-  
+
   if(x != "Property"){
     sub <- adorn_totals(sub, "row", name = "Total")
     head <- head(sub, 21)
   }else{
     head <- head(sub, 19)
   }
-  
+
  flextable(head)%>%
   height_all(.25, part = "all")%>%
-  width(width = 3, j = "Crime")->ft 
- 
+  width(width = 3, j = "Crime")->ft
+
 if(x == "Unspecified"){
   #use offlayout for all unspecified flextables
   add_slide(report, layout = "Title and Content", master = "Facet")%>%
   phl_with_flextable(olay = offlayout, id = 3, ft)%>%
-  ph_with(title, 
+  ph_with(title,
                location = ph_location_type(
                  type = "title") ) -> report
-}else{  
+}else{
   add_slide(report, layout = "Title and Content", master = "Facet")%>%
   phl_with_flextable(olay = offlayout01, 2, ft)%>%
   #ph_with(ft, location = ph_location_type(type = "body"), use_loc_size = TRUE)%>%
-  ph_with(title, 
+  ph_with(title,
                location = ph_location_type(
                  type = "title") ) -> report
 }
-  
+
 if(x == "Property"){
   #add row totals from ft & ft2
   tail <- adorn_totals(sub, "row", name = "Total")
@@ -305,7 +340,7 @@ if(x == "Property"){
 #add to powerpoint report
   add_slide(report, layout = "Title and Content", master = "Facet")%>%
   phl_with_flextable(olay = offlayout01, 3, ft2)%>%
-  ph_with(title, 
+  ph_with(title,
                location = ph_location_type(
                  type = "title") ) -> report
 }
@@ -356,8 +391,8 @@ for (i in neighborhood) {
 
   #new tmap with bbox
 bound%>%
-tm_shape(bbox = bb) + 
-  tm_fill(col = "grey") + 
+tm_shape(bbox = bb) +
+  tm_fill(col = "grey") +
   tm_polygons()+
   bound%>%
   filter(., NHD_NUM == i)%>%
@@ -365,7 +400,7 @@ tm_shape(bbox = bb) +
   tm_fill(col = "forestgreen")+
   tm_credits("Source: City of St. Louis", position = c("left", "BOTTOM"), size = .5)+
   tm_layout(frame = FALSE)-> map
-  
+
 
 
 bound%>%
@@ -377,8 +412,8 @@ tm_shape()+
   tm_shape()+
   tm_fill(col = "forestgreen")+
   tm_borders(col = "white")-> inset
-  
+
 tmap_save(map, insets_tm = inset, insets_vp = viewport(0.8, 0.75, width = 0.4, height = 0.4), file = here::here("NIBRS", "data", params$year, "test.jpeg"), width = 9, height = 5, units = "in")
-  
+
 }
 ```

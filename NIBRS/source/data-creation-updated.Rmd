@@ -96,8 +96,8 @@ scrape_pdf <- function(table, neighborhood, year, year2) {
     #assign category based on row number
     mutate(type = ifelse(row_number() %in% 1:17, "Person",
                                      ifelse(row_number() %in% 18:43, "Property",
-                                     ifelse(row_number() %in% 44:62, "Society",
-                                     ifelse(row_number() %in% 63:64, "Unspecified", NA)))))
+                                     ifelse(row_number() %in% 44:63, "Society",
+                                     ifelse(row_number() %in% 64:65, "Unspecified", NA)))))
   cols.num <- c(params$year, params$year2)
   data[cols.num] <- sapply(data[cols.num],as.numeric) #convert crime columns to numeric
   
@@ -141,8 +141,8 @@ nbhd_bind$Crime[nbhd_bind$Crime == "Theft From Motor Vehicle"] <- "Theft From MV
 nbhd_bind$Crime[nbhd_bind$Crime == "Theft From Motor Vehicle Parts/Accessories"] <- "Theft From MV Parts/Accessories"
 nbhd_bind$Crime[nbhd_bind$Crime == "Motor Vehicle Theft"] <- "MV Theft"
 
-select(nbhd_bind, -params$year) -> nbhd_bind_PY
-select(nbhd_bind, -params$year2) -> nbhd_bind
+dplyr::select(nbhd_bind, -params$year) -> nbhd_bind_PY
+dplyr::select(nbhd_bind, -params$year2) -> nbhd_bind
 
 names(nbhd_bind_PY) <- c("Crime",
                            params$month,

@@ -3,6 +3,7 @@ title: "NIBRS-crime-report"
 output: html_document
 params:
   year: 2022
+  yearPY: 2021
   month: February
   #Month1/month2 are the first 3 letters of the  month in a given 2 month period (see https://www.slmpd.org/crime_stats.shtml)
   month1: Feb
@@ -229,8 +230,7 @@ title <- block_list(fpar(ftext(paste(nbhd, ": Summary Notes", sep = "")), fp_p =
   add_slide(report, layout = 'Title and Content', master = 'Facet')%>%
   ph_with(title, location = ph_location_type(type = "title"))%>%
   ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 2, 2)) -> report
-
-
+  
 ###Current Year
 ###Must Change summarise every time you run code!
 ###
@@ -238,6 +238,7 @@ overview <- temp_df%>%
   dplyr::group_by(type)%>%
   dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb))%>%
   adorn_totals("row", name = "Total")%>%
+  adorn_totals(., "col", name = "Total") %>%
   dplyr::rename("Type of Crime" = type)
 ###  
 ###
@@ -245,7 +246,8 @@ overview <- temp_df%>%
 #Make flextables from summary data
 flextable(overview) %>%
   height_all(.25, part = "all")%>%
-  width(j = "Type of Crime", width = 1)-> flex
+  add_header_lines(values = paste(params$year))%>%
+  width(j = "Type of Crime", width = 1.5)-> flex
 
 ###Previous Year
 ###Must Change summarise every time you run code!
@@ -254,6 +256,7 @@ overviewPY <- temp_df_PY %>%
   dplyr::group_by(type)%>%
   dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb))%>%
   adorn_totals("row", name = "Total")%>%
+  adorn_totals(., "col", name = "Total") %>%
   dplyr::rename("Type of Crime" = type)
 ###  
 ###
@@ -261,7 +264,8 @@ overviewPY <- temp_df_PY %>%
 #Make flextables from summary data
 flextable(overviewPY) %>%
   height_all(.25, part = "all")%>%
-  width(j = "Type of Crime", width = 1)-> flex01
+  add_header_lines(values = paste(params$yearPY))%>%
+  width(j = "Type of Crime", width = 1.5)-> flex01
 
 add_slide(report, layout = "Title and Content", master = "Facet")%>%
   phl_with_flextable(olay = offlayout03, id = 2, flex)%>%
