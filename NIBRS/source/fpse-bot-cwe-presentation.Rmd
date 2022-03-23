@@ -346,8 +346,8 @@ print(report, target = here::here("NIBRS", "results", "presentations", params$ye
                #pdf_file = sub("[.]pptx", ".pdf", paste("~/Documents/GitHub/crime_interactive/crime_interactive/www/", "Forest Park Southeast, Botanical Heights, Central West End, Medical Center_crime", ".pptx", sep = "")))
 
 #Create PDF to be stored in current wd
-#mydir <- paste("/Users/loganbogenut/Documents/GitHub/monthly-crime-reports/NIBRS/results/presentations/", params$year, "/", params$month, "/", sep = "")
-#file.remove(file.path(mydir, dir(path = mydir, pattern = paste("fpse-bot-cwe-mc-", params$month, params$year, ".pdf", sep=""))))
+mydir <- paste("/Users/jesstevens/Documents/Github/WUMCRC/Projects/monthly-crime-reports/NIBRS/results/presentations/", params$year, "/", params$month, "/", sep = "")
+file.remove(file.path(mydir, dir(path = mydir, pattern = paste("fpse-bot-cwe-mc-", params$month, params$year, ".pdf", sep=""))))
 
 #convert & save powerpoint as PDF to presentations subfolder
 convert_to_pdf(path = here::here("NIBRS", "results", "presentations", params$year, params$month, paste("fpse-bot-cwe-mc-", params$month, params$year, ".pptx", sep = "")),
