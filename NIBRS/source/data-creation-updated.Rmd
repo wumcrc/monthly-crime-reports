@@ -3,7 +3,7 @@ title: "PDF Data Extraction"
 output: html_document
 params:
   #Month1/month2 are the first 3 letters of the  month in a given 2 month period (see https://www.slmpd.org/crime_stats.shtml)
-  month: "Jan"
+  month: "Feb"
   year: "2022"
   year2: "2021"
 ---
@@ -61,7 +61,7 @@ scrape_pdf <- function(table, neighborhood, year, year2) {
   #remove leading and trailing whitespaces
   data <- trimws(data)
   #gather first page of data using text at the beginning and end of the page
-  data <- data[grep("Murder and Nonnegligent Manslaughter", data):grep("Wire Fraud", data)]
+  data <- data[grep("Murder and Nonnegligent Manslaughter", data):grep("Hacking/Computer Invasion", data)]
   data <- str_split_fixed(data, " {2,}", 7)
   #convert to dataframe
   data <- data.frame(data, stringsAsFactors = FALSE)
@@ -82,7 +82,7 @@ scrape_pdf <- function(table, neighborhood, year, year2) {
   data2 <- data2[grep("Embezzlement", data2):grep("All Other Offenses", data2)]
   data2 <- str_split_fixed(data2, " {2,}", 7)
   data2 <- data.frame(data2, stringsAsFactors = FALSE)
-  data2 <- data2[-c(6:10, 31:37),]
+  data2 <- data2[-c(6:10, 31:35),]
   names(data2) <- c("Crime", "NIBRS",
                            year,
                            year2,
@@ -94,9 +94,9 @@ scrape_pdf <- function(table, neighborhood, year, year2) {
     #assign neighborhood number
     mutate(nbhd_num = neighborhood[3])%>%
     #assign category based on row number
-    mutate(type = ifelse(row_number() %in% 1:16, "Person",
-                                     ifelse(row_number() %in% 17:42, "Property",
-                                     ifelse(row_number() %in% 43:62, "Society",
+    mutate(type = ifelse(row_number() %in% 1:17, "Person",
+                                     ifelse(row_number() %in% 18:43, "Property",
+                                     ifelse(row_number() %in% 44:62, "Society",
                                      ifelse(row_number() %in% 63:64, "Unspecified", NA)))))
   cols.num <- c(params$year, params$year2)
   data[cols.num] <- sapply(data[cols.num],as.numeric) #convert crime columns to numeric
