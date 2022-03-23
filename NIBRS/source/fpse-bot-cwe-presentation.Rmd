@@ -78,6 +78,7 @@ lay <- lay_new(matrix(1:4, nc = 2), widths = c(2,2), heights = c(.75,2.25))
 title <- lay_new(1, widths = 2, heights = 2)
 layout <- lay_bind_row(title, lay, heights = c(1,6))
 lay_show(layout)
+
 offlayout <- phl_layout(layout,
     margins = c(0.25, 0.25, 0.25, 0.25),
     innerMargins = rep(0.15,4))
@@ -96,6 +97,15 @@ layout2 <- lay_bind_row(title, lay2, heights = c(1,6))
 lay_show(layout2)
 
 offlayout02 <- phl_layout(layout2,
+    margins = c(0.25, 0.25, 0.25, 0.25),
+    innerMargins = rep(0.15,4))
+
+#previous year comparison layout
+lay3 <- lay_new(matrix(1:2)) 
+layout3 <- lay_bind_row(title, lay3, heights = c(1,6))
+lay_show(layout3)
+
+offlayout03 <- phl_layout(layout3,
     margins = c(0.25, 0.25, 0.25, 0.25),
     innerMargins = rep(0.15,4))
 ```
@@ -133,6 +143,7 @@ str_crop <- st_crop(streets, bb)
 for (i in neighborhood) {
   #create neighborhood data
   temp_df <- filter(base, nbhd_num == i)
+  temp_df_PY <- filter(basePY, nbhd_num == i)
   nbhd <- unique(temp_df$nbhd_name)
   
 bound%>%
