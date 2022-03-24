@@ -103,11 +103,7 @@ scrape_pdf <- function(table, neighborhood, year, year2) {
 
   #remove unnecessary columns
   data <- data[-c(2, 5:7)]
-  data %>%
-    relocate(type, .after = last_col()) %>%
-    relocate(nbhd_num, .after = last_col()) %>%
-    relocate(nbhd_name, .after = last_col()) -> data 
-
+  
   return(data)
 }
 ```
@@ -160,10 +156,15 @@ names(nbhd_bind) <- c("Crime",
                            "type",
                            "nbhd_name")
 
+
 #Build master dataset to be added onto each month
 if(params$month == "Jan"){
   basePY <- nbhd_bind_PY
   base <- nbhd_bind
+  basePY %>%
+    relocate(params$month, .after = last_col()) -> basePY
+  base %>%
+    relocate(params$month, .after = last_col()) -> base
   save(basePY, base, file = here::here("NIBRS", "data", params$year, "base_data", "base_data.rda"))
 }else{
   load(file = here::here("NIBRS", "data", params$year, "base_data", "base_data.rda"))

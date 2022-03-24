@@ -182,43 +182,193 @@ add_slide(report, layout = "Title and Content", master = "Facet")%>%
   ph_with(external_img(here::here("NIBRS", "data", "neighborhoods", paste(nbhd, ".jpeg", sep = "")), height = 5, width = 9), location = ph_location_type(type = "body"), use_loc_size = FALSE)%>%
   ph_with(nbhd_title, location = ph_location_type(type = "title")) -> report
 
-
+  # create summary notes - month comparison code
   #reference column name using params$month1
-tc <- sum(temp_df[grep(params$month1, colnames(temp_df))])
-persons <- filter(temp_df, type == "Person")
-persons <- sum(persons[grep(params$month1, colnames(temp_df))])
-society <- filter(temp_df, type == "Society")
-society <- sum(society[grep(params$month1, colnames(temp_df))])
-property <- filter(temp_df, type == "Property")
-property <- sum(property[grep(params$month1, colnames(temp_df))])
-unspec <- filter(temp_df, type == "Unspecified")
-unspec <- sum(unspec[grep(params$month1, colnames(temp_df))])
+  tc <- sum(temp_df[grep(params$month1, colnames(temp_df))])
+  persons <- filter(temp_df, type == "Person")
+  persons <- sum(persons[grep(params$month1, colnames(temp_df))])
+  society <- filter(temp_df, type == "Society")
+  society <- sum(society[grep(params$month1, colnames(temp_df))])
+  property <- filter(temp_df, type == "Property")
+  property <- sum(property[grep(params$month1, colnames(temp_df))])
+  unspec <- filter(temp_df, type == "Unspecified")
+  unspec <- sum(unspec[grep(params$month1, colnames(temp_df))])
 
+  tc_PY <- sum(temp_df_PY[grep(params$month1, colnames(temp_df_PY))])
+  persons_PY <- filter(temp_df_PY, type == "Person")
+  persons_PY <- sum(persons_PY[grep(params$month1, colnames(temp_df_PY))])
+  society_PY <- filter(temp_df_PY, type == "Society")
+  society_PY <- sum(society_PY[grep(params$month1, colnames(temp_df_PY))])
+  property_PY <- filter(temp_df_PY, type == "Property")
+  property_PY <- sum(property_PY[grep(params$month1, colnames(temp_df_PY))])
+  unspec_PY <- filter(temp_df_PY, type == "Unspecified")
+  unspec_PY <- sum(unspec_PY[grep(params$month1, colnames(temp_df_PY))])
 
-sprint_1 <- sprintf("%s total crimes in %s %s",
-                    tc, params$month, params$year)
+  pct_chg_mth1 <- (tc - tc_PY)/tc_PY
+  pct_chg_mth <- percent(pct_chg_mth1)
+  if(is.nan(pct_chg_mth1)){pct_chg_mth[is.nan(pct_chg_mth1)] <- 0}
+  if(is.infinite(pct_chg_mth1)){pct_chg_mth[is.infinite(pct_chg_mth1)] <- "Infinite"}
 
-# create summary notes
-summary <- block_list(
-  fpar(ftext(sprint_1, boldline)),
-  fpar(ftext(persons, bold),
-       (ftext(" crime(s) against persons", reg24))),
-  fpar(ftext(property, bold),
-       ftext(" crime(s) against property", reg24)),
-  fpar(ftext(society, bold),
-       ftext(" crime(s) against society", reg24)),
-  fpar(ftext(unspec, bold),
-       ftext(" unspecified crimes", reg24))
+  pct_chg_persons1 <- (persons - persons_PY)/persons_PY
+  pct_chg_persons <- percent(pct_chg_persons1)
+  if(is.nan(pct_chg_persons1)){pct_chg_persons[is.nan(pct_chg_persons1)] <- 0}
+  if(is.infinite(pct_chg_persons1)){pct_chg_persons[is.infinite(pct_chg_persons1)] <- "Infinite"}
+
+  pct_chg_society1 <- (society - society_PY)/society_PY
+  pct_chg_society <- percent(pct_chg_society1)
+  if(is.nan(pct_chg_society1)){pct_chg_society[is.nan(pct_chg_society1)] <- 0}
+  if(is.infinite(pct_chg_society1)){pct_chg_society[is.infinite(pct_chg_society1)] <- "Infinite"}
+
+  pct_chg_property1 <- (property - property_PY)/property_PY
+  pct_chg_property <- percent(pct_chg_property1)
+  if(is.nan(pct_chg_property1)){pct_chg_property[is.nan(pct_chg_property1)] <- 0}
+  if(is.infinite(pct_chg_property1)){pct_chg_property[is.infinite(pct_chg_property1)] <- "Infinite"}
+
+  pct_chg_unspec1 <- (unspec - unspec_PY)/unspec_PY
+  pct_chg_unspec <- percent(pct_chg_unspec1)
+  if(is.nan(pct_chg_unspec1)){pct_chg_unspec[is.nan(pct_chg_unspec1)] <- 0}
+  if(is.infinite(pct_chg_unspec1)){pct_chg_unspec[is.infinite(pct_chg_unspec1)] <- "Infinite"}
+
+  sprint_1 <- sprintf("%s total crimes in %s %s",
+                      tc, params$month, params$year)
+
+  # text formatting
+  color20a <- fp_text(color = ifelse(pct_chg_mth1 == 0, "#00B0F0", ifelse(pct_chg_mth < 0, "#00B050", "red")), font.size = 20)
+  color16a <- fp_text(color = ifelse(pct_chg_persons1 == 0, "#00B0F0", ifelse(pct_chg_persons < 0, "#00B050", "red")), font.size = 16)
+  color16b <- fp_text(color = ifelse(pct_chg_society1 == 0, "#00B0F0", ifelse(pct_chg_society < 0, "#00B050", "red")), font.size = 16)
+  color16c <- fp_text(color = ifelse(pct_chg_property1 == 0, "#00B0F0", ifelse(pct_chg_property < 0, "#00B050", "red")), font.size = 16)
+  color16d <- fp_text(color = ifelse(pct_chg_unspec1 == 0, "#00B0F0", ifelse(pct_chg_unspec < 0, "#00B050", "red")), font.size = 16)
+
+  # create summary notes - month comparison
+  summary <- block_list(
+    fpar(ftext(sprint_1, boldline)),
+    fpar(ftext(paste(" ", sep = ""), reg24),
+        ftext(paste(pct_chg_mth, "change ", sep = " "), color20a),
+        ftext(paste("compared to ", params$month, " ", (params$year - 1),
+              " (", tc_PY, " total crimes)", sep = ""), reg20)),
+    fpar(ftext(paste(persons, "crime(s) against persons", sep = " "), bold),
+        ftext(paste(" in", params$month, params$year, sep = " "), reg20)),
+    fpar(ftext(paste(" ", sep = ""), reg16),
+        ftext(paste(pct_chg_persons, "change", sep = " "), color16a),
+        ftext(paste(" compared to ", params$month, " ", (params$year - 1), " (", persons_PY, " crimes against persons)", sep = ""), reg16)),
+    fpar(ftext(paste(society, "crime(s) against society", sep = " "), bold),
+        ftext(paste(" in", params$month, params$year, sep = " "), reg20)),
+    fpar(ftext(paste(" ", sep = ""), reg16),
+        ftext(paste(pct_chg_society, "change", sep = " "), color16b),
+        ftext(paste(" compared to ", params$month, " ", (params$year - 1), " (", society_PY, " crimes against society)", sep = ""), reg16)),
+    fpar(ftext(paste(property, "crime(s) against propety", sep = " "), bold),
+        ftext(paste(" in", params$month, params$year, sep = " "), reg20)),
+    fpar(ftext(paste(" ", sep = ""), reg16),
+        ftext(paste(pct_chg_property, "change", sep = " "), color16c),
+        ftext(paste(" compared to ", params$month, " ", (params$year - 1), " (", property_PY, " crimes against property)", sep = ""), reg16)),
+    fpar(ftext(paste(unspec, "unspecified crime(s)", sep = " "), bold),
+        ftext(paste(" in", params$month, params$year, sep = " "), reg20)),
+    fpar(ftext(paste(" ", sep = ""), reg16),
+        ftext(paste(pct_chg_unspec, "change", sep = " "), color16d),
+        ftext(paste(" compared to ", params$month, " ", (params$year - 1), " (", unspec_PY, " unspecified crimes)", sep = ""), reg16))
+    )
+
+  # write summary notes to powerpoint slide
+  # create formatted title
+  title <- block_list(fpar(ftext(paste(nbhd, ": Month Summary Notes", sep = "")), fp_p = fp_par(text.align = "center")))
+
+    add_slide(report, layout = 'Title and Content', master = 'Facet')%>%
+    ph_with(title, location = ph_location_type(type = "title"))%>%
+    ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE,
+            level_list = c(1, 1, 2, 3, 2, 3, 2, 3, 2,3 )) -> report
+
+  # create summary notes - year to date comparison code
+  #reference columns
+  tc_ytd <- sum(temp_df[c(5:6)])
+  persons_ytd <- filter(temp_df, type == "Person")
+  persons_ytd <- sum(persons_ytd[c(5:6)])
+  society_ytd <- filter(temp_df, type == "Society")
+  society_ytd <- sum(society_ytd[c(5:6)])
+  property_ytd <- filter(temp_df, type == "Property")
+  property_ytd <- sum(property_ytd[c(5:6)])
+  unspec_ytd <- filter(temp_df, type == "Unspecified")
+  unspec_ytd <- sum(unspec_ytd[c(5:6)])
+
+  tc_ytd_PY <- sum(temp_df_PY[c(5:6)])
+  persons_ytd_PY<- filter(temp_df_PY, type == "Person")
+  persons_ytd_PY <- sum(persons_ytd_PY[c(5:6)])
+  society_ytd_PY <- filter(temp_df_PY, type == "Society")
+  society_ytd_PY <- sum(society_ytd_PY[c(5:6)])
+  property_ytd_PY <- filter(temp_df_PY, type == "Property")
+  property_ytd_PY <- sum(property_ytd_PY[c(5:6)])
+  unspec_ytd_PY <- filter(temp_df_PY, type == "Unspecified")
+  unspec_ytd_PY <- sum(unspec_ytd_PY[c(5:6)])
+
+  pct_chg_ytd1 <- (tc_ytd - tc_ytd_PY)/tc_ytd_PY
+  pct_chg_ytd <- percent(pct_chg_ytd1)
+  if(is.nan(pct_chg_ytd1)){pct_chg_ytd[is.nan(pct_chg_ytd1)] <- 0}
+  if(is.infinite(pct_chg_ytd1)){pct_chg_ytd[is.infinite(pct_chg_ytd1)] <- "Infinite"}
+
+  pct_chg_persons1 <- (persons_ytd - persons_ytd_PY)/persons_ytd_PY
+  pct_chg_persons <- percent(pct_chg_persons1)
+  if(is.nan(pct_chg_persons1)){pct_chg_persons[is.nan(pct_chg_persons1)] <- 0}
+  if(is.infinite(pct_chg_persons1)){pct_chg_persons[is.infinite(pct_chg_persons1)] <- "Infinite"}
+
+  pct_chg_society1 <- (society_ytd - society_ytd_PY)/society_ytd_PY
+  pct_chg_society <- percent(pct_chg_society1)
+  if(is.nan(pct_chg_society1)){pct_chg_society[is.nan(pct_chg_society1)] <- 0}
+  if(is.infinite(pct_chg_society1)){pct_chg_society[is.infinite(pct_chg_society1)] <- "Infinite"}
+
+  pct_chg_property1 <- (property_ytd - property_ytd_PY)/property_ytd_PY
+  pct_chg_property <- percent(pct_chg_property1)
+  if(is.nan(pct_chg_property1)){pct_chg_property[is.nan(pct_chg_property1)] <- 0}
+  if(is.infinite(pct_chg_property1)){pct_chg_property[is.infinite(pct_chg_property1)] <- "Infinite"}
+
+  pct_chg_unspec1 <- (unspec_ytd - unspec_ytd_PY)/unspec_ytd_PY
+  pct_chg_unspec <- percent(pct_chg_unspec1)
+  if(is.nan(pct_chg_unspec1)){pct_chg_unspec[is.nan(pct_chg_unspec1)] <- 0}
+  if(is.infinite(pct_chg_unspec1)){pct_chg_unspec[is.infinite(pct_chg_unspec1)] <- "Infinite"}
+
+  sprint_2 <- sprintf("%s total crimes in %s",
+  tc_ytd, params$year)
+
+  # text formatting
+  color20a <- fp_text(color = ifelse(pct_chg_ytd1 == 0, "#00B0F0", ifelse(pct_chg_ytd < 0, "#00B050", "red")), font.size = 20)
+  color16a <- fp_text(color = ifelse(pct_chg_persons1 == 0, "#00B0F0", ifelse(pct_chg_persons < 0, "#00B050", "red")), font.size = 16)
+  color16b <- fp_text(color = ifelse(pct_chg_society1 == 0, "#00B0F0", ifelse(pct_chg_society < 0, "#00B050", "red")), font.size = 16)
+  color16c <- fp_text(color = ifelse(pct_chg_property1 == 0, "#00B0F0", ifelse(pct_chg_property < 0, "#00B050", "red")), font.size = 16)
+  color16d <- fp_text(color = ifelse(pct_chg_unspec1 == 0, "#00B0F0", ifelse(pct_chg_unspec < 0, "#00B050", "red")), font.size = 16)
+
+  summary <- block_list(
+    fpar(ftext(sprint_2, boldline)),
+    fpar(ftext(paste(" ", sep = ""), reg24),
+        ftext(paste(pct_chg_ytd, "change ", sep = " "), color20a),
+        ftext(paste("compared to this time in ", (params$year - 1), " (", tc_ytd_PY, " total crimes)", sep = ""), reg20)),
+    fpar(ftext(paste(persons_ytd, "crime(s) against persons", sep = " "), bold),
+         ftext(paste(" in", params$year, sep = " "), reg20)),
+    fpar(ftext(paste(" ", sep = ""), reg16),
+         ftext(paste(pct_chg_persons, "change", sep = " "), color16a),
+         ftext(paste(" compared to this time in ", (params$year - 1), " (", persons_ytd_PY, " crimes against persons)", sep = ""), reg16)),
+    fpar(ftext(paste(society_ytd, "crime(s) against society", sep = " "), bold),
+        ftext(paste(" in", params$year, sep = " "), reg20)),
+    fpar(ftext(paste(" ", sep = ""), reg16),
+        ftext(paste(pct_chg_society, "change", sep = " "), color16b),
+        ftext(paste(" compared to this time in ", (params$year - 1), " (", society_ytd_PY, " crimes against society)", sep = ""), reg16)),
+    fpar(ftext(paste(property_ytd, "crime(s) against property", sep = " "), bold),
+         ftext(paste(" in", params$year, sep = " "), reg20)),
+    fpar(ftext(paste(" ", sep = ""), reg16),
+         ftext(paste(pct_chg_property, "change", sep = " "), color16c),
+         ftext(paste(" compared to this time in ", (params$year - 1), " (", property_ytd_PY, " crimes against property)", sep = ""), reg16)),
+    fpar(ftext(paste(unspec_ytd, "unspecified crime(s)", sep = " "), bold),
+        ftext(paste(" in", params$year, sep = " "), reg20)),
+    fpar(ftext(paste(" ", sep = ""), reg16),
+        ftext(paste(pct_chg_unspec, "change", sep = " "), color16d),
+        ftext(paste(" compared to this time in ", (params$year - 1), " (", persons_ytd_PY, " unspecified crimes)", sep = ""), reg16))
   )
 
-# write summary notes to powerpoint slide
-#create formatted title
-title <- block_list(fpar(ftext(paste(nbhd, ": Summary Notes", sep = "")), fp_p = fp_par(text.align = "center")))
+  # write summary notes to powerpoint slide
+  # create formatted title
+  title <- block_list(fpar(ftext(paste(nbhd, ": Year to Date Summary Notes", sep = "")), fp_p = fp_par(text.align = "center")))
 
-  add_slide(report, layout = 'Title and Content', master = 'Facet')%>%
-  ph_with(title, location = ph_location_type(type = "title"))%>%
-  ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE, level_list = c(1, 2, 2, 2, 2)) -> report
-
+    add_slide(report, layout = 'Title and Content', master = 'Facet')%>%
+    ph_with(title, location = ph_location_type(type = "title"))%>%
+    ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE,
+            level_list = c(1, 1, 2, 3, 2, 3, 2, 3, 2,3 )) -> report
   ###Current Year
   ###Must Change summarise every time you run code!
   ###

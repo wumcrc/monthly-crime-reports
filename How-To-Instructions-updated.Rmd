@@ -29,9 +29,18 @@ Once you have the data saved in the appropriate location, the next step is to ch
 #Step 5
 Running the data creation file will be a little tough. The city isn't very consistent with the way they report the data so running this file will require you to pay close attention to the structure of the data. Go to line 54 and run all code above this line. Next, run the following code:
 
+  base %>%
+    relocate(type, .after = last_col()) %>%
+    relocate(nbhd_num, .after = last_col()) %>%
+    relocate(nbhd_name, .after = last_col()) -> base
+  base %>%
+    relocate(type, .after = last_col()) %>%
+    relocate(nbhd_num, .after = last_col()) %>%
+    relocate(nbhd_name, .after = last_col()) -> base
+
 ```{r}
 table <- df
-neighborhood <- we
+neighborhood <- bot
 year <- params$year
 year2 <- params$year2
 ```
