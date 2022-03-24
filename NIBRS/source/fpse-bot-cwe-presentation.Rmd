@@ -253,8 +253,6 @@ color16a <- fp_text(color = ifelse(pct_chg_persons1 == 0, "#00B0F0", ifelse(pct_
 color16b <- fp_text(color = ifelse(pct_chg_society1 == 0, "#00B0F0", ifelse(pct_chg_society < 0, "#00B050", "red")), font.size = 16)
 color16c <- fp_text(color = ifelse(pct_chg_property1 == 0, "#00B0F0", ifelse(pct_chg_property < 0, "#00B050", "red")), font.size = 16)
 color16d <- fp_text(color = ifelse(pct_chg_unspec1 == 0, "#00B0F0", ifelse(pct_chg_unspec < 0, "#00B050", "red")), font.size = 16)
-#color24b <- fp_text(color = ifelse(pct_chg_ytd1 == 0, '#00B0F0', ifelse(pct_chg_ytd < 0, '#00B050', 'red')), font.size = 24)
-#color20b <- fp_text(color = ifelse(pct_chg_ytd_cap1 == 0, "#00B0F0", ifelse(pct_chg_ytd_cap < 0, "#00B050", "red")), font.size = 20)
 
 # create summary notes - month comparison
 summary <- block_list(
@@ -386,10 +384,6 @@ title <- block_list(fpar(ftext(paste(nbhd, ": Year to Date Summary Notes", sep =
   ph_with(title, location = ph_location_type(type = "title"))%>%
   ph_with(summary, location = ph_location_type(type = "body"), is_list = TRUE,
           level_list = c(1, 1, 2, 3, 2, 3, 2, 3, 2,3 )) -> report
-
-
-
-
 
 ###Current Year
 ###Must Change summarise every time you run code!
