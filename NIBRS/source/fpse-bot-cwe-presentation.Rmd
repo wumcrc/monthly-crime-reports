@@ -4,13 +4,10 @@ output: html_document
 params:
   year: 2022
   yearPY: 2021
-  month: February
-  #Month1/month2 are the first 3 letters of the  month in a given 2 month period (see https://www.slmpd.org/crime_stats.shtml)
-  month1: Feb
-  month2: Mar
-  columns: "c(5:6)"
-  #Num referes to the column of the current month. Because months come in pairs in this dataset, if the month is first (i.e. January in Jan-Feb, or March in Mar-Apr) then the num should be set to 2. If it comes second (i.e. Feb in Jan-Feb, or Apr in Mar-Apr) then num should be set to 3.
-  #num: 3
+  month: March
+  month1: Mar
+  month2: Apr
+
 ---
 #IMPORTANT
 Make sure to update line 223 before running this .Rmd. Refer to the `How-To-Instructions.Rmd` for more information.
@@ -257,7 +254,7 @@ color16d <- fp_text(color = ifelse(pct_chg_unspec1 == 0, "#00B0F0", ifelse(pct_c
 # create summary notes - month comparison
 summary <- block_list(
   fpar(ftext(sprint_1, boldline)),
-  fpar(ftext(paste(" ", sep = ""), reg24),
+  fpar(ftext(paste(" ", sep = ""), reg20),
       ftext(paste(pct_chg_mth, "change ", sep = " "), color20a),
       ftext(paste("compared to ", params$month, " ", (params$year - 1),
             " (", tc_PY, " total crimes)", sep = ""), reg20)),
@@ -294,25 +291,25 @@ title <- block_list(fpar(ftext(paste(nbhd, ": Month Summary Notes", sep = "")), 
 
 # create summary notes - year to date comparison code
 #reference columns
-tc_ytd <- sum(temp_df[c(5:6)])
+tc_ytd <- sum(temp_df[c(5:7)])
 persons_ytd <- filter(temp_df, type == "Person")
-persons_ytd <- sum(persons_ytd[c(5:6)])
+persons_ytd <- sum(persons_ytd[c(5:7)])
 society_ytd <- filter(temp_df, type == "Society")
-society_ytd <- sum(society_ytd[c(5:6)])
+society_ytd <- sum(society_ytd[c(5:7)])
 property_ytd <- filter(temp_df, type == "Property")
-property_ytd <- sum(property_ytd[c(5:6)])
+property_ytd <- sum(property_ytd[c(5:7)])
 unspec_ytd <- filter(temp_df, type == "Unspecified")
-unspec_ytd <- sum(unspec_ytd[c(5:6)])
+unspec_ytd <- sum(unspec_ytd[c(5:7)])
 
-tc_ytd_PY <- sum(temp_df_PY[c(5:6)])
+tc_ytd_PY <- sum(temp_df_PY[c(5:7)])
 persons_ytd_PY<- filter(temp_df_PY, type == "Person")
-persons_ytd_PY <- sum(persons_ytd_PY[c(5:6)])
+persons_ytd_PY <- sum(persons_ytd_PY[c(5:7)])
 society_ytd_PY <- filter(temp_df_PY, type == "Society")
-society_ytd_PY <- sum(society_ytd_PY[c(5:6)])
+society_ytd_PY <- sum(society_ytd_PY[c(5:7)])
 property_ytd_PY <- filter(temp_df_PY, type == "Property")
-property_ytd_PY <- sum(property_ytd_PY[c(5:6)])
+property_ytd_PY <- sum(property_ytd_PY[c(5:7)])
 unspec_ytd_PY <- filter(temp_df_PY, type == "Unspecified")
-unspec_ytd_PY <- sum(unspec_ytd_PY[c(5:6)])
+unspec_ytd_PY <- sum(unspec_ytd_PY[c(5:7)])
 
 pct_chg_ytd1 <- (tc_ytd - tc_ytd_PY)/tc_ytd_PY
 pct_chg_ytd <- percent(pct_chg_ytd1)
@@ -351,7 +348,7 @@ color16d <- fp_text(color = ifelse(pct_chg_unspec1 == 0, "#00B0F0", ifelse(pct_c
 
 summary <- block_list(
   fpar(ftext(sprint_2, boldline)),
-  fpar(ftext(paste(" ", sep = ""), reg24),
+  fpar(ftext(paste(" ", sep = ""), reg20),
       ftext(paste(pct_chg_ytd, "change ", sep = " "), color20a),
       ftext(paste("compared to this time in ", (params$year - 1), " (", tc_ytd_PY, " total crimes)", sep = ""), reg20)),
   fpar(ftext(paste(persons_ytd, "crime(s) against persons", sep = " "), bold),
@@ -390,7 +387,7 @@ title <- block_list(fpar(ftext(paste(nbhd, ": Year to Date Summary Notes", sep =
 ###
 overview <- temp_df%>%
   dplyr::group_by(type)%>%
-  dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb))%>%
+  dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar))%>%
   adorn_totals("row", name = "Total")%>%
   adorn_totals("col", name = "Total")%>%
   dplyr::rename("Type of Crime" = type)
@@ -408,7 +405,7 @@ flextable(overview) %>%
 ###
 overviewPY <- temp_df_PY %>%
   dplyr::group_by(type)%>%
-  dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb))%>%
+  dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar))%>%
   adorn_totals("row", name = "Total")%>%
   adorn_totals("col", name = "Total")%>%
   dplyr::rename("Type of Crime" = type)
@@ -440,7 +437,7 @@ integer_breaks <- function(n = 5, ...) {
 
 #Month by Month total crime plot
 plot_df <- temp_df%>%
-  summarise(Jan = sum(Jan), Feb = sum(Feb))
+  summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar))
 #reshape data
 plot_df <- reshape2::melt(plot_df)
 

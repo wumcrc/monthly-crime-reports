@@ -59,11 +59,9 @@ Once you have run the `data-creation.Rmd` you need to run the `fpse-bot-cwe-mc-p
           `month` should be changed to the current month
           `month1` should be set to the first three letters of the first month of the 2 month period
           `month2` should be the first three letters of the second month of the 2 month period
-          `num` Num refers to the column of the current month. Because months come in pairs in this dataset, if the month is first (i.e. January in Jan-Feb, or March in Mar-Apr) then the num should be set to 2. If it comes second (i.e. Feb in Jan-Feb, or Apr in Mar-Apr) then num should be set to 3.
-After you change all 5 params you can run this notebook. 
 
 #Step 9
-After you have updated the params, the next step is to update line 223 of the code. This line of code summarises total crimes per month but needs to be manually changed every time you run the code. All you need to do is append the current month of evaluation to the line of code. say, we are running the code for July (which is in the Jul-Aug period). Line 223 (before we change it) will look as follows:
+After you have updated the params, the next step is to change the summary notes to create the year to date comparison where the columns are referenced. Unfortunately we can't use a parameter to refer to columns so each month you will need to change the numbers in lines 297 through 315 in the `fpse-bot-cwe-mc-presentation.Rmd` file to 5 in January, 5:6 in February, 5:7 in March, 5:8 in April and so on.  After you've changed these lines the next line of code you'll need to change line of code summarises total crimes per month. All you need to do is append the current month of evaluation to the line of code. say, we are running the code for July (which is in the Jul-Aug period). Line 393, 411, and 443 (before we change it) will look as follows:
 
               dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun))%>%
               
@@ -71,7 +69,7 @@ All you have to do is add:
             
               Jul = sum(Jul)
               
-After the last month that is there. The final code for line 223 for the month of July will look as follows:
+After the last month that is there. The final code for lines 393, 411, and 443 for the month of July will look as follows:
 
               dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun), Jul = sum(Jul))%>%
 
@@ -80,10 +78,10 @@ When we want to run the next month, August, we want to make sure that all preced
               dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar), Apr = sum(Apr), May = sum(May), Jun = sum(Jun), Jul = sum(Jul), Aug = sum(Aug))%>%
 
 #Step 10
-Once you have updated line 223 of `fpse-bot-cwe-mc-presentation.Rmd` you can run the code!
+Once you have updated line 393, 411, and 443 of `fpse-bot-cwe-mc-presentation.Rmd` you can run the code!
 
 #Step 11
-Now that you have run the `fpse-bot-cwe-mc-presentation.Rmd` you can repeat steps 3-5 for the `sdb-dbp-we-vp-presentation.Rmd` and `ac-fp-lp-vd-presentation.Rmd`. The only difference is that the line of code to manually change will be 214 instead of 223! It is not important which one you run first, just be sure to change the params and line 214! They are the exact same as the params for the `fpse-bot-cwe-mc-presenation.Rmd`. 
+Now that you have run the `fpse-bot-cwe-mc-presentation.Rmd` you can repeat steps 3-5 for the `sdb-dbp-we-vp-presentation.Rmd` and `ac-fp-lp-vd-presentation.Rmd`. The only difference is that the line of code to manually change will be earlier than when it was changed in the `fpse-bot-cwe-mc-presentation.Rmd`! It is not important which one you run first, just be sure to change the params and line 214! They are the exact same as the params for the `fpse-bot-cwe-mc-presenation.Rmd`. 
 
 #Step 12
 CHECK THE FINAL RESULT! Make sure that the presentations look accurate. The most common mistake I have made is not changing the params, which results in an empty looking presentation because the data is wrong. So always make sure to check the final products!
