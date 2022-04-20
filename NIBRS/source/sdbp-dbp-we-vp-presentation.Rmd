@@ -3,12 +3,10 @@ title: "NIBRS-crime-report"
 output: html_document
 params:
   year: 2022
-  month: February
-  #Month1/month2 are the first 3 letters of the  month in a given 2 month period (see https://www.slmpd.org/crime_stats.shtml)
-  month1: Feb
-  month2: Mar
-  #Num referes to the column of the current month. Because months come in pairs in this dataset, if the month is first (i.e. January in Jan-Feb, or March in Mar-Apr) then the num should be set to 2. If it comes second (i.e. Feb in Jan-Feb, or Apr in Mar-Apr) then num should be set to 3.
-  #num: 3
+  yearPY: 2021
+  month: March
+  month1: Mar
+  month2: Apr
 ---
 #IMPORTANT
 Make sure to update line 214 before running this .Rmd. Refer to the `How-To-Instructions.Rmd` for more information.
@@ -29,6 +27,7 @@ library(customLayout) #powerpoint formatting
 library(grid)         #inset map
 library(ggplot2)      #data visualization
 library(docxtractr)   #convert pptx to pdf
+library(scales)       #functions for visualization
 
 #spatial packages
 library(sf)           #tools for manipulating spatial data
@@ -56,8 +55,9 @@ report <- read_pptx(here::here("NIBRS", "data", "template.pptx"))
 
 ```{r}
 # summary note colors
-reg24 <- fp_text(color = 'black', font.size = 24)
-bold <- fp_text(color = "black", font.size = 24, bold = TRUE)
+reg20 <- fp_text(color = 'black', font.size = 20)
+reg16 <- fp_text(color = 'black', font.size = 16)
+bold <- fp_text(color = "black", font.size = 20, bold = TRUE)
 boldline <- fp_text(color = "black", font.size = 28, bold = TRUE, underlined = TRUE)
 # for loop objects
 type <- c("Property", "Society", "Person", "Unspecified")
@@ -136,6 +136,7 @@ str_crop <- st_crop(streets, bb)
 for (i in neighborhood) {
   #create neighborhood data
   temp_df <- filter(base, nbhd_num == i)
+  temp_df_PY <- filter(basePY, nbhd_num == i)
   nbhd <- unique(temp_df$nbhd_name)
 
 bound%>%
@@ -243,7 +244,7 @@ add_slide(report, layout = "Title and Content", master = "Facet")%>%
   # create summary notes - month comparison
   summary <- block_list(
     fpar(ftext(sprint_1, boldline)),
-    fpar(ftext(paste(" ", sep = ""), reg24),
+    fpar(ftext(paste(" ", sep = ""), reg20),
         ftext(paste(pct_chg_mth, "change ", sep = " "), color20a),
         ftext(paste("compared to ", params$month, " ", (params$year - 1),
               " (", tc_PY, " total crimes)", sep = ""), reg20)),
@@ -280,25 +281,25 @@ add_slide(report, layout = "Title and Content", master = "Facet")%>%
 
   # create summary notes - year to date comparison code
   #reference columns
-  tc_ytd <- sum(temp_df[c(5:6)])
+  tc_ytd <- sum(temp_df[c(5:7)])
   persons_ytd <- filter(temp_df, type == "Person")
-  persons_ytd <- sum(persons_ytd[c(5:6)])
+  persons_ytd <- sum(persons_ytd[c(5:7)])
   society_ytd <- filter(temp_df, type == "Society")
-  society_ytd <- sum(society_ytd[c(5:6)])
+  society_ytd <- sum(society_ytd[c(5:7)])
   property_ytd <- filter(temp_df, type == "Property")
-  property_ytd <- sum(property_ytd[c(5:6)])
+  property_ytd <- sum(property_ytd[c(5:7)])
   unspec_ytd <- filter(temp_df, type == "Unspecified")
-  unspec_ytd <- sum(unspec_ytd[c(5:6)])
+  unspec_ytd <- sum(unspec_ytd[c(5:7)])
 
-  tc_ytd_PY <- sum(temp_df_PY[c(5:6)])
+  tc_ytd_PY <- sum(temp_df_PY[c(5:7)])
   persons_ytd_PY<- filter(temp_df_PY, type == "Person")
-  persons_ytd_PY <- sum(persons_ytd_PY[c(5:6)])
+  persons_ytd_PY <- sum(persons_ytd_PY[c(5:7)])
   society_ytd_PY <- filter(temp_df_PY, type == "Society")
-  society_ytd_PY <- sum(society_ytd_PY[c(5:6)])
+  society_ytd_PY <- sum(society_ytd_PY[c(5:7)])
   property_ytd_PY <- filter(temp_df_PY, type == "Property")
-  property_ytd_PY <- sum(property_ytd_PY[c(5:6)])
+  property_ytd_PY <- sum(property_ytd_PY[c(5:7)])
   unspec_ytd_PY <- filter(temp_df_PY, type == "Unspecified")
-  unspec_ytd_PY <- sum(unspec_ytd_PY[c(5:6)])
+  unspec_ytd_PY <- sum(unspec_ytd_PY[c(5:7)])
 
   pct_chg_ytd1 <- (tc_ytd - tc_ytd_PY)/tc_ytd_PY
   pct_chg_ytd <- percent(pct_chg_ytd1)
@@ -337,7 +338,7 @@ add_slide(report, layout = "Title and Content", master = "Facet")%>%
 
   summary <- block_list(
     fpar(ftext(sprint_2, boldline)),
-    fpar(ftext(paste(" ", sep = ""), reg24),
+    fpar(ftext(paste(" ", sep = ""), reg20),
         ftext(paste(pct_chg_ytd, "change ", sep = " "), color20a),
         ftext(paste("compared to this time in ", (params$year - 1), " (", tc_ytd_PY, " total crimes)", sep = ""), reg20)),
     fpar(ftext(paste(persons_ytd, "crime(s) against persons", sep = " "), bold),
@@ -376,7 +377,7 @@ add_slide(report, layout = "Title and Content", master = "Facet")%>%
   ###
   overview <- temp_df%>%
     dplyr::group_by(type)%>%
-    dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb))%>%
+    dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar))%>%
     adorn_totals("row", name = "Total")%>%
     adorn_totals(., "col", name = "Total") %>%
     dplyr::rename("Type of Crime" = type)
@@ -394,7 +395,7 @@ add_slide(report, layout = "Title and Content", master = "Facet")%>%
   ###
   overviewPY <- temp_df_PY %>%
     dplyr::group_by(type)%>%
-    dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb))%>%
+    dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar))%>%
     adorn_totals("row", name = "Total")%>%
     adorn_totals(., "col", name = "Total") %>%
     dplyr::rename("Type of Crime" = type)
@@ -426,7 +427,7 @@ integer_breaks <- function(n = 5, ...) {
 
 #Month by Month total crime plot
 plot_df <- temp_df%>%
-  summarise(Jan = sum(Jan), Feb = sum(Feb))
+  dplyr::summarise(Jan = sum(Jan), Feb = sum(Feb), Mar = sum(Mar))
 #reshape data
 plot_df <- reshape2::melt(plot_df)
 
